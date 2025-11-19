@@ -32,4 +32,24 @@ export async function runHeightmapTests() {
   const heightScale = 300; // meters
   const elevation = getElevation(1, 1, heightmapData, heightScale, mapSize, resolution);
   assertApprox(elevation, heightScale, 0.0001, 'getElevation at center should equal heightScale');
+
+  // Test Uint16Array compatibility
+  // Convert regular array to Uint16Array
+  const typedHeightmapData = new Uint16Array(heightmapData);
+  
+  // Test that bilinear interpolation works the same with typed array
+  const typedValueCenter = bilinearInterpolation(typedHeightmapData, 1, 1, width, height);
+  assert.strictEqual(Math.round(typedValueCenter), centerMax, 'Uint16Array center value should match');
+  
+  const typedValueFraction = bilinearInterpolation(typedHeightmapData, 1.5, 1.5, width, height);
+  assertApprox(typedValueFraction, 16383.75, 1, `Uint16Array fractional interpolation: ${typedValueFraction}`);
+  
+  // Test that getElevation works the same with typed array
+  const typedElevation = getElevation(1, 1, typedHeightmapData, heightScale, mapSize, resolution);
+  assertApprox(typedElevation, heightScale, 0.0001, 'Uint16Array getElevation should match');
+  
+  // Verify exact equivalence between regular array and typed array results
+  assert.strictEqual(valueCenter, typedValueCenter, 'Regular and typed array center values must be identical');
+  assert.strictEqual(valueFraction, typedValueFraction, 'Regular and typed array fractional values must be identical');
+  assert.strictEqual(elevation, typedElevation, 'Regular and typed array elevations must be identical');
 }
