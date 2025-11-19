@@ -8,7 +8,7 @@ The system SHALL automatically detect Project Reality: BF2 installation at stand
 
 #### Scenario: Standard installation found
 - **WHEN** script is run without arguments on system with PR:BF2 at `C:\Program Files (x86)\Project Reality\Project Reality BF2`
-- **THEN** installation is detected and `/levels/` directory is scanned for maps
+- **THEN** installation is detected and `/mods/pr/levels/` directory is scanned for maps
 
 #### Scenario: Custom path provided
 - **WHEN** script is run with `--path "D:\Games\PR"` argument
@@ -24,7 +24,7 @@ The system SHALL automatically detect Project Reality: BF2 installation at stand
 The system SHALL validate each server.zip file for integrity and required content before processing.
 
 #### Scenario: Valid server.zip
-- **WHEN** server.zip is well-formed zip file containing HeightmapPrimary.raw
+- **WHEN** server.zip is well-formed zip file containing heightmapprimary.raw (case-insensitive)
 - **THEN** validation passes and file is queued for processing
 
 #### Scenario: Corrupted zip file
@@ -33,8 +33,8 @@ The system SHALL validate each server.zip file for integrity and required conten
 - **AND** map is skipped and error is logged
 
 #### Scenario: Missing heightmap
-- **WHEN** server.zip is valid but does not contain HeightmapPrimary.raw
-- **THEN** validation fails with error "Missing HeightmapPrimary.raw"
+- **WHEN** server.zip is valid but does not contain heightmapprimary.raw (case-insensitive)
+- **THEN** validation fails with error "Missing heightmapprimary.raw"
 - **AND** map is skipped and error is logged
 
 ### Requirement: MD5 Checksum Duplicate Detection
@@ -94,21 +94,21 @@ The system SHALL automatically configure Git LFS if total collected file size ex
 
 ### Requirement: 16-bit RAW Heightmap Extraction
 
-The system SHALL extract HeightmapPrimary.raw from server.zip and parse as 16-bit little-endian unsigned integer array.
+The system SHALL extract heightmapprimary.raw (case-insensitive) from server.zip and parse as 16-bit little-endian unsigned integer array.
 
 #### Scenario: Standard 2km map
-- **WHEN** HeightmapPrimary.raw is extracted from 2km map server.zip
+- **WHEN** heightmapprimary.raw is extracted from 2km map server.zip
 - **THEN** raw bytes are parsed as little-endian uint16 (`<u2` dtype in NumPy)
 - **AND** array is reshaped to 1025×1025 resolution (including +1 border)
 - **AND** values range from 0 to 65535
 
 #### Scenario: Large 4km map
-- **WHEN** HeightmapPrimary.raw is extracted from 4km map server.zip
+- **WHEN** heightmapprimary.raw is extracted from 4km map server.zip
 - **THEN** array is reshaped to 2049×2049 resolution
 - **AND** +1 border is preserved for engine compatibility
 
 #### Scenario: Corrupted heightmap
-- **WHEN** HeightmapPrimary.raw cannot be parsed or has unexpected size
+- **WHEN** heightmapprimary.raw cannot be parsed or has unexpected size
 - **THEN** error "Failed to extract heightmap" is raised
 - **AND** map processing is skipped
 
