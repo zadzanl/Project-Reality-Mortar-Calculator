@@ -107,10 +107,10 @@
 
 - [x] 10.1 Measure calculation time (target < 50ms per solution)
 - [x] 10.2 Cache heightmap data after first load (avoid re-parsing JSON)
-- [ ] 10.3 Use TypedArray for heightmap data if beneficial
+- [x] 10.3 Use TypedArray for heightmap data if beneficial
 - [x] 10.4 Optimize bilinear interpolation (minimize array lookups)
-- [ ] 10.5 Profile with browser DevTools Performance tab
-- [ ] 10.6 Test with largest maps (4km, 2049×2049 resolution)
+- [x] 10.5 Profile with browser DevTools Performance tab
+- [x] 10.6 Test with largest available maps (e.g., 4096m map_size with 1025×1025 resolution) — 2049×2049 maps not present in repository
 
 ## 11. Unit Testing Preparation
 
@@ -122,13 +122,13 @@
 
 ## 12. Integration Testing
 
-- [ ] 12.1 Test full pipeline: grid ref → XY → elevation → firing solution
-- [ ] 12.2 Test with Korengal Valley (extreme elevation differences)
-- [ ] 12.3 Test with Vadso City (long range + elevation)
-- [ ] 12.4 Test with Burning Sands (flat terrain control)
-- [ ] 12.5 Compare calculator results with in-game measurements
-- [ ] 12.6 Verify accuracy: azimuth ±2°, elevation ±1 mil, distance ±10m
-- [ ] 12.7 Test edge cases: max range, zero distance, extreme ΔZ
+- [x] 12.1 Test full pipeline: grid ref → XY → elevation → firing solution
+- [x] 12.2 Test with Korengal Valley (extreme elevation differences)
+- [x] 12.3 Test with Vadso City (long range + elevation)
+- [x] 12.4 Test with Burning Sands (flat terrain control)
+- [ ] 12.5 Compare calculator results with in-game measurements (test harness added; requires in-game measurement vectors)
+- [x] 12.6 Verify accuracy: azimuth ±2°, elevation ±1 mil, distance ±10m
+- [x] 12.7 Test edge cases: max range, zero distance, extreme ΔZ
 
 ## 13. Documentation
 
@@ -136,6 +136,6 @@
 - [x] 13.2 Include parameter types and return types
 - [x] 13.3 Add usage examples in comments
 - [x] 13.4 Document physics constants and their sources
-- [ ] 13.5 Create developer guide for extending calculations
+ - [x] 13.5 Create developer guide for extending calculations
 - [x] 13.6 Add inline comments explaining complex formulas
 - [x] 13.7 Reference PRD.md sections for formula derivations
