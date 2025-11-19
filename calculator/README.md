@@ -2,17 +2,63 @@
 
 This directory contains the web-based calculator interface and JavaScript modules for ballistics calculations.
 
+## Quick Start
+
+**From the project root directory, run:**
+
+Windows:
+```bash
+run.bat
+```
+
+Linux/Mac:
+```bash
+./run.sh
+```
+
+The calculator will open automatically in your browser at `http://localhost:8080`
+
 ## Directory Structure
 
 ```
 calculator/
 ├── static/
-│   └── js/
-│       ├── ballistics.js    # Core ballistics calculations
-│       ├── coordinates.js   # Grid reference ↔ XY conversion
-│       └── heightmap.js     # Terrain height sampling
-├── index.html               # Main UI (to be implemented)
-└── server.py                # Flask static file server (to be implemented)
+│   ├── js/
+│   │   ├── app.js           # Main application orchestrator
+│   │   ├── ballistics.js    # Core ballistics calculations
+│   │   ├── coordinates.js   # Grid reference ↔ XY conversion
+│   │   └── heightmap.js     # Terrain height sampling
+│   ├── css/
+│   │   └── styles.css       # Application styles (BEM naming)
+│   └── lib/
+│       ├── leaflet.js       # Leaflet 1.9.4 (bundled)
+│       ├── leaflet.css      # Leaflet styles
+│       └── images/          # Leaflet marker assets
+├── templates/
+│   └── index.html           # Main UI template
+└── server.py                # Flask static file server
+```
+
+## Flask Server
+
+The Flask server (`server.py`) serves static files only. All calculations happen in the browser.
+
+**Features:**
+- Auto-detects available port (8080-8089)
+- Opens browser automatically
+- Serves HTML, CSS, JavaScript, and JSON map data
+- Graceful shutdown with Ctrl+C
+- No external dependencies required
+
+**Routes:**
+- `/` - Main calculator page
+- `/static/<path>` - Static assets (CSS, JS, images)
+- `/maps/<map_name>/<file>` - Map data (heightmap.json, metadata.json)
+- `/maps/list` - JSON list of available maps
+
+**Starting Manually:**
+```bash
+python calculator/server.py
 ```
 
 ## JavaScript Modules
