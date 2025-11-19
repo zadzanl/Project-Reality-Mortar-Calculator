@@ -1,4 +1,8 @@
-# Proposal: Map Processing Pipeline
+# Archived Proposal: Map Processing Pipeline
+
+> Status: ARCHIVED (Completed)
+> Archived on: 2025-11-19
+> Archived file: openspec/changes/archive/add-map-processing-pipeline-archived-2025-11-19.md
 
 ## Why
 
@@ -16,8 +20,8 @@ Right now, we have no system to do this.
 
 - **Phase 1 - Local Collection Script** (`processor/collect_maps.py`):
   - Find PR:BF2 game installation on your computer
-  - Search `/levels/` folder for map files named `server.zip`
-  - Check each server.zip file (make sure it is not broken and contains HeightmapPrimary.raw)
+  - Search `/mods/pr/levels/` folder for map files named `server.zip`
+  - Check each server.zip file (make sure it is not broken and contains heightmapprimary.raw, case-insensitive)
   - Calculate file fingerprints to find duplicate files and detect changes
   - Copy good files to `/raw_map_data/[map_name]/` folder
   - Create `manifest.json` list file showing all collected maps
@@ -27,7 +31,7 @@ Right now, we have no system to do this.
 - **Phase 2 - Cloud Processing Notebook** (`processor/process_maps.ipynb`):
   - Jupyter notebook (runs in Google Colab or on your computer)
   - Read the manifest list and find all server.zip files in `/raw_map_data/`
-  - Extract HeightmapPrimary.raw (height data file) from each zip
+  - Extract heightmapprimary.raw (height data file) from each zip (case-insensitive)
   - Read map settings files (init.con has map size, terrain.con has height scale)
   - Convert height data to JSON format (no data loss, works in web browsers)
   - Calculate grid size based on map size (PR uses 13×13 grid)
