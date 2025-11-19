@@ -31,7 +31,7 @@ const metadataCache = new Map();
 /**
  * Load heightmap data from JSON file.
  * 
- * Fetches heightmap.json from /processed_maps/[mapName]/ directory.
+ * Fetches heightmap.json from /maps/[mapName]/ directory (served by Flask).
  * Results are cached to avoid redundant network requests.
  * 
  * Performance optimization: Converts the data array to Uint16Array for:
@@ -61,7 +61,7 @@ export async function loadHeightmap(mapName) {
   }
   
   try {
-    const url = `/processed_maps/${mapName}/heightmap.json`;
+    const url = `/maps/${mapName}/heightmap.json`;
     const response = await fetch(url);
     
     if (!response.ok) {
@@ -123,7 +123,7 @@ export async function loadMetadata(mapName) {
   }
   
   try {
-    const url = `/processed_maps/${mapName}/metadata.json`;
+    const url = `/maps/${mapName}/metadata.json`;
     const response = await fetch(url);
     
     if (!response.ok) {

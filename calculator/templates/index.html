@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Reality Mortar Calculator</title>
+  
+  <!-- Favicon (local SVG fallback) -->
+  <link rel="icon" href="/favicon.ico" type="image/svg+xml">
+  <!-- Leaflet CSS (bundled locally) -->
+  <link rel="stylesheet" href="/static/lib/leaflet.css">
+  
+  <!-- Application CSS -->
+  <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+  <div class="calculator">
+    <!-- Header -->
+    <header class="calculator__header">
+      <h1 class="calculator__title">PROJECT REALITY MORTAR CALCULATOR</h1>
+      <div class="calculator__map-selector">
+        <label for="map-dropdown">Map:</label>
+        <select id="map-dropdown" class="calculator__dropdown">
+          <option value="">Loading maps...</option>
+        </select>
+        <button id="load-map-btn" class="calculator__button calculator__button--primary" disabled>
+          Load Map
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="calculator__content">
+      <!-- Left Panel: Inputs -->
+      <aside class="calculator__panel calculator__panel--inputs">
+        <h2 class="calculator__panel-title">Coordinates</h2>
+        
+        <!-- Mortar Position -->
+        <section class="calculator__section">
+          <h3 class="calculator__section-title">Mortar Position</h3>
+          
+          <div class="calculator__input-group">
+            <label for="mortar-column">Column:</label>
+            <select id="mortar-column" class="calculator__dropdown calculator__dropdown--small">
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
+              <option value="D" selected>D</option>
+              <option value="E">E</option>
+              <option value="F">F</option>
+              <option value="G">G</option>
+              <option value="H">H</option>
+              <option value="I">I</option>
+              <option value="J">J</option>
+              <option value="K">K</option>
+              <option value="L">L</option>
+              <option value="M">M</option>
+            </select>
+          </div>
+          
+          <div class="calculator__input-group">
+            <label for="mortar-row">Row:</label>
+            <select id="mortar-row" class="calculator__dropdown calculator__dropdown--small">
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6" selected>6</option>
+              <option value="7">7</option>
+              <option value="8">8</option>
+              <option value="9">9</option>
+              <option value="10">10</option>
+              <option value="11">11</option>
+              <option value="12">12</option>
+              <option value="13">13</option>
+            </select>
+          </div>
+          
+          <div class="calculator__input-group">
+            <label for="mortar-keypad">Keypad:</label>
+            <select id="mortar-keypad" class="calculator__dropdown calculator__dropdown--small">
+              <option value="7" selected>7 (Top-Left)</option>
+              <option value="8">8 (Top)</option>
+              <option value="9">9 (Top-Right)</option>
+              <option value="4">4 (Left)</option>
+              <option value="5">5 (Center)</option>
+              <option value="6">6 (Right)</option>
+              <option value="1">1 (Bottom-Left)</option>
+              <option value="2">2 (Bottom)</option>
+              <option value="3">3 (Bottom-Right)</option>
+            </select>
+          </div>
+          
+          <div class="calculator__info">
+            <div class="calculator__info-item">
+              <span class="calculator__info-label">Grid:</span>
+              <span id="mortar-grid-display" class="calculator__info-value">D 6-7</span>
+            </div>
+            <div class="calculator__info-item">
+              <span class="calculator__info-label">Elevation:</span>
+              <span id="mortar-elevation-display" class="calculator__info-value">--</span>
+            </div>
+          </div>
+        </section>
+        
+        <!-- Target Position -->
+        <section class="calculator__section">
+          <h3 class="calculator__section-title">Target Position</h3>
+          
+          <div class="calculator__input-group">
+            <label for="target-column">Column:</label>
+            <select id="target-column" class="calculator__dropdown calculator__dropdown--small">
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C" selected>C</option>
+              <option value="D">D</option>
+              <option value="E">E</option>
+              <option value="F">F</option>
+              <option value="G">G</option>
+              <option value="H">H</option>
+              <option value="I">I</option>
+              <option value="J">J</option>
+              <option value="K">K</option>
+              <option value="L">L</option>
+              <option value="M">M</option>
+            </select>
+          </div>
+          
+          <div class="calculator__input-group">
+            <label for="target-row">Row:</label>
+            <select id="target-row" class="calculator__dropdown calculator__dropdown--small">
+              <option value="1">1</option>
+              <option value="2" selected>2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+              <option value="8">8</option>
+              <option value="9">9</option>
+              <option value="10">10</option>
+              <option value="11">11</option>
+              <option value="12">12</option>
+              <option value="13">13</option>
+            </select>
+          </div>
+          
+          <div class="calculator__input-group">
+            <label for="target-keypad">Keypad:</label>
+            <select id="target-keypad" class="calculator__dropdown calculator__dropdown--small">
+              <option value="7">7 (Top-Left)</option>
+              <option value="8">8 (Top)</option>
+              <option value="9">9 (Top-Right)</option>
+              <option value="4">4 (Left)</option>
+              <option value="5">5 (Center)</option>
+              <option value="6">6 (Right)</option>
+              <option value="1">1 (Bottom-Left)</option>
+              <option value="2">2 (Bottom)</option>
+              <option value="3" selected>3 (Bottom-Right)</option>
+            </select>
+          </div>
+          
+          <div class="calculator__info">
+            <div class="calculator__info-item">
+              <span class="calculator__info-label">Grid:</span>
+              <span id="target-grid-display" class="calculator__info-value">C 2-3</span>
+            </div>
+            <div class="calculator__info-item">
+              <span class="calculator__info-label">Elevation:</span>
+              <span id="target-elevation-display" class="calculator__info-value">--</span>
+            </div>
+          </div>
+        </section>
+        
+        <!-- Calculate Button -->
+        <button id="calculate-btn" class="calculator__button calculator__button--calculate" disabled>
+          Calculate Firing Solution
+        </button>
+      </aside>
+
+      <!-- Center Panel: Map -->
+      <section class="calculator__panel calculator__panel--map">
+        <div id="map" class="calculator__map"></div>
+        <div id="map-loading" class="calculator__map-loading">
+          <p>Select a map and click "Load Map" to begin</p>
+        </div>
+      </section>
+
+      <!-- Right Panel: Results -->
+      <aside class="calculator__panel calculator__panel--results">
+        <h2 class="calculator__panel-title">Firing Solution</h2>
+        
+        <div id="results-content" class="calculator__results">
+          <div class="calculator__result-item">
+            <span class="calculator__result-label">Distance:</span>
+            <span id="result-distance" class="calculator__result-value">--</span>
+          </div>
+          
+          <div class="calculator__result-item">
+            <span class="calculator__result-label">Azimuth:</span>
+            <span id="result-azimuth" class="calculator__result-value">--</span>
+          </div>
+          
+          <div class="calculator__result-item">
+            <span class="calculator__result-label">Height Δ:</span>
+            <span id="result-height-delta" class="calculator__result-value">--</span>
+          </div>
+          
+          <div class="calculator__result-elevation">
+            <h3 class="calculator__result-elevation-title">ELEVATION</h3>
+            <div class="calculator__result-elevation-value">
+              <span id="result-elevation-mils" class="calculator__result-elevation-mils">----</span>
+              <span class="calculator__result-elevation-unit">mils</span>
+            </div>
+            <div class="calculator__result-elevation-secondary">
+              <span id="result-elevation-degrees">--</span>°
+            </div>
+          </div>
+          
+          <div class="calculator__result-item">
+            <span class="calculator__result-label">Time of Flight:</span>
+            <span id="result-tof" class="calculator__result-value">--</span>
+          </div>
+          
+          <div id="result-status" class="calculator__result-status calculator__result-status--ready">
+            Ready to calculate
+          </div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <!-- Leaflet JS (bundled locally) -->
+  <script src="/static/lib/leaflet.js"></script>
+  
+  <!-- Application JavaScript Modules -->
+  <script type="module" src="/static/js/app.js"></script>
+</body>
+</html>
