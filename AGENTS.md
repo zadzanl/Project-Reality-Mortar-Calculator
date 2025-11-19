@@ -3,10 +3,10 @@
 
 These instructions are for AI assistants working in this project.
 
-Always open `@/openspec/AGENTS.md` when the request:
-- Mentions planning or proposals (words like proposal, spec, change, plan)
-- Introduces new capabilities, breaking changes, architecture shifts, or big performance/security work
-- Sounds ambiguous and you need the authoritative spec before coding
+Always open `@/openspec/AGENTS.md` when the user says:
+- Words like: "proposal", "spec", "change", "plan"
+- "Add a new feature" or "Change how something works"
+- The request is unclear and you need to check the rules before writing code
 
 Use `@/openspec/AGENTS.md` to learn:
 - How to create and apply change proposals
@@ -25,23 +25,23 @@ Keep this managed block so 'openspec update' can refresh the instructions.
 
 **Read these files in this exact order:**
 
-1. **`PRD.md`** - Product Requirements Document
-   - This file tells you WHAT to build
-   - Contains all requirements and rules
-   - Has exact formulas and numbers you MUST use
-   - **IF PRD.md CONFLICTS WITH OTHER DOCUMENTS: PRD.md IS ALWAYS CORRECT**
-   - Do NOT change ANY physics values in this file
+1. **`PRD.md`** - This tells you WHAT to build
+   - Read this file FIRST
+   - Contains ALL requirements
+   - Has exact formulas and numbers - copy them exactly
+   - **IMPORTANT: If PRD.md says something different than other files, PRD.md is correct**
+   - Do NOT change the physics numbers (gravity = 14.86, speed = 148.64)
 
-2. **`openspec/project.md`** - Project setup guide
-   - This file tells you HOW to build
-   - Explains which tools to use (Flask, Leaflet.js, JavaScript)
-   - Shows code style rules (how to name things, how to format code)
-   - Explains Project Reality game concepts (grid system, coordinates)
+2. **`openspec/project.md`** - This tells you HOW to build
+   - Read this file SECOND
+   - Lists which programming tools to use
+   - Shows how to name variables and format code
+   - Explains Project Reality game rules
 
-3. **`openspec/AGENTS.md`** - Workflow guide
-   - This file tells you WHEN to create proposals
-   - Only read this when adding NEW features
-   - NOT needed for fixing bugs
+3. **`openspec/AGENTS.md`** - This tells you WHEN to write proposals
+   - Read this file THIRD
+   - Only needed when adding NEW features
+   - Skip this when fixing bugs
 
 ### Critical Rules (DO NOT BREAK THESE)
 
@@ -144,19 +144,76 @@ elevation_in_meters = (pixel_value / 65535.0) * height_scale
 **Step 4: Decide if you need a proposal**
 - Read the section below: "When to Write a Proposal"
 
+### Map Processing Workflow (Maintainer Only)
+
+**Map processing has two phases:**
+
+**Phase 1 - Collect Files** (file: `collect_maps.py`):
+
+Where: Computer with Project Reality game installed
+
+Steps:
+1. Find server.zip files in game folder
+2. Check each file is not corrupted (using checksums)
+3. Copy files to `/raw_map_data/` folder
+4. Create manifest.json (list of all maps)
+5. Set up Git LFS if files are big
+6. Maintainer uploads to GitHub
+
+**Phase 2 - Convert Files** (file: `process_maps.ipynb`):
+
+Where: Google Colab or local Jupyter (game NOT required)
+
+Steps:
+1. Read server.zip files from `/raw_map_data/`
+2. Extract heightmap images
+3. Convert images to JSON format
+4. Save to `/processed_maps/` folder
+5. Automatically upload to GitHub
+6. Need: Git name, email, and token
+
+**Important: End users do NOT run these scripts.** Pre-processed maps are already in the repository.
+
+**Rules when working on map processing:**
+
+DO:
+- Write collection code in `collect_maps.py` only
+- Write conversion code in `process_maps.ipynb` only
+- Keep Phase 1 and Phase 2 separate
+
+DO NOT:
+- Change files in `/raw_map_data/` folder (these are originals)
+- Mix collection code with conversion code
+- Make Phase 2 depend on Phase 1 directly
+
 ### When to Write a Proposal (vs. Just Fix It)
 
-**Write a proposal document BEFORE coding if:**
-- Adding a NEW feature (example: add save/load buttons)
-- Changing how coordinates work (breaking change)
-- Switching to different libraries (example: replace Leaflet with something else)
-- Adding a database or API server
+**WRITE A PROPOSAL FIRST if you are:**
 
-**Just fix it directly (NO proposal needed) if:**
-- Fixing a bug (making it work like PRD.md says)
-- Improving code formatting or adding comments
-- Updating documentation files
-- Making code faster WITHOUT changing what it does
+Adding something new:
+- Example: "Add save/load buttons"
+- Example: "Add 3D map view"
+- Example: "Add database to store settings"
+
+Changing how something works:
+- Example: "Change coordinate system from grid to GPS"
+- Example: "Replace Leaflet.js with different map library"
+- Example: "Change gravity from 14.86 to different number" (but DON'T do this!)
+
+**JUST FIX IT (no proposal) if you are:**
+
+Fixing errors:
+- Example: "Calculator shows wrong answer - fix the math"
+- Example: "Button doesn't work - fix the click handler"
+
+Cleaning up code:
+- Example: "Add code comments to explain formulas"
+- Example: "Rename variables to be clearer"
+- Example: "Fix indentation and spacing"
+
+Updating text files:
+- Example: "Fix typo in README"
+- Example: "Update instructions in PRD.md"
 
 ---
 

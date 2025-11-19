@@ -145,23 +145,53 @@ Create a **localhost web-based mortar calculator** for Project Reality: BF2 that
 
 ### 1. Map Processing (Python Backend - Part A: The Processor)
 
-**Requirement 1.1:** Automatic Game Installation Detection
+**Requirement 1.1:** Local Map Collection Script (`collect_maps.py`)
 
 - **Must** search standard PR installation paths:
     - `C:\Program Files (x86)\Project Reality\Project Reality BF2`
     - `D:\Games\Project Reality\Project Reality BF2`
-    - User-specified custom path via configuration file
+    - User-specified custom path via command-line argument or interactive prompt
 - **Must** detect `/levels/` directory containing map folders
+- **Must** copy `server.zip` files from each map folder to `/raw_map_data/[map_name]/`
+- **Must** validate each server.zip file:
+    - Calculate MD5 checksum
+    - Verify zip file integrity (can be opened)
+    - Confirm contains `HeightmapPrimary.raw`
+- **Must** handle duplicates/updates:
+    - Compare MD5 checksums with existing files
+    - Skip if identical, update if different (version tracking in manifest)
+- **Must** generate `manifest.json`:
+    - **What is a manifest:** A list of all the map files you collected
+    - **What information to save:**
+      - Map name (example: "muttrah_city_2")
+      - MD5 checksum (a unique fingerprint to detect duplicates)
+      - File size in bytes (example: 5242880 = 5MB)
+      - When you collected it (example: "2025-01-15 14:30:00")
+      - Where you found it (example: "C:/Program Files/Project Reality/levels/muttrah_city_2")
+- **Must** configure Git LFS automatically:
+    - **What is Git LFS:** A tool to store large files outside the main Git repository
+    - **When to use it:** If total size of all server.zip files is MORE than 10MB
+    - **How:** Create a file called `.gitattributes` with this line: `*.zip filter=lfs diff=lfs merge=lfs -text`
+- **Must** generate collection report (maps found, copied, skipped, errors)
 - **Must** continue processing other maps if one fails
-- **Must** generate processing report (maps found, maps processed, errors)
 
-**Requirement 1.2:** Heightmap Extraction from server.zip
+**Requirement 1.2:** Cloud Notebook Processing (`process_maps.ipynb`)
 
-- **Must** locate `server.zip` within each map folder (e.g., `/levels/muttrah_city_2/server.zip`)
-- **Must** extract `HeightmapPrimary.raw` (16-bit grayscale heightmap)
-- **Must** parse file as **16-bit unsigned integer** array with little-endian byte order
-- **Must** support standard PR heightmap resolutions: 1025×1025, 2049×2049, or 513×513 pixels
-- **Must** handle the "+1" pixel border used for terrain stitching
+- **Must** assume repository is already cloned (user runs `git clone` first)
+- **Must** read from `/raw_map_data/` directory (local clone includes LFS files)
+- **Must** process each `server.zip` file:
+    - Extract `HeightmapPrimary.raw` (file containing terrain heights)
+    - **How to read the file:**
+      - Each height is stored as 2 bytes (bytes are numbers 0-255)
+      - Read bytes in "little-endian" order (means: first byte + second byte × 256)
+      - Final number will be 0 to 65535
+    - File sizes: 1025×1025, 2049×2049, or 513×513 pixels (these are the only allowed sizes)
+    - **Important:** The file has an extra row and column on the edges (called "+1 border") - this is normal
+- **Must** extract map configuration files from server.zip:
+    - `init.con` for map size
+    - `terrain.con` for height scale
+- **Must** process all maps in batch (not requiring manual selection per map)
+- **Must** display progress indicators (current map, X of Y completed)
 
 **Requirement 1.3:** Heightmap Metadata Export
 
@@ -175,7 +205,21 @@ Create a **localhost web-based mortar calculator** for Project Reality: BF2 that
 - **Must** log warnings for missing maps or corrupted files
 - **Must** use default height_scale of 300m if `terrain.con` is missing or corrupted
 
-**Requirement 1.4:** Heightmap Conversion to JSON
+**Requirement 1.4:** Automated Git Commit and Push
+
+- **Must** configure git user identity in notebook (name, email via user input)
+- **Must** stage all files in `/processed_maps/` directory
+- **Must** create commit with descriptive message:
+    - Example: "chore: process maps - 45 maps updated (2024-11-19)"
+    - Include count of new/updated maps
+- **Must** push to GitHub using authentication token (user provides via Colab secrets or prompt)
+- **Must** handle git conflicts gracefully:
+    - Pull latest changes before committing
+    - Abort and warn user if conflicts cannot be auto-resolved
+- **Should** provide dry-run option to preview changes without committing
+- **Must** display summary: files added, modified, total commit size
+
+**Requirement 1.5:** Heightmap Conversion to JSON
 
 - **Must** convert 16-bit RAW to JSON for lossless web compatibility
 - **Must** maintain full 16-bit precision (0-65535 per pixel)
@@ -205,10 +249,12 @@ Create a **localhost web-based mortar calculator** for Project Reality: BF2 that
     minimap.png          # Optional: Visual preview
 ```
 
+- **Must** configure Git LFS for processed files if individual JSON > 1MB or total > 10MB
+- **Must** update manifest with processing metadata (timestamp, versions)
 
 ***
 
-### 2. The User Interface (HTML/CSS/JavaScript Frontend - Part B: The Calculator)
+### 2. The User Interface (HTML/CSS/JavaScript Frontend - Part D: The Calculator)
 
 **Requirement 2.1:** Map Selection Interface
 
@@ -222,19 +268,29 @@ Create a **localhost web-based mortar calculator** for Project Reality: BF2 that
 **Two input modes:**
 
 **Mode A: Dropdown Input (Primary)**
+
+**How it works:** Choose position using 3 dropdown menus
+
 - **Mortar Position Fields (3 dropdowns):**
-    - **Column:** Dropdown A-M (13 options)
-    - **Row:** Dropdown 1-13 (13 options)
-    - **Keypad:** Dropdown with visual numpad layout (9 options: 7,8,9 / 4,5,6 / 1,2,3)
+    - **Dropdown 1 - Column:** Pick a letter from A to M (13 choices)
+      - A = first column on left, M = last column on right
+    - **Dropdown 2 - Row:** Pick a number from 1 to 13 (13 choices)
+      - 1 = first row at top, 13 = last row at bottom
+    - **Dropdown 3 - Keypad:** Pick a position within the square (9 choices)
+      - Uses phone keypad layout:
+        ```
+        7  8  9    (7 = top-left corner, 9 = top-right corner)
+        4  5  6    (5 = center of square)
+        1  2  3    (1 = bottom-left corner, 3 = bottom-right corner)
+        ```
 - **Target Position Fields:**
-    - Same 3-dropdown structure as mortar position
-- **Conversion Logic:**
-    - Letter = Column (A=0, B=1, ..., M=12)
-    - Number = Row (1-13, maps to 0-12 internally)
-    - Keypad = Subgrid position (7=top-left, 9=top-right, 1=bottom-left, 3=bottom-right, 5=center)
-- **Display Format:**
-    - Show selected coordinates as "Column Row-Keypad" (e.g., "D 6-7")
-    - Update in real-time as dropdowns change
+    - Same 3 dropdowns as mortar position
+    
+- **Example:** If you select "D", "6", "7":
+    - D = 4th column from left
+    - 6 = 6th row from top
+    - 7 = top-left corner of that square
+    - Display shows: "D 6-7"
 
 **Mode B: Interactive Map Clicking (Secondary)**
 - **Click-to-place markers** directly on map visualization
@@ -380,38 +436,78 @@ const firingSolutions = [
 | Angular Unit (Primary) | - | **Mils** | NATO mils | 6400 mils = 360° |
 | Angular Unit (Secondary) | - | **Degrees** | degrees | 360° = full circle |
 
-**Coordinate System (Player-Facing UI):**
-- **Origin:** Northwest corner of map (0, 0) - matches in-game PR map display
-- **X-axis:** East (increases right)
-- **Y-axis:** South (increases down)
-- **Z-axis:** Elevation (increases upward from sea level = 0)
-- **Azimuth Reference:** 0° = North, 90° = East, 180° = South, 270° = West
+**Coordinate System (How we measure positions on the map):**
+- **Origin (starting point):** Top-left corner of the map = position (0, 0)
+  - Think of the map like a piece of paper: start reading from top-left
+  - This matches what you see on your in-game PR map
+- **X-axis (left-right):** Goes from West to East
+  - X increases as you move RIGHT on the map
+- **Y-axis (up-down):** Goes from North to South
+  - Y increases as you move DOWN on the map
+- **Z-axis (elevation):** Height above sea level
+  - Z = 0 means sea level
+  - Z = 100 means 100 meters above sea level
+- **Azimuth (compass direction):** 
+  - 0° = North (top of map)
+  - 90° = East (right side of map)
+  - 180° = South (bottom of map)
+  - 270° = West (left side of map)
 
-**CRITICAL NOTE:** This differs from PR engine's internal coordinate system (center origin). All calculator math and UI use the player-facing NW-origin system for consistency with in-game map displays. When extracting data from game files, coordinate transformation may be needed.
+**IMPORTANT NOTE:** The game engine internally uses a DIFFERENT coordinate system (with origin at map center). But you only need to worry about the player-facing system described above. When reading game files, we convert to the top-left origin system automatically.
 
 **Simplified Ballistic Formula (High Angle):**
 
+**What this formula does:** Calculates the angle to aim your mortar to hit a target
+
+**In plain English:**
+- The shell goes up in an arc (like throwing a ball)
+- Higher angle = shorter distance but can go over hills
+- The formula accounts for: how far away the target is + how much higher/lower they are
+
+**The Math:**
+
 ```
-For high-angle mortar fire (θ > 45°):
+For high-angle mortar fire (angle > 45 degrees):
 
 Elevation Angle (φ) = arctan(
   (v² + sqrt(v⁴ - g*(g*D² + 2*v²*ΔZ))) / (g*D)
 )
 
-Where:
-- φ = Firing elevation angle (radians)
-- v = 148.64 m/s
-- g = 14.86 m/s²
-- D = Horizontal distance (meters)
-- ΔZ = Height difference (meters, + if target higher)
+What each symbol means:
+- φ = Firing angle you need (in radians - a math unit for angles)
+- v = 148.64 m/s (how fast the shell flies)
+- g = 14.86 m/s² (how fast things fall in the game)
+- D = Horizontal distance in meters (how far away target is on flat ground)
+- ΔZ = Height difference in meters
+  - Positive number = target is HIGHER than you
+  - Negative number = target is LOWER than you
+  - Zero = same height
 ```
 
-**Conversion to Mils:**
+**IMPORTANT:** This formula gives you the angle in "radians". You must convert to Mils or Degrees (see next section).
+
+**Conversion to Mils and Degrees:**
+
+**What is a radian?** A math unit for measuring angles (like inches vs. centimeters for distance)
+
+**What is a Mil?** A military unit for measuring angles
+- Full circle = 6400 Mils
+- Used by militaries because it's easier for range calculations
+
+**The Conversion:**
 
 ```
 Mils = φ (in radians) × (6400 / (2π))
+     = φ (in radians) × 1018.59
+
 Degrees = φ (in radians) × (180 / π)
+        = φ (in radians) × 57.2958
 ```
+
+**Example:**
+- If formula gives you φ = 0.8 radians
+- In Mils: 0.8 × 1018.59 = 815 Mils
+- In Degrees: 0.8 × 57.2958 = 45.8 Degrees
 
 **Time of Flight Calculation:**
 
@@ -456,17 +552,20 @@ Where:
   - Dropdown selection results in invalid coordinate
   - Marker dragged beyond map edge (snap to boundary)
 
-**Requirement 3.4:** Height Sampling with Bilinear Interpolation
+**Requirement 3.4:** Height Reading with Bilinear Interpolation
 
-- **Must** use bilinear interpolation when sampling elevation from heightmap
-- **Algorithm:**
-  1. Convert world XY coordinates to heightmap pixel coordinates
-  2. Calculate fractional pixel position (e.g., x=123.7, y=456.3)
-  3. Sample 4 surrounding pixels (floor and ceil of x and y)
-  4. Interpolate linearly in X direction (top pair, bottom pair)
-  5. Interpolate linearly in Y direction (final result)
-- **Purpose:** Smooth elevation values between discrete pixels, reduces 15cm precision to ~5cm effective precision
-- **Rationale:** Mortar has ~30m spread, but smoother UX and more accurate for close-range shots
+- **Must** use bilinear interpolation when reading height from heightmap
+- **What this means:** When the position lands BETWEEN pixels, average the 4 surrounding pixels
+- **Step-by-step:**
+  1. Convert map position to pixel position (might be pixel 123.7, not exactly 123)
+  2. Find the 4 pixels around this position:
+     - Top-left pixel, Top-right pixel
+     - Bottom-left pixel, Bottom-right pixel
+  3. Average the top two pixels → get top_height
+  4. Average the bottom two pixels → get bottom_height
+  5. Average top_height and bottom_height → get final height
+- **Why:** Makes height changes smooth instead of jumpy when you move the marker
+- **Example:** If you stand between 4 pixels with heights [100m, 102m, 101m, 103m], your height is 101.5m (the average)
 
 **Requirement 3.5:** Real-Time Updates
 
@@ -480,9 +579,17 @@ Where:
 
 ### Tech Stack (MANDATORY)
 
-- **Backend (Processor):** Python 3.8+
-    - Required Libraries: `numpy` (array operations), `zipfile` (extract server.zip), `struct` (binary RAW parsing), `json`
-    - Optional: `PIL/Pillow` (only for minimap PNG generation)
+- **Backend (Data Collection & Processing):** Python 3.8+
+    - **Phase 1 - Local Collection Script** (`collect_maps.py`):
+        - Standard library: `os`, `shutil`, `zipfile`, `json`, `hashlib` (MD5 checksums)
+        - Extracts server.zip files from PR:BF2 installation
+        - Validates and versions using MD5 checksums
+        - Manages Git LFS configuration
+    - **Phase 2 - Cloud Processing Notebook** (`process_maps.ipynb`):
+        - Required Libraries: `numpy`, `zipfile`, `struct`, `json`, `subprocess` (git operations)
+        - Optional: `PIL/Pillow` (minimap generation)
+        - Runs in Google Colab or local Jupyter
+        - Auto-commits processed data back to GitHub
 - **Frontend (Calculator):**
     - HTML5 + Vanilla JavaScript (ES6+)
     - CSS3 for styling (Flexbox/Grid for layout)
@@ -499,10 +606,24 @@ Where:
 
 ```
 /ProjectRealityMortarCalc/
-  /processor/              # Part A: Map Processing
-    process_maps.py        # Main heightmap processor
-    utils.py               # Helper functions
-  /calculator/             # Part B: Web Calculator
+  /raw_map_data/           # Part A: Source data (Git LFS if < 10MB total)
+    /muttrah_city_2/
+      server.zip           # Original from game installation
+    /fallujah_west/
+      server.zip
+    manifest.json          # Map inventory with checksums
+  /processor/              # Part B: Processing scripts
+    collect_maps.py        # Phase 1: Local extraction script
+    process_maps.ipynb     # Phase 2: Cloud processing notebook
+    README.md              # Workflow instructions
+  /processed_maps/         # Part C: Processed output (Git LFS if needed)
+    /muttrah_city_2/
+      heightmap.json       # 16-bit height data
+      metadata.json        # Map configuration
+    /fallujah_west/
+      heightmap.json
+      metadata.json
+  /calculator/             # Part D: Web Calculator
     /static/
       /js/
         app.js             # Main application logic
@@ -578,11 +699,23 @@ const CONFIG = {
 
 ### Execution Flow
 
-1. **First-Time Setup:**
-    - User runs `run.bat`
-    - Batch file checks if `/processed_maps/` exists
-    - If not: Runs `python processor/process_maps.py` (one-time processing)
-    - Prompts user for PR installation path if not auto-detected
+1. **Maintainer Setup (One-time data collection):**
+    - Run `python processor/collect_maps.py` on machine with PR:BF2 installed
+    - Script extracts server.zip files to `/raw_map_data/`
+    - Script validates files with MD5 checksums and creates manifest.json
+    - Script configures Git LFS automatically (if total size < 10MB)
+    - Commit and push `/raw_map_data/` to GitHub
+
+2. **Maintainer Processing (Cloud or local):**
+    - Clone repository with `git clone` (includes LFS files)
+    - Open `processor/process_maps.ipynb` in Google Colab or Jupyter
+    - Notebook reads from `/raw_map_data/`, processes all maps
+    - Notebook outputs to `/processed_maps/` (heightmap.json + metadata.json)
+    - Notebook automatically commits and pushes results back to GitHub
+
+3. **End User Setup (Download and run):**
+    - Clone repository (processed maps already included)
+    - Run `run.bat` or `run.sh`
 2. **Normal Operation:**
     - `run.bat` executes: `python calculator/server.py`
     - Server starts on `http://localhost:8080`
@@ -851,82 +984,157 @@ In-Game Result: Impact 23m from target (PASS)
 
 **READ THIS FIRST:** This section gives step-by-step instructions. Follow them in order.
 
-### Step 1: Develop map_processor.py
+### Step 1: Develop collect_maps.py
 
-**What this script does:** Reads map files from Project Reality game and converts them to JSON format.
+**What this script does:** Extracts server.zip files from local PR:BF2 installation and prepares them for GitHub upload.
 
 **Steps to implement:**
 
 1. **Import Python libraries:**
    ```python
    import os        # File and folder operations
-   import struct    # Read binary files
-   import json      # Write JSON files
-   import zipfile   # Open .zip files
-   from PIL import Image  # Optional: create preview images
+   import shutil    # Copy files
+   import zipfile   # Validate zip files
+   import json      # Write manifest
+   import hashlib   # Calculate MD5 checksums
+   from pathlib import Path
+   from datetime import datetime
    ```
 
-2. **Set up path to Project Reality installation:**
+2. **Auto-detect PR:BF2 installation:**
    ```python
-   # Default paths to check (try these first)
+   # Default paths to check
    PR_PATHS = [
        r"C:\Program Files (x86)\Project Reality\Project Reality BF2",
        r"D:\Games\Project Reality\Project Reality BF2"
    ]
-   # User can also specify custom path in config file
+   # Check each path, prompt user if not found
+   # Allow custom path via command-line: python collect_maps.py --path "D:\Games\PR"
    ```
 
 3. **Find all map folders:**
    ```python
-   # Look for /levels/ directory
-   # Each subfolder is a map (example: /levels/muttrah_city_2/)
+   # Scan /levels/ directory for map folders
+   # Each subfolder should contain server.zip
    ```
 
-4. **For each map, extract heightmap:**
+4. **For each map, validate and copy server.zip:**
    ```python
-   # Open server.zip file
-   # Find HeightmapPrimary.raw inside
-   # Read as 16-bit unsigned integers (little-endian)
-   # WARNING: Use '<H' format in struct.unpack (< means little-endian, H means unsigned short)
+   # Calculate MD5 checksum of server.zip
+   # Verify zip integrity (test open)
+   # Check for HeightmapPrimary.raw inside
+   # Copy to /raw_map_data/[map_name]/server.zip
+   # Preserve folder structure
    ```
 
-5. **Read map configuration files:**
+5. **Handle duplicates with checksums:**
    ```python
-   # From init.con: Get map size (2048m or 4096m)
-   # From terrain.con: Get height scale (100-1000m)
-   # WARNING: If terrain.con is missing, use default 300m
+   # If map exists in raw_map_data/
+   # Compare MD5 checksums
+   # Skip if identical, update if different
+   # Track versions in manifest
    ```
 
-6. **Convert heightmap to JSON:**
-   ```python
-   # Create JSON structure:
-   {
-       "resolution": 1025,
-       "width": 1025,
-       "height": 1025,
-       "format": "uint16",
-       "data": [0, 1234, 5678, ...]  # All pixel values in order
-   }
-   # Keep all 16-bit precision (do NOT convert to 8-bit)
-   ```
-
-7. **Create metadata.json:**
+6. **Generate manifest.json:**
    ```python
    {
-       "map_name": "muttrah_city_2",
-       "map_size": 2048,        # meters
-       "height_scale": 300,     # meters
-       "grid_scale": 150,       # meters per grid square
-       "heightmap_resolution": 1025  # pixels
+       "maps": [
+           {
+               "name": "muttrah_city_2",
+               "md5": "a1b2c3d4...",
+               "size_bytes": 1048576,
+               "collected_at": "2024-11-19T10:30:00Z",
+               "source_path": "C:\\PR\\levels\\muttrah_city_2"
+           }
+       ],
+       "total_maps": 45,
+       "total_size_mb": 87.3,
+       "collection_date": "2024-11-19"
    }
    ```
 
-8. **Handle errors gracefully:**
-   - If a map file is corrupted, skip it and continue with next map
-   - Write error messages to log file
-   - At end, print report: "Processed 45 maps, 2 errors"
+7. **Configure Git LFS (if needed):**
+   ```python
+   # Calculate total size of raw_map_data/
+   # If < 10MB: No LFS needed (or optional)
+   # If > 10MB: Create/update .gitattributes
+   # Add pattern: *.zip filter=lfs diff=lfs merge=lfs -text
+   ```
 
-### Step 2: Develop Frontend (index.html + JavaScript)
+8. **Generate collection report:**
+   - Print summary: "Collected 45 maps, 2 skipped (duplicates), 1 error"
+   - Save report to processor/collection_report.txt
+   - List any errors or warnings
+
+### Step 2: Develop process_maps.ipynb
+
+**What this notebook does:** Processes server.zip files from /raw_map_data/ and converts to JSON format. Runs in Google Colab or local Jupyter. Auto-commits results to GitHub.
+
+**Notebook Structure:**
+
+1. **Cell 1 (Markdown): Instructions**
+   - Explain workflow: clone repo → open notebook → run all cells
+   - Prerequisites: Git authentication token (GitHub PAT)
+   - Expected runtime: ~5-10 minutes for 45 maps
+
+2. **Cell 2 (Python): Imports and Environment Check**
+   ```python
+   import os, zipfile, struct, json, subprocess
+   import numpy as np
+   from pathlib import Path
+   from datetime import datetime
+   
+   # Detect environment (Colab vs local)
+   IN_COLAB = 'google.colab' in str(get_ipython())
+   print(f"Running in: {'Google Colab' if IN_COLAB else 'Local Jupyter'}")
+   ```
+
+3. **Cell 3 (Python): Configuration and Authentication**
+   ```python
+   # Git configuration
+   GIT_USER_NAME = input("Git user name: ")
+   GIT_USER_EMAIL = input("Git user email: ")
+   GITHUB_TOKEN = input("GitHub Personal Access Token: ")  # Or use Colab secrets
+   
+   # Configure git
+   subprocess.run(['git', 'config', 'user.name', GIT_USER_NAME])
+   subprocess.run(['git', 'config', 'user.email', GIT_USER_EMAIL])
+   ```
+
+4. **Cell 4 (Python): Load Manifest and Discover Maps**
+   ```python
+   # Read manifest.json from raw_map_data/
+   # List all server.zip files to process
+   # Display: "Found 45 maps to process"
+   ```
+
+5. **Cell 5 (Python): Processing Loop**
+   ```python
+   # For each map in raw_map_data/:
+   #   - Extract HeightmapPrimary.raw from server.zip
+   #   - Parse as 16-bit unsigned int array
+   #   - Extract init.con and terrain.con
+   #   - Convert RAW to JSON (see Step 1 from old implementation)
+   #   - Generate metadata.json
+   #   - Save to processed_maps/[map_name]/
+   #   - Display progress bar
+   ```
+
+6. **Cell 6 (Python): Git Commit and Push**
+   ```python
+   # Pull latest changes: git pull origin main
+   # Stage files: git add processed_maps/
+   # Commit: git commit -m "chore: process maps - 45 updated (2024-11-19)"
+   # Push with token: git push https://[token]@github.com/user/repo.git
+   # Display: "Successfully pushed to GitHub"
+   ```
+
+7. **Cell 7 (Markdown): Summary**
+   - Display processing results
+   - Link to GitHub repository
+   - Next steps for user
+
+### Step 3: Develop Frontend (index.html + JavaScript)
 
 **What this does:** Creates the web page where users interact with the calculator.
 
