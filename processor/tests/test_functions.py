@@ -147,5 +147,5 @@ if __name__ == '__main__':
     test_json_structure()
     
     print("\n" + "="*70)
-    print("✓ All function tests completed!")
+    print("All function tests completed!")
     print("="*70)

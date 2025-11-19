@@ -208,7 +208,7 @@ The system SHALL display real-time progress indicators during batch processing i
 - **WHEN** processing 45 maps
 - **THEN** console displays "[1/45] muttrah_city_2" followed by per-operation status
 - **AND** operations display progress: "Extracting heightmap...", "Converting to JSON...", etc.
-- **AND** completion status shows "✓ muttrah_city_2 processed successfully"
+- **AND** completion status shows "muttrah_city_2 processed successfully"
 - **AND** final summary displays processed count, errors, and duration in seconds/minutes
 
 #### Scenario: Error during processing

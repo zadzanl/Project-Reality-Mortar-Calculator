@@ -5,7 +5,7 @@ Generated: 2025-11-19 14:40:05
 
 SUMMARY:
   Total maps found: 84
-  ✓ Successfully collected: 84
+  Successfully collected: 84
     - New maps: 83
     - Updated maps: 1
     - Unchanged (skipped): 0
