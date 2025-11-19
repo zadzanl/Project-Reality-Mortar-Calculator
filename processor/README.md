@@ -30,10 +30,10 @@ python collect_maps.py --path "D:\Games\Project Reality\Project Reality BF2"
 
 ### What it does
 
-1. Scans PR:BF2 installation for map folders in `/levels/`
+1. Scans PR:BF2 installation for map folders in `/mods/pr/levels/`
 2. Validates each `server.zip` file:
    - Checks zip integrity
-   - Verifies contains `HeightmapPrimary.raw`
+   - Verifies contains `heightmapprimary.raw` (case-insensitive)
    - Calculates MD5 checksum
 3. Copies server.zip files to `/raw_map_data/[map_name]/`
 4. Handles duplicates (skips if identical, updates if changed)
@@ -100,7 +100,7 @@ jupyter notebook processor/process_maps.ipynb
 
 1. Reads `manifest.json` from `/raw_map_data/`
 2. For each map:
-   - Extracts `HeightmapPrimary.raw` from `server.zip`
+   - Extracts `heightmapprimary.raw` from `server.zip` (case-insensitive)
    - Parses as 16-bit unsigned integer array
    - Extracts config files (`init.con`, `terrain.con`)
    - Converts RAW to JSON format (lossless)
@@ -176,9 +176,9 @@ processed_maps/
 **"Could not find PR:BF2 installation"**
 - Verify game is installed
 - Use `--path` to specify custom installation path
-- Check that `/levels/` directory exists
+- Check that `/mods/pr/levels/` directory exists
 
-**"Validation failed: Missing HeightmapPrimary.raw"**
+**"Validation failed: Missing heightmapprimary.raw"**
 - server.zip may be corrupted
 - Re-verify game files through PR launcher
 - Script will skip corrupted maps and continue

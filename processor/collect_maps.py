@@ -83,12 +83,12 @@ def validate_server_zip(zip_path: Path) -> Tuple[bool, Optional[str]]:
             if bad_file is not None:
                 return False, f"Corrupted file in zip: {bad_file}"
             
-            # Check for HeightmapPrimary.raw
+            # Check for heightmapprimary.raw (case-insensitive)
             file_list = zf.namelist()
-            has_heightmap = any('HeightmapPrimary.raw' in f for f in file_list)
+            has_heightmap = any('heightmapprimary.raw' in f.lower() for f in file_list)
             
             if not has_heightmap:
-                return False, "Missing HeightmapPrimary.raw"
+                return False, "Missing heightmapprimary.raw"
             
             return True, None
             
@@ -118,10 +118,12 @@ def find_pr_installation(custom_path: Optional[str] = None) -> Optional[Path]:
     
     for path_str in paths_to_check:
         path = Path(path_str)
-        levels_dir = path / "levels"
+        # PR:BF2 has levels in mods/pr/levels/
+        levels_dir = path / "mods" / "pr" / "levels"
         
         if path.exists() and levels_dir.exists():
             print(f"{Colors.GREEN}✓ Found PR:BF2 installation at: {path}{Colors.RESET}")
+            print(f"  Levels directory: {levels_dir}")
             return path
     
     return None
@@ -136,7 +138,7 @@ def discover_maps(pr_path: Path) -> List[Path]:
     Returns:
         List of paths to map folders containing server.zip
     """
-    levels_dir = pr_path / "levels"
+    levels_dir = pr_path / "mods" / "pr" / "levels"
     map_folders = []
     
     if not levels_dir.exists():
@@ -410,7 +412,7 @@ Examples:
     map_folders = discover_maps(pr_path)
     
     if not map_folders:
-        print(f"{Colors.RED}✗ No maps found in {pr_path / 'levels'}{Colors.RESET}")
+        print(f"{Colors.RED}✗ No maps found in {pr_path / 'mods' / 'pr' / 'levels'}{Colors.RESET}")
         sys.exit(1)
     
     print(f"{Colors.GREEN}✓ Found {len(map_folders)} maps{Colors.RESET}")

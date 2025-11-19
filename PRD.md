@@ -151,12 +151,12 @@ Create a **localhost web-based mortar calculator** for Project Reality: BF2 that
     - `C:\Program Files (x86)\Project Reality\Project Reality BF2`
     - `D:\Games\Project Reality\Project Reality BF2`
     - User-specified custom path via command-line argument or interactive prompt
-- **Must** detect `/levels/` directory containing map folders
+- **Must** detect `/mods/pr/levels/` directory containing map folders
 - **Must** copy `server.zip` files from each map folder to `/raw_map_data/[map_name]/`
 - **Must** validate each server.zip file:
     - Calculate MD5 checksum
     - Verify zip file integrity (can be opened)
-    - Confirm contains `HeightmapPrimary.raw`
+    - Confirm contains `heightmapprimary.raw` (case-insensitive)
 - **Must** handle duplicates/updates:
     - Compare MD5 checksums with existing files
     - Skip if identical, update if different (version tracking in manifest)
@@ -167,7 +167,7 @@ Create a **localhost web-based mortar calculator** for Project Reality: BF2 that
       - MD5 checksum (a unique fingerprint to detect duplicates)
       - File size in bytes (example: 5242880 = 5MB)
       - When you collected it (example: "2025-01-15 14:30:00")
-      - Where you found it (example: "C:/Program Files/Project Reality/levels/muttrah_city_2")
+      - Where you found it (example: "C:/Program Files/Project Reality/Project Reality BF2/mods/pr/levels/muttrah_city_2")
 - **Must** configure Git LFS automatically:
     - **What is Git LFS:** A tool to store large files outside the main Git repository
     - **When to use it:** If total size of all server.zip files is MORE than 10MB
@@ -180,7 +180,7 @@ Create a **localhost web-based mortar calculator** for Project Reality: BF2 that
 - **Must** assume repository is already cloned (user runs `git clone` first)
 - **Must** read from `/raw_map_data/` directory (local clone includes LFS files)
 - **Must** process each `server.zip` file:
-    - Extract `HeightmapPrimary.raw` (file containing terrain heights)
+    - Extract `heightmapprimary.raw` (file containing terrain heights, case-insensitive)
     - **How to read the file:**
       - Each height is stored as 2 bytes (bytes are numbers 0-255)
       - Read bytes in "little-endian" order (means: first byte + second byte × 256)
@@ -1014,7 +1014,7 @@ In-Game Result: Impact 23m from target (PASS)
 
 3. **Find all map folders:**
    ```python
-   # Scan /levels/ directory for map folders
+   # Scan /mods/pr/levels/ directory for map folders
    # Each subfolder should contain server.zip
    ```
 
@@ -1022,7 +1022,7 @@ In-Game Result: Impact 23m from target (PASS)
    ```python
    # Calculate MD5 checksum of server.zip
    # Verify zip integrity (test open)
-   # Check for HeightmapPrimary.raw inside
+   # Check for heightmapprimary.raw inside (case-insensitive)
    # Copy to /raw_map_data/[map_name]/server.zip
    # Preserve folder structure
    ```
@@ -1111,7 +1111,7 @@ In-Game Result: Impact 23m from target (PASS)
 5. **Cell 5 (Python): Processing Loop**
    ```python
    # For each map in raw_map_data/:
-   #   - Extract HeightmapPrimary.raw from server.zip
+   #   - Extract heightmapprimary.raw from server.zip (case-insensitive)
    #   - Parse as 16-bit unsigned int array
    #   - Extract init.con and terrain.con
    #   - Convert RAW to JSON (see Step 1 from old implementation)
