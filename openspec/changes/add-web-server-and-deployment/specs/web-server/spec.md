@@ -199,7 +199,7 @@ The system SHALL display clear startup banner with server information and shutdo
   - Application name: "PROJECT REALITY MORTAR CALCULATOR"
   - Server URL: "Server running at http://localhost:8080"
   - Shutdown instruction: "Press Ctrl+C to stop server"
-  - Status: "✓ Browser opened automatically"
+  - Status: "Browser opened automatically"
 
 #### Scenario: Development mode warning
 - **WHEN** Flask is run with debug=True (development only)

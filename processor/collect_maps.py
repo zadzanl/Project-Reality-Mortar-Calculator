@@ -122,7 +122,7 @@ def find_pr_installation(custom_path: Optional[str] = None) -> Optional[Path]:
         levels_dir = path / "mods" / "pr" / "levels"
         
         if path.exists() and levels_dir.exists():
-            print(f"{Colors.GREEN}✓ Found PR:BF2 installation at: {path}{Colors.RESET}")
+            print(f"{Colors.GREEN}Found PR:BF2 installation at: {path}{Colors.RESET}")
             print(f"  Levels directory: {levels_dir}")
             return path
     
@@ -176,7 +176,7 @@ def process_map(map_folder: Path, output_dir: Path, existing_manifest: Dict) -> 
         print(f"  {Colors.RED}✗ Validation failed: {error_msg}{Colors.RESET}")
         return None
     
-    print(f"  {Colors.GREEN}✓ Validation passed{Colors.RESET}")
+    print(f"  {Colors.GREEN}Validation passed{Colors.RESET}")
     
     # Calculate MD5 checksum
     print(f"  Calculating MD5 checksum...")
@@ -203,7 +203,7 @@ def process_map(map_folder: Path, output_dir: Path, existing_manifest: Dict) -> 
     # Get file size
     file_size = output_zip.stat().st_size
     
-    print(f"  {Colors.GREEN}✓ Copied successfully ({file_size / 1024:.1f} KB){Colors.RESET}")
+    print(f"  {Colors.GREEN}Copied successfully ({file_size / 1024:.1f} KB){Colors.RESET}")
     
     # Return metadata
     return {
@@ -238,7 +238,7 @@ def generate_manifest(maps_data: List[Dict], output_dir: Path) -> None:
     with open(manifest_path, 'w', encoding='utf-8') as f:
         json.dump(manifest, f, indent=2, ensure_ascii=False)
     
-    print(f"\n{Colors.GREEN}✓ Generated manifest: {manifest_path}{Colors.RESET}")
+    print(f"\n{Colors.GREEN}Generated manifest: {manifest_path}{Colors.RESET}")
 
 
 def configure_git_lfs(total_size_bytes: int, repo_root: Path) -> None:
@@ -285,10 +285,10 @@ def configure_git_lfs(total_size_bytes: int, repo_root: Path) -> None:
             for pattern in new_patterns:
                 f.write(pattern + '\n')
         
-        print(f"  {Colors.GREEN}✓ Updated .gitattributes with LFS patterns{Colors.RESET}")
+        print(f"  {Colors.GREEN}Updated .gitattributes with LFS patterns{Colors.RESET}")
         print(f"  {Colors.YELLOW}⚠ Run 'git lfs install' if not already configured{Colors.RESET}")
     else:
-        print(f"  {Colors.GREEN}✓ LFS patterns already configured{Colors.RESET}")
+        print(f"  {Colors.GREEN}LFS patterns already configured{Colors.RESET}")
 
 
 def generate_report(maps_data: List[Dict], errors: List[str], output_dir: Path) -> None:
@@ -313,7 +313,7 @@ def generate_report(maps_data: List[Dict], errors: List[str], output_dir: Path) 
     
     report_lines.append("SUMMARY:")
     report_lines.append(f"  Total maps found: {len(maps_data) + len(errors)}")
-    report_lines.append(f"  ✓ Successfully collected: {len(maps_data)}")
+    report_lines.append(f"  Successfully collected: {len(maps_data)}")
     report_lines.append(f"    - New maps: {len(new_maps)}")
     report_lines.append(f"    - Updated maps: {len(updated_maps)}")
     report_lines.append(f"    - Unchanged (skipped): {len(skipped_maps)}")
@@ -361,7 +361,7 @@ def generate_report(maps_data: List[Dict], errors: List[str], output_dir: Path) 
     with open(report_path, 'w', encoding='utf-8') as f:
         f.write(report_content)
     
-    print(f"\n{Colors.GREEN}✓ Report saved to: {report_path}{Colors.RESET}")
+    print(f"\n{Colors.GREEN}Report saved to: {report_path}{Colors.RESET}")
 
 
 def main():
@@ -415,7 +415,7 @@ Examples:
         print(f"{Colors.RED}✗ No maps found in {pr_path / 'mods' / 'pr' / 'levels'}{Colors.RESET}")
         sys.exit(1)
     
-    print(f"{Colors.GREEN}✓ Found {len(map_folders)} maps{Colors.RESET}")
+    print(f"{Colors.GREEN}Found {len(map_folders)} maps{Colors.RESET}")
     
     # Create output directory
     output_dir = repo_root / args.output
@@ -465,7 +465,7 @@ Examples:
         print(f"\n{Colors.YELLOW}⚠ Completed with {len(errors)} error(s){Colors.RESET}")
         sys.exit(1)
     else:
-        print(f"\n{Colors.GREEN}{Colors.BOLD}✓ Collection completed successfully!{Colors.RESET}")
+        print(f"\n{Colors.GREEN}{Colors.BOLD}Collection completed successfully!{Colors.RESET}")
         sys.exit(0)
 
 
