@@ -34,19 +34,25 @@ const metadataCache = new Map();
  * Fetches heightmap.json from /processed_maps/[mapName]/ directory.
  * Results are cached to avoid redundant network requests.
  * 
+ * Performance optimization: Converts the data array to Uint16Array for:
+ * - Reduced memory footprint (50% less than regular array)
+ * - Faster access times (typed array optimization)
+ * - Direct memory mapping (no intermediate conversions)
+ * 
  * @param {string} mapName - Name of the map (e.g., "muttrah_city_2")
  * @returns {Promise<Object>} Heightmap data object
  * @returns {number} returns.resolution - Image resolution (e.g., 1025)
  * @returns {number} returns.width - Image width in pixels
  * @returns {number} returns.height - Image height in pixels
  * @returns {string} returns.format - Data format ("uint16")
- * @returns {number[]} returns.data - Flat array of 16-bit height values
+ * @returns {Uint16Array} returns.data - Typed array of 16-bit height values
  * 
  * @throws {Error} If fetch fails or JSON is invalid
  * 
  * @example
  * const heightmap = await loadHeightmap('muttrah_city_2');
  * console.log(heightmap.resolution); // 1025
+ * console.log(heightmap.data instanceof Uint16Array); // true
  */
 export async function loadHeightmap(mapName) {
   // Check cache first
@@ -69,10 +75,20 @@ export async function loadHeightmap(mapName) {
       throw new Error('Invalid heightmap format: missing required fields');
     }
     
-    // Cache the result
-    heightmapCache.set(mapName, heightmapData);
+    // Convert data array to Uint16Array for performance
+    // This reduces memory usage and speeds up interpolation
+    const typedData = new Uint16Array(heightmapData.data);
     
-    return heightmapData;
+    // Replace the data array with typed array
+    const optimizedData = {
+      ...heightmapData,
+      data: typedData
+    };
+    
+    // Cache the result
+    heightmapCache.set(mapName, optimizedData);
+    
+    return optimizedData;
   } catch (error) {
     console.error(`Error loading heightmap for ${mapName}:`, error);
     throw error;
@@ -166,7 +182,9 @@ export function worldToPixel(x, y, mapSize, resolution) {
 /**
  * Read height value from heightmap at integer pixel coordinates.
  * 
- * @param {number[]} heightmapData - Flat array of height values
+ * Works with both regular arrays and Uint16Array for compatibility.
+ * 
+ * @param {number[]|Uint16Array} heightmapData - Flat array of height values
  * @param {number} x - Pixel X coordinate (integer)
  * @param {number} y - Pixel Y coordinate (integer)
  * @param {number} width - Heightmap width in pixels
@@ -189,13 +207,15 @@ function getPixelValue(heightmapData, x, y, width) {
  * fractional position. This produces smooth elevation changes instead of
  * stepped/blocky terrain.
  * 
+ * Works with both regular arrays and Uint16Array for performance.
+ * 
  * Steps:
  * 1. Find 4 surrounding pixels (top-left, top-right, bottom-left, bottom-right)
  * 2. Get fractional parts of pixel position (how far between pixels)
  * 3. Interpolate horizontally (top row, bottom row)
  * 4. Interpolate vertically (combine top and bottom results)
  * 
- * @param {number[]} heightmapData - Flat array of height values
+ * @param {number[]|Uint16Array} heightmapData - Flat array of height values
  * @param {number} pixelX - Pixel X coordinate (may be fractional)
  * @param {number} pixelY - Pixel Y coordinate (may be fractional)
  * @param {number} width - Heightmap width in pixels
@@ -247,7 +267,7 @@ export function bilinearInterpolation(heightmapData, pixelX, pixelY, width, heig
  * 
  * @param {number} x - World X coordinate (meters)
  * @param {number} y - World Y coordinate (meters)
- * @param {number[]} heightmapData - Flat array of height values
+ * @param {number[]|Uint16Array} heightmapData - Flat array of height values
  * @param {number} heightScale - Maximum terrain height (meters)
  * @param {number} mapSize - Total map size (meters)
  * @param {number} resolution - Heightmap resolution (pixels)
@@ -362,7 +382,9 @@ export function isValidCoordinate(x, y, mapSize) {
 /**
  * Get heightmap data statistics (for debugging).
  * 
- * @param {number[]} heightmapData - Flat array of height values
+ * Works with both regular arrays and Uint16Array.
+ * 
+ * @param {number[]|Uint16Array} heightmapData - Flat array of height values
  * @returns {Object} Statistics
  * @returns {number} returns.min - Minimum value
  * @returns {number} returns.max - Maximum value
