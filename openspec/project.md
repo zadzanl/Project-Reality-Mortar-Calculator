@@ -372,7 +372,7 @@ Test on these maps:
 **File Format:**
 - Type: 16-bit grayscale RAW file
 - Values: Each pixel stores a number from 0 to 65535
-- Storage: Inside `server.zip` file, named `HeightmapPrimary.raw`
+- Storage: Inside `server.zip` file, named `heightmapprimary.raw` (case-insensitive)
 - Byte Order: Little-endian (Intel PC format)
 
 **Image Size:**
@@ -500,9 +500,9 @@ D = sqrt((x2 - x1)² + (y2 - y1)²)
   - Windows: `C:\Program Files (x86)\Project Reality\Project Reality BF2`
   - Custom paths supported via config
 - **Required Files:**
-  - `/levels/[map_name]/server.zip` (contains HeightmapPrimary.raw)
-  - `/levels/[map_name]/init.con` (map size)
-  - `/levels/[map_name]/terrain.con` (height scale)
+  - `/mods/pr/levels/[map_name]/server.zip` (contains heightmapprimary.raw)
+  - `/mods/pr/levels/[map_name]/init.con` (map size)
+  - `/mods/pr/levels/[map_name]/terrain.con` (height scale)
 
 ### Python Dependencies (requirements.txt)
 ```
@@ -534,7 +534,7 @@ Werkzeug==2.3.7
 3. Provide Git credentials (name, email, GitHub Personal Access Token)
 4. Run all cells sequentially
 5. Notebook processes all maps from `/raw_map_data/`:
-   - Extracts HeightmapPrimary.raw from each server.zip
+   - Extracts heightmapprimary.raw from each server.zip (case-insensitive)
    - Parses 16-bit RAW data, extracts config files
    - Converts to JSON format (lossless)
    - Generates metadata.json for each map
