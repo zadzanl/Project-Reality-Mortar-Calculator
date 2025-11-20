@@ -24,6 +24,7 @@ The calculator opens automatically at `http://localhost:8080`
 
 ## Features
 
+- Visual map representation with satellite/overview imagery
 - Automatic elevation detection from heightmaps
 - High-angle firing solutions in Mils and Degrees
 - Support for 80+ Project Reality maps
@@ -62,9 +63,9 @@ run.bat         # Windows
 ## Project Structure
 
 - `/calculator/` - Web application and Flask server
-- `/processed_maps/` - Heightmap data for all maps (JSON format)
-- `/processor/` - Tools for processing new maps
-- `/raw_map_data/` - Original map files from game
+- `/processed_maps/` - Heightmap data (JSON) and minimap images (PNG) for all maps
+- `/processor/` - Tools for processing new maps (heightmaps + minimaps)
+- `/raw_map_data/` - Original map files from game (server.zip + client.zip)
 - `run.bat` / `run.sh` - Launch scripts
 
 ## Documentation

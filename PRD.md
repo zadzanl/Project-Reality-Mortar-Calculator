@@ -152,11 +152,18 @@ Create a **localhost web-based mortar calculator** for Project Reality: BF2 that
     - `D:\Games\Project Reality\Project Reality BF2`
     - User-specified custom path via command-line argument or interactive prompt
 - **Must** detect `/mods/pr/levels/` directory containing map folders
-- **Must** copy `server.zip` files from each map folder to `/raw_map_data/[map_name]/`
+- **Must** copy both `server.zip` AND `client.zip` files from each map folder to `/raw_map_data/[map_name]/`
+    - `server.zip` contains heightmap elevation data (`heightmapprimary.raw`)
+    - `client.zip` contains visual minimap textures and other client-side assets (in `info/` directory)
 - **Must** validate each server.zip file:
     - Calculate MD5 checksum
     - Verify zip file integrity (can be opened)
     - Confirm contains `heightmapprimary.raw` (case-insensitive)
+- **Must** validate each client.zip file:
+    - Calculate MD5 checksum (separately from server.zip)
+    - Verify zip file integrity (can be opened)
+    - Confirm contains `info/` directory with at least one `.dds` file
+    - Log warning if client.zip missing but continue processing (heightmap-only mode)
 - **Must** handle duplicates/updates:
     - Compare MD5 checksums with existing files
     - Skip if identical, update if different (version tracking in manifest)
@@ -164,10 +171,36 @@ Create a **localhost web-based mortar calculator** for Project Reality: BF2 that
     - **What is a manifest:** A list of all the map files you collected
     - **What information to save:**
       - Map name (example: "muttrah_city_2")
-      - MD5 checksum (a unique fingerprint to detect duplicates)
-      - File size in bytes (example: 5242880 = 5MB)
+      - Server.zip MD5 checksum and metadata (heightmap presence)
+      - Client.zip MD5 checksum and metadata (minimap presence)
+      - File sizes in bytes (example: 5242880 = 5MB)
       - When you collected it (example: "2025-01-15 14:30:00")
       - Where you found it (example: "C:/Program Files/Project Reality/Project Reality BF2/mods/pr/levels/muttrah_city_2")
+    - **Example structure:**
+      ```json
+      {
+          "maps": [
+              {
+                  "name": "muttrah_city_2",
+                  "server_zip": {
+                      "md5": "a1b2c3d4...",
+                      "size_bytes": 1048576,
+                      "has_heightmap": true
+                  },
+                  "client_zip": {
+                      "md5": "b2c3d4e5...",
+                      "size_bytes": 2097152,
+                      "has_minimap": true
+                  },
+                  "collected_at": "2024-11-19T10:30:00Z",
+                  "source_path": "C:\\PR\\levels\\muttrah_city_2"
+              }
+          ],
+          "total_maps": 45,
+          "total_size_mb": 87.3,
+          "collection_date": "2024-11-19"
+      }
+      ```
 - **Must** configure Git LFS automatically:
     - **What is Git LFS:** A tool to store large files outside the main Git repository
     - **When to use it:** If total size of all server.zip files is MORE than 10MB
@@ -187,6 +220,10 @@ Create a **localhost web-based mortar calculator** for Project Reality: BF2 that
       - Final number will be 0 to 65535
     - File sizes: 1025×1025, 2049×2049, or 513×513 pixels (these are the only allowed sizes)
     - **Important:** The file has an extra row and column on the edges (called "+1 border") - this is normal
+- **Must** process each `client.zip` file:
+    - Extract visual minimap DDS files from `info/` directory
+    - Convert DDS files to PNG format for web compatibility
+    - Handle cases where client.zip is missing (degrade gracefully to heightmap-only mode)
 - **Must** extract map configuration files from server.zip:
     - `init.con` for map size
     - `terrain.con` for height scale
@@ -252,6 +289,83 @@ Create a **localhost web-based mortar calculator** for Project Reality: BF2 that
 - **Must** configure Git LFS for processed files if individual JSON > 1MB or total > 10MB
 - **Must** update manifest with processing metadata (timestamp, versions)
 
+<!-- NEW REQUIREMENT: Minimap Extraction -->
+**Requirement 1.6: Visual Minimap Extraction**
+
+**Purpose:** Extract and convert visual map representations from client.zip for use as base layer in calculator UI.
+
+**Location of minimap files:** `client.zip/info/` directory within each map folder (per [PR Forum: Loading DDS Map Files](https://forum.realitymod.com/viewtopic.php?t=105865) and [Offline Maps Discussion](https://forum.realitymod.com/viewtopic.php?t=111399)).
+
+**File format:** DDS (DirectDraw Surface) files using DXT1 compression format (per [BF2 DDS Format Documentation](https://forum.realitymod.com/viewtopic.php?t=126573)).
+
+**Must extract from `client.zip`:**
+
+- Navigate to `{mapname}/client.zip/info/` directory
+- Locate minimap DDS files (naming conventions vary: `minimap.dds`, `map.dds`, or `{mapname}.dds`)
+- Extract all DDS files found in the `info/` folder
+- If multiple DDS files exist, prioritize largest by file size as primary minimap
+
+**Must convert DDS to PNG format using one of these methods:**
+
+**Option A: Python Pillow Library (Recommended)**
+
+```python
+from PIL import Image
+
+# Open DDS file
+dds_image = Image.open('minimap.dds')
+
+# Convert and save as PNG
+dds_image.save('minimap.png', 'PNG')
+```
+
+According to [Pillow Image File Formats Documentation](https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html), Pillow supports reading DXT1 and DXT5 DDS formats in RGBA mode. This is a read-only operation sufficient for our extraction needs.
+
+**Option B: Python Wand Library (Alternative)**
+
+```python
+from wand.image import Image
+
+# Open and convert DDS to PNG
+with Image(filename='minimap.dds') as img:
+    img.save(filename='minimap.png')
+```
+
+Based on [Stack Overflow: DDS Compression in Python](https://stackoverflow.com/questions/55574543/how-to-compress-png-image-with-s3tc-dxt-algorithm-in-python), Wand (ImageMagick Python binding) can handle DDS conversion reliably.
+
+**Option C: Command-line Tools (Fallback)**
+
+- Use ImageMagick's `convert` command: `convert minimap.dds minimap.png`
+- Use reaConverter or similar batch conversion tools (per [reaConverter DDS to PNG Guide](https://www.reaconverter.com/convert/dds_to_png.html))
+
+**Must handle edge cases:**
+
+- Some maps may have multiple DDS files in `info/` folder - extract all, prioritize largest by file size as primary minimap
+- If no DDS files found, log warning and proceed with heightmap-only processing
+- If DDS conversion fails, attempt alternative conversion method before failing
+- Validate converted PNG dimensions match expected map sizes (typically 1024x1024, 2048x2048, or 4096x4096 pixels)
+- Verify PNG file size >100KB (too small indicates corruption or extraction failure)
+
+**Must store converted minimap:**
+
+- Save to `/processed_maps/{mapname}/minimap.png`
+- Optionally create `background.png` as a scaled copy if different resolution needed for UI
+- Include minimap metadata in `metadata.json`:
+
+```json
+{
+  "map_name": "muttrah_city_2",
+  "map_size": 2048,
+  "height_scale": 300,
+  "minimap": {
+    "source_file": "info/minimap.dds",
+    "resolution": "2048x2048",
+    "file_size_kb": 1024,
+    "converted_at": "2024-11-19T10:30:00Z"
+  }
+}
+```
+
 ***
 
 ### 2. The User Interface (HTML/CSS/JavaScript Frontend - Part D: The Calculator)
@@ -300,9 +414,30 @@ Create a **localhost web-based mortar calculator** for Project Reality: BF2 that
 **Requirement 2.3:** Map Visualization Panel
 
 - **2D top-down map view** using Leaflet.js or HTML5 Canvas
+- **Minimap Base Layer:** Display converted minimap.png as background image
+    - **Leaflet.js Configuration:**
+      ```javascript
+      // Load minimap as image overlay
+      const mapBounds = [[0, 0], [mapSize, mapSize]];  // From metadata.json
+
+      // Create image overlay using minimap.png
+      const minimapOverlay = L.imageOverlay(
+          '/maps/{mapname}/minimap.png',
+          mapBounds
+      ).addTo(map);
+
+      // Set map view to fit minimap bounds
+      map.fitBounds(mapBounds);
+      ```
+    - **Requirements for minimap display:**
+      - Minimap PNG must be displayed as the base layer (underneath grid overlays and markers)
+      - Image must scale proportionally when zooming
+      - Must load within 500ms (use lazy loading if PNG >2MB)
+      - If minimap.png missing, display placeholder grid pattern with warning message: "Visual map unavailable - using grid only"
+      - Grid overlay must align precisely with minimap terrain features
 - **Pan controls:** Click-drag to pan
 - **Zoom controls:** Mouse wheel or +/- buttons (6-8 zoom levels)
-- **Grid overlay:** PR standard grid lines with letter/number labels
+- **Grid overlay:** PR standard grid lines with letter/number labels (overlaid on minimap)
 - **Markers:**
     - **Blue marker:** Mortar position (with elevation badge)
     - **Red marker:** Target position (with elevation badge)
@@ -582,12 +717,13 @@ Where:
 - **Backend (Data Collection & Processing):** Python 3.8+
     - **Phase 1 - Local Collection Script** (`collect_maps.py`):
         - Standard library: `os`, `shutil`, `zipfile`, `json`, `hashlib` (MD5 checksums)
-        - Extracts server.zip files from PR:BF2 installation
+        - Extracts both server.zip and client.zip files from PR:BF2 installation
         - Validates and versions using MD5 checksums
         - Manages Git LFS configuration
     - **Phase 2 - Cloud Processing Notebook** (`process_maps.ipynb`):
         - Required Libraries: `numpy`, `zipfile`, `struct`, `json`, `subprocess` (git operations)
-        - Optional: `PIL/Pillow` (minimap generation)
+        - Required for Minimap Conversion: `Pillow` (PIL) - DDS to PNG conversion
+        - Optional: `Wand` (ImageMagick binding) - fallback DDS converter
         - Runs in Google Colab or local Jupyter
         - Auto-commits processed data back to GitHub
 - **Frontend (Calculator):**
@@ -606,23 +742,29 @@ Where:
 
 ```
 /ProjectRealityMortarCalc/
-  /raw_map_data/           # Part A: Source data (Git LFS if < 10MB total)
+  /raw_map_data/           # Part A: Source data (Git LFS if > 10MB total)
     /muttrah_city_2/
-      server.zip           # Original from game installation
+      server.zip           # Original heightmap data from game installation
+      client.zip           # Original minimap textures from game installation
     /fallujah_west/
       server.zip
-    manifest.json          # Map inventory with checksums
+      client.zip
+    manifest.json          # Map inventory with checksums for both zip files
   /processor/              # Part B: Processing scripts
-    collect_maps.py        # Phase 1: Local extraction script
-    process_maps.ipynb     # Phase 2: Cloud processing notebook
+    collect_maps.py        # Phase 1: Local extraction script (server.zip + client.zip)
+    process_maps.ipynb     # Phase 2: Cloud processing notebook (heightmap + minimap)
     README.md              # Workflow instructions
   /processed_maps/         # Part C: Processed output (Git LFS if needed)
     /muttrah_city_2/
       heightmap.json       # 16-bit height data
-      metadata.json        # Map configuration
+      metadata.json        # Map configuration (includes minimap info)
+      minimap.png          # Converted from client.zip/info/minimap.dds
+      background.png       # Optional: Scaled version for UI
     /fallujah_west/
       heightmap.json
       metadata.json
+      minimap.png
+      background.png
   /calculator/             # Part D: Web Calculator
     /static/
       /js/
@@ -648,7 +790,7 @@ Where:
   run.bat                  # Windows launcher
   run.sh                   # Linux/Mac launcher
   README.md
-  requirements.txt         # Python dependencies
+  requirements.txt         # Python dependencies (includes Pillow for DDS conversion)
   .gitignore
 ```
 
@@ -701,20 +843,22 @@ const CONFIG = {
 
 1. **Maintainer Setup (One-time data collection):**
     - Run `python processor/collect_maps.py` on machine with PR:BF2 installed
-    - Script extracts server.zip files to `/raw_map_data/`
+    - Script extracts both server.zip and client.zip files to `/raw_map_data/`
     - Script validates files with MD5 checksums and creates manifest.json
-    - Script configures Git LFS automatically (if total size < 10MB)
+    - Script configures Git LFS automatically (if total size > 10MB)
     - Commit and push `/raw_map_data/` to GitHub
 
 2. **Maintainer Processing (Cloud or local):**
     - Clone repository with `git clone` (includes LFS files)
     - Open `processor/process_maps.ipynb` in Google Colab or Jupyter
-    - Notebook reads from `/raw_map_data/`, processes all maps
-    - Notebook outputs to `/processed_maps/` (heightmap.json + metadata.json)
+    - Notebook reads from `/raw_map_data/`, processes all maps:
+      - Extracts and converts heightmaps from server.zip
+      - Extracts and converts minimaps from client.zip (DDS → PNG)
+    - Notebook outputs to `/processed_maps/` (heightmap.json + metadata.json + minimap.png)
     - Notebook automatically commits and pushes results back to GitHub
 
 3. **End User Setup (Download and run):**
-    - Clone repository (processed maps already included)
+    - Clone repository (processed maps and minimaps already included as PNG files)
     - Run `run.bat` or `run.sh`
 2. **Normal Operation:**
     - `run.bat` executes: `python calculator/server.py`
@@ -732,6 +876,7 @@ const CONFIG = {
 - **No API Calls:** All data must be local files
 - **No Telemetry:** No analytics, tracking, or phone-home
 - **Portable:** Entire `/ProjectRealityMortarCalc/` folder can be copied to USB drive
+- **Minimap Images:** All visual map representations are pre-converted to PNG during processing phase and bundled in repository. No runtime DDS conversion needed by end users.
 
 ***
 
@@ -986,7 +1131,7 @@ In-Game Result: Impact 23m from target (PASS)
 
 ### Step 1: Develop collect_maps.py
 
-**What this script does:** Extracts server.zip files from local PR:BF2 installation and prepares them for GitHub upload.
+**What this script does:** Extracts both server.zip (heightmap) and client.zip (minimap) files from local PR:BF2 installation and prepares them for GitHub upload.
 
 **Steps to implement:**
 
@@ -1015,7 +1160,7 @@ In-Game Result: Impact 23m from target (PASS)
 3. **Find all map folders:**
    ```python
    # Scan /mods/pr/levels/ directory for map folders
-   # Each subfolder should contain server.zip
+   # Each subfolder should contain server.zip AND client.zip
    ```
 
 4. **For each map, validate and copy server.zip:**
@@ -1027,48 +1172,66 @@ In-Game Result: Impact 23m from target (PASS)
    # Preserve folder structure
    ```
 
-5. **Handle duplicates with checksums:**
+5. **For each map, validate and copy client.zip:**
+   ```python
+   # Calculate MD5 checksum of client.zip (separately from server.zip)
+   # Verify zip integrity (test open)
+   # Check for info/ folder with .dds files inside
+   # Copy to /raw_map_data/[map_name]/client.zip
+   # Log warning if client.zip missing but continue (heightmap-only mode)
+   ```
+
+6. **Handle duplicates with checksums:**
    ```python
    # If map exists in raw_map_data/
-   # Compare MD5 checksums
+   # Compare MD5 checksums for both server.zip and client.zip
    # Skip if identical, update if different
    # Track versions in manifest
    ```
 
-6. **Generate manifest.json:**
+7. **Generate manifest.json:**
    ```python
    {
        "maps": [
            {
                "name": "muttrah_city_2",
-               "md5": "a1b2c3d4...",
-               "size_bytes": 1048576,
+               "server_zip": {
+                   "md5": "a1b2c3d4...",
+                   "size_bytes": 1048576,
+                   "has_heightmap": true
+               },
+               "client_zip": {
+                   "md5": "b2c3d4e5...",
+                   "size_bytes": 2097152,
+                   "has_minimap": true
+               },
                "collected_at": "2024-11-19T10:30:00Z",
                "source_path": "C:\\PR\\levels\\muttrah_city_2"
            }
        ],
        "total_maps": 45,
-       "total_size_mb": 87.3,
+       "maps_with_minimaps": 43,
+       "maps_heightmap_only": 2,
+       "total_size_mb": 150.7,
        "collection_date": "2024-11-19"
    }
    ```
 
-7. **Configure Git LFS (if needed):**
+8. **Configure Git LFS (if needed):**
    ```python
    # Calculate total size of raw_map_data/
-   # If < 10MB: No LFS needed (or optional)
    # If > 10MB: Create/update .gitattributes
-   # Add pattern: *.zip filter=lfs diff=lfs merge=lfs -text
+   # Add patterns: *.zip filter=lfs diff=lfs merge=lfs -text
    ```
 
-8. **Generate collection report:**
-   - Print summary: "Collected 45 maps, 2 skipped (duplicates), 1 error"
+9. **Generate collection report:**
+   - Print summary: "Collected 45 maps (43 with minimaps, 2 heightmap-only), 0 skipped, 0 errors"
    - Save report to processor/collection_report.txt
    - List any errors or warnings
 
 ### Step 2: Develop process_maps.ipynb
 
-**What this notebook does:** Processes server.zip files from /raw_map_data/ and converts to JSON format. Runs in Google Colab or local Jupyter. Auto-commits results to GitHub.
+**What this notebook does:** Processes server.zip and client.zip files from /raw_map_data/ and converts to JSON + PNG formats. Runs in Google Colab or local Jupyter. Auto-commits results to GitHub.
 
 **Notebook Structure:**
 
@@ -1081,6 +1244,7 @@ In-Game Result: Impact 23m from target (PASS)
    ```python
    import os, zipfile, struct, json, subprocess
    import numpy as np
+   from PIL import Image  # For DDS to PNG conversion
    from pathlib import Path
    from datetime import datetime
    
@@ -1089,7 +1253,16 @@ In-Game Result: Impact 23m from target (PASS)
    print(f"Running in: {'Google Colab' if IN_COLAB else 'Local Jupyter'}")
    ```
 
-3. **Cell 3 (Python): Configuration and Authentication**
+3. **Cell 3 (Python): Install Dependencies**
+   ```python
+   # Install required libraries
+   !pip install Pillow numpy
+   
+   # Optional: Install Wand as fallback DDS converter
+   # !pip install Wand
+   ```
+
+4. **Cell 4 (Python): Configuration and Authentication**
    ```python
    # Git configuration
    GIT_USER_NAME = input("Git user name: ")
@@ -1101,36 +1274,134 @@ In-Game Result: Impact 23m from target (PASS)
    subprocess.run(['git', 'config', 'user.email', GIT_USER_EMAIL])
    ```
 
-4. **Cell 4 (Python): Load Manifest and Discover Maps**
+5. **Cell 5 (Python): Load Manifest and Discover Maps**
    ```python
    # Read manifest.json from raw_map_data/
-   # List all server.zip files to process
-   # Display: "Found 45 maps to process"
+   # List all server.zip and client.zip files to process
+   # Display: "Found 45 maps to process (43 with minimaps, 2 heightmap-only)"
    ```
 
-5. **Cell 5 (Python): Processing Loop**
+6. **Cell 6 (Python): Define Minimap Extraction Function**
+   ```python
+   def extract_and_convert_minimap(map_name, raw_data_path, output_path):
+       """
+       Extract minimap DDS from client.zip and convert to PNG.
+       
+       Args:
+           map_name: Name of the map (e.g., 'muttrah_city_2')
+           raw_data_path: Path to raw_map_data folder
+           output_path: Path to processed_maps folder
+       
+       Returns:
+           dict with minimap metadata or None if extraction failed
+       """
+       client_zip_path = os.path.join(raw_data_path, map_name, 'client.zip')
+       
+       # Check if client.zip exists
+       if not os.path.exists(client_zip_path):
+           print(f"⚠️  {map_name}: client.zip not found, skipping minimap")
+           return None
+       
+       try:
+           # Extract DDS files from info folder
+           with zipfile.ZipFile(client_zip_path, 'r') as zf:
+               info_files = [f for f in zf.namelist() 
+                           if 'info/' in f.lower() and f.lower().endswith('.dds')]
+               
+               if not info_files:
+                   print(f"⚠️  {map_name}: No DDS files in client.zip/info/")
+                   return None
+               
+               # Use largest DDS file as primary minimap
+               largest_dds = max(info_files, key=lambda f: zf.getinfo(f).file_size)
+               
+               # Extract to temporary location
+               temp_dds_path = f'temp_{map_name}_minimap.dds'
+               with open(temp_dds_path, 'wb') as f:
+                   f.write(zf.read(largest_dds))
+               
+               # Convert DDS to PNG using Pillow
+               with Image.open(temp_dds_path) as img:
+                   # Ensure output directory exists
+                   output_dir = os.path.join(output_path, map_name)
+                   os.makedirs(output_dir, exist_ok=True)
+                   
+                   # Save as PNG
+                   minimap_png_path = os.path.join(output_dir, 'minimap.png')
+                   img.save(minimap_png_path, 'PNG')
+                   
+                   # Get image dimensions
+                   width, height = img.size
+               
+               # Clean up temporary DDS file
+               os.remove(temp_dds_path)
+               
+               # Validate PNG file size
+               png_size_kb = os.path.getsize(minimap_png_path) // 1024
+               if png_size_kb < 100:
+                   print(f"⚠️  {map_name}: PNG file too small ({png_size_kb}KB), may be corrupted")
+               
+               print(f"✅ {map_name}: Minimap converted ({width}x{height}, {png_size_kb}KB)")
+               
+               return {
+                   "source_file": largest_dds,
+                   "resolution": f"{width}x{height}",
+                   "file_size_kb": png_size_kb,
+                   "converted_at": datetime.now().isoformat()
+               }
+               
+       except Exception as e:
+           print(f"❌ {map_name}: Failed to convert minimap - {str(e)}")
+           # Try fallback method (Wand) here if needed
+           return None
+   ```
+
+7. **Cell 7 (Python): Processing Loop**
    ```python
    # For each map in raw_map_data/:
    #   - Extract heightmapprimary.raw from server.zip (case-insensitive)
    #   - Parse as 16-bit unsigned int array
    #   - Extract init.con and terrain.con
-   #   - Convert RAW to JSON (see Step 1 from old implementation)
-   #   - Generate metadata.json
+   #   - Convert RAW to JSON (existing heightmap processing)
+   #   - Extract and convert minimap from client.zip (NEW)
+   #   - Generate metadata.json (include minimap info)
    #   - Save to processed_maps/[map_name]/
    #   - Display progress bar
+   
+   # Example integration:
+   for map_name in map_list:
+       print(f"\nProcessing {map_name}...")
+       
+       # Existing heightmap processing
+       # ... (process server.zip, extract heightmap, etc.) ...
+       
+       # NEW: Add minimap conversion
+       minimap_metadata = extract_and_convert_minimap(
+           map_name, 
+           'raw_map_data',
+           'processed_maps'
+       )
+       
+       # Update metadata.json to include minimap info
+       if minimap_metadata:
+           metadata['minimap'] = minimap_metadata
+       
+       # Save updated metadata
+       # ...
    ```
 
-6. **Cell 6 (Python): Git Commit and Push**
+8. **Cell 8 (Python): Git Commit and Push**
    ```python
    # Pull latest changes: git pull origin main
    # Stage files: git add processed_maps/
-   # Commit: git commit -m "chore: process maps - 45 updated (2024-11-19)"
+   # Commit: git commit -m "chore: process maps - 45 updated (43 with minimaps) (2024-11-19)"
    # Push with token: git push https://[token]@github.com/user/repo.git
    # Display: "Successfully pushed to GitHub"
    ```
 
-7. **Cell 7 (Markdown): Summary**
+9. **Cell 9 (Markdown): Summary**
    - Display processing results
+   - Show stats: "45 maps processed, 43 with minimaps, 2 heightmap-only"
    - Link to GitHub repository
    - Next steps for user
 
@@ -1204,6 +1475,21 @@ In-Game Result: Impact 23m from target (PASS)
    
    // Store in variable for later height lookups
    window.currentHeightmap = heightmapData;
+   
+   // NEW: Load minimap PNG as base layer
+   const metadata = await fetch('/maps/muttrah_city_2/metadata.json').then(r => r.json());
+   const mapSize = metadata.map_size;
+   
+   // Create image overlay for minimap
+   if (metadata.minimap) {
+       const minimapOverlay = L.imageOverlay(
+           '/maps/muttrah_city_2/minimap.png',
+           [[0, 0], [mapSize, mapSize]]
+       ).addTo(map);
+   } else {
+       console.warn('Minimap not available - using grid-only mode');
+       // Display placeholder or warning to user
+   }
    ```
 
 6. **Implement height sampling function:**
@@ -1284,6 +1570,8 @@ In-Game Result: Impact 23m from target (PASS)
 8. `run.bat` launches tool in <3 seconds
 9. Documentation includes example screenshots and usage guide
 10. Code is open-source on GitHub with clear README
+11. Visual minimap images are successfully extracted from client.zip and converted to PNG format for all available maps
+12. Calculator displays actual terrain representation (satellite/overview image) as base layer under grid overlays, not placeholder graphics
 
 ***
 
@@ -1396,3 +1684,118 @@ In-Game Result: Impact 23m from target (PASS)
 [^40]: https://github.com/Whiplash141/squad-mortar-calculator
 
 [^41]: https://forum.realitymod.com/viewtopic.php?t=69889\&start=120
+
+***
+
+## DOCUMENT CHANGELOG
+
+### Revision: 2024-11-19 - Minimap Extraction Feature Added
+
+**Summary:** Enhanced PRD to include visual minimap extraction from client.zip files, providing users with actual terrain representation (satellite/overview images) as the base layer in the calculator interface.
+
+**Rationale:** The original PRD only covered heightmap data (elevation), which provides terrain shape but no visual representation. Users need to see actual map features (roads, buildings, terrain colors) to orient themselves and identify landmarks. This visual data is stored separately in client.zip files and must be extracted and converted for web display.
+
+**Modified Sections:**
+
+1. **Section B.1 - Functional Requirements (Map Processing)**
+   - **Requirement 1.1 (Local Map Collection):**
+     - Changed: Now collects both `server.zip` AND `client.zip` files
+     - Added: Separate validation for client.zip (MD5 checksum, integrity, DDS file presence)
+     - Added: Graceful degradation if client.zip missing (heightmap-only mode)
+     - Updated: manifest.json structure to include separate entries for server_zip and client_zip
+   
+   - **Requirement 1.2 (Cloud Notebook Processing):**
+     - Added: Processing step for client.zip alongside server.zip
+     - Added: Minimap extraction and conversion workflow
+   
+   - **NEW Requirement 1.6 (Visual Minimap Extraction):**
+     - Location: client.zip/info/ directory
+     - Source format: DDS files (DXT1 compression)
+     - Conversion methods: Pillow (recommended), Wand (alternative), ImageMagick (fallback)
+     - Edge cases: Multiple DDS files, missing files, conversion failures, invalid dimensions
+     - Output: minimap.png saved to processed_maps/{mapname}/
+     - Metadata: Include minimap info in metadata.json
+
+2. **Section B.2 - Functional Requirements (User Interface)**
+   - **Requirement 2.3 (Map Visualization Panel):**
+     - Added: Detailed Leaflet.js configuration for minimap as base layer
+     - Added: Image overlay setup using L.imageOverlay()
+     - Added: Requirements for minimap display (loading speed, fallback behavior, grid alignment)
+     - Added: Warning message display if minimap unavailable
+
+3. **Section C - Technical Specifications**
+   - **Tech Stack:**
+     - Updated: Phase 1 now extracts both server.zip and client.zip
+     - Added: Pillow library as required dependency for DDS conversion
+     - Added: Wand library as optional fallback converter
+   
+   - **Deployment Architecture (Directory Structure):**
+     - Updated: `/raw_map_data/{mapname}/` now includes both server.zip and client.zip
+     - Updated: `/processed_maps/{mapname}/` now includes minimap.png and optional background.png
+     - Updated: manifest.json includes metadata for both zip files
+     - Updated: requirements.txt includes Pillow for DDS conversion
+   
+   - **Execution Flow:**
+     - Step 1: Collection script now extracts both zip types
+     - Step 2: Processing notebook converts heightmaps AND minimaps
+     - Step 3: End users receive pre-converted PNG files (no runtime conversion needed)
+   
+   - **Offline Policy:**
+     - Added: Clarification that minimap PNGs are pre-converted and bundled in repository
+
+4. **Section "IMPLEMENTATION GUIDE"**
+   - **Step 1 (collect_maps.py):**
+     - Added: Client.zip extraction and validation logic
+     - Added: Separate MD5 checksum calculation for client.zip
+     - Added: Detection of DDS files in client.zip/info/ directory
+     - Updated: Manifest generation to include client.zip metadata
+     - Updated: Collection report to show "X maps with minimaps, Y heightmap-only"
+   
+   - **Step 2 (process_maps.ipynb):**
+     - Added: Cell 3 for installing Pillow dependency
+     - Added: Cell 6 with complete minimap extraction function
+     - Added: Integration of minimap conversion into main processing loop
+     - Updated: Metadata.json now includes minimap information
+     - Updated: Git commit messages to reflect minimap processing
+     - Updated: Summary cell to show minimap processing statistics
+   
+   - **Step 3 (Frontend Development):**
+     - Added: Code to load minimap PNG and create Leaflet image overlay
+     - Added: Fallback behavior when minimap unavailable
+     - Added: Warning message display for missing minimaps
+
+5. **Section "SUCCESS CRITERIA"**
+   - Added: Criterion 11 - Visual minimap extraction successful for all maps
+   - Added: Criterion 12 - Calculator displays actual terrain representation as base layer
+
+**Technical References Added:**
+- [PR Forum: Loading DDS Map Files](https://forum.realitymod.com/viewtopic.php?t=105865) - Minimap location documentation
+- [PR Forum: Offline Maps Discussion](https://forum.realitymod.com/viewtopic.php?t=111399) - Client.zip usage patterns
+- [PR Forum: DDS Format in BF2](https://forum.realitymod.com/viewtopic.php?t=126573) - DXT1 compression specification
+- [Pillow Documentation: Image File Formats](https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html) - DDS support details
+- [Stack Overflow: DDS Compression in Python](https://stackoverflow.com/questions/55574543) - Wand library examples
+- [reaConverter: DDS to PNG](https://www.reaconverter.com/convert/dds_to_png.html) - Alternative conversion methods
+
+**Preserved Elements:**
+- All physics constants remain unchanged (gravity 14.86 m/s², velocity 148.64 m/s)
+- Heightmap extraction logic untouched
+- Ballistic calculation formulas unchanged
+- Coordinate system specifications unchanged
+- All existing functional requirements preserved
+
+**Implementation Flexibility Granted:**
+- Choice of DDS conversion library (Pillow, Wand, or ImageMagick)
+- Handling of missing minimaps (grayscale, placeholder, or grid-only mode)
+- PNG compression and optimization strategies
+- File naming conventions (must be consistent and documented)
+- Error recovery and retry logic
+
+**Constraints Maintained:**
+- Offline capability preserved (all conversions during preprocessing)
+- No runtime DDS conversion by end users
+- Graceful degradation if minimap unavailable (heightmap-only mode)
+- All dependencies documented in requirements.txt
+
+***
+
+**END OF DOCUMENT**

@@ -37,18 +37,47 @@ The system SHALL validate each server.zip file for integrity and required conten
 - **THEN** validation fails with error "Missing heightmapprimary.raw"
 - **AND** map is skipped and error is logged
 
+### Requirement: Client.zip Validation
+
+The system SHALL validate each client.zip file for integrity and minimap content, logging warnings but continuing processing if missing.
+
+#### Scenario: Valid client.zip with minimap
+- **WHEN** client.zip is well-formed zip file containing info/ directory with .dds files
+- **THEN** validation passes and file is queued for minimap processing
+
+#### Scenario: Missing client.zip
+- **WHEN** client.zip is not found in map folder
+- **THEN** warning "client.zip not found - heightmap-only mode" is logged
+- **AND** map processing continues without minimap extraction
+
+#### Scenario: Corrupted client.zip
+- **WHEN** client.zip is corrupted or incomplete
+- **THEN** warning "Corrupted client.zip" is logged
+- **AND** map processing continues without minimap extraction
+
+#### Scenario: No DDS files in info folder
+- **WHEN** client.zip is valid but info/ directory contains no .dds files
+- **THEN** warning "No DDS files in client.zip/info/" is logged
+- **AND** map processing continues without minimap extraction
+
 ### Requirement: MD5 Checksum Duplicate Detection
 
-The system SHALL calculate MD5 checksums for each server.zip and compare against existing manifest to detect duplicates and version changes.
+The system SHALL calculate MD5 checksums for each server.zip and client.zip separately, comparing against existing manifest to detect duplicates and version changes.
 
-#### Scenario: Identical file already collected
+#### Scenario: Identical files already collected
 - **WHEN** server.zip MD5 matches existing entry in manifest.json
-- **THEN** file is skipped with message "Skipped (identical to existing)"
+- **AND** client.zip MD5 matches existing entry (if present)
+- **THEN** files are skipped with message "Skipped (identical to existing)"
 - **AND** existing manifest entry is preserved
 
-#### Scenario: Modified file detected
+#### Scenario: Modified server.zip detected
 - **WHEN** server.zip MD5 differs from existing entry in manifest.json
-- **THEN** file is re-copied and manifest entry is updated with new MD5 and timestamp
+- **THEN** server.zip is re-copied and manifest entry is updated with new MD5 and timestamp
+- **AND** status is marked as "updated"
+
+#### Scenario: Modified client.zip detected
+- **WHEN** client.zip MD5 differs from existing entry in manifest.json
+- **THEN** client.zip is re-copied and manifest entry is updated with new MD5 and timestamp
 - **AND** status is marked as "updated"
 
 #### Scenario: New map discovered
@@ -58,13 +87,13 @@ The system SHALL calculate MD5 checksums for each server.zip and compare against
 
 ### Requirement: Manifest Generation
 
-The system SHALL generate manifest.json containing inventory of all collected maps with metadata (name, MD5, size, timestamp, source path).
+The system SHALL generate manifest.json containing inventory of all collected maps with metadata for both server.zip and client.zip (name, MD5s, sizes, timestamps, source path, minimap availability).
 
 #### Scenario: Manifest created successfully
-- **WHEN** collection completes with 45 maps processed
+- **WHEN** collection completes with 45 maps processed (43 with minimaps, 2 heightmap-only)
 - **THEN** manifest.json is created in raw_map_data/ directory
-- **AND** manifest contains array of 45 map entries
-- **AND** manifest includes total_maps, total_size_bytes, total_size_mb, collection_date, format_version
+- **AND** manifest contains array of 45 map entries with server_zip and client_zip metadata
+- **AND** manifest includes total_maps, maps_with_minimaps, maps_heightmap_only, total_size_bytes, total_size_mb, collection_date, format_version
 
 #### Scenario: Empty collection
 - **WHEN** no valid maps are found
@@ -112,6 +141,35 @@ The system SHALL extract heightmapprimary.raw (case-insensitive) from server.zip
 - **THEN** error "Failed to extract heightmap" is raised
 - **AND** map processing is skipped
 
+### Requirement: DDS Minimap Extraction and Conversion
+
+The system SHALL extract DDS texture files from client.zip/info/ directory and convert to PNG format using Pillow library.
+
+#### Scenario: Successful minimap conversion
+- **WHEN** client.zip contains info/minimap.dds file
+- **THEN** DDS file is extracted to temporary location
+- **AND** Pillow opens DDS file and converts to PNG
+- **AND** PNG is saved to processed_maps/{mapname}/minimap.png
+- **AND** temporary DDS file is cleaned up
+- **AND** metadata.json includes minimap field with source_file, resolution, file_size_kb, converted_at
+
+#### Scenario: Multiple DDS files present
+- **WHEN** client.zip/info/ contains multiple .dds files
+- **THEN** largest file by size is selected as primary minimap
+- **AND** conversion proceeds with largest file
+
+#### Scenario: DDS conversion failure
+- **WHEN** Pillow fails to open or convert DDS file
+- **THEN** warning "Failed to convert minimap - [error]" is logged
+- **AND** map processing continues without minimap.png
+- **AND** metadata.json does not include minimap field
+
+#### Scenario: PNG validation
+- **WHEN** PNG file is created successfully
+- **THEN** file size is checked (must be >100KB to avoid corruption)
+- **AND** dimensions are validated (power of 2: 1024, 2048, 4096)
+- **AND** warnings are logged if validation fails but file is kept
+
 ### Requirement: Map Configuration Parsing
 
 The system SHALL extract and parse init.con and terrain.con files to determine map size and height scale using regex patterns.
@@ -155,32 +213,34 @@ The system SHALL convert NumPy uint16 arrays to JSON format preserving full 16-b
 
 ### Requirement: Metadata JSON Generation
 
-The system SHALL generate metadata.json for each map containing map_name, map_size, height_scale, grid_scale, heightmap_resolution, processed_at timestamp, and format_version.
+The system SHALL generate metadata.json for each map containing map_name, map_size, height_scale, grid_scale, heightmap_resolution, minimap metadata (if available), processed_at timestamp, and format_version.
 
-#### Scenario: Metadata with parsed config
+#### Scenario: Metadata with minimap
 - **WHEN** map_size is 2048m and height_scale is 400m from config files
+- **AND** minimap was successfully converted
 - **THEN** metadata.json contains:
   - `map_name`: "[map_name]"
   - `map_size`: 2048
   - `height_scale`: 400
   - `grid_scale`: 157.538 (2048 / 13)
   - `heightmap_resolution`: 1025
+  - `minimap`: object with source_file, resolution, file_size_kb, converted_at
   - `processed_at`: ISO 8601 timestamp with 'Z' suffix
   - `format_version`: "1.0"
 
-#### Scenario: Metadata with defaults
-- **WHEN** config files are missing
-- **THEN** default values are used (map_size inferred, height_scale=300)
-- **AND** grid_scale is calculated from inferred map_size
+#### Scenario: Metadata without minimap (heightmap-only mode)
+- **WHEN** client.zip is missing or minimap conversion failed
+- **THEN** metadata.json does not include minimap field
+- **AND** all other fields are populated normally
 
 ### Requirement: Git Automation with Token Authentication
 
 The system SHALL automatically commit processed maps to Git and push to GitHub using provided user credentials (name, email, personal access token).
 
 #### Scenario: Successful commit and push
-- **WHEN** user provides valid Git credentials and 45 maps are processed
+- **WHEN** user provides valid Git credentials and 45 maps are processed (43 with minimaps)
 - **THEN** processed_maps/ directory is staged with `git add processed_maps/`
-- **AND** commit is created with message "chore: process maps - 45 updated (2025-11-19)"
+- **AND** commit is created with message "chore: process maps - 45 updated (43 with minimaps) (2025-11-19)"
 - **AND** changes are pulled from origin/main first
 - **AND** changes are pushed to GitHub using HTTPS URL with token authentication
 - **AND** success message displays "Successfully pushed to GitHub!"

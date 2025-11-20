@@ -1,101 +1,103 @@
 ======================================================================
 PROJECT REALITY MORTAR CALCULATOR - MAP COLLECTION REPORT
 ======================================================================
-Generated: 2025-11-19 14:40:05
+Generated: 2025-11-19 23:40:55
 
 SUMMARY:
   Total maps found: 84
   Successfully collected: 84
-    - New maps: 83
-    - Updated maps: 1
+    - New maps: 0
+    - Updated maps: 84
     - Unchanged (skipped): 0
+    - With minimaps: 84
+    - Heightmap-only: 0
   ✗ Errors: 0
 
 COLLECTED MAPS:
-  [↻] adak                            10420.8 KB  73f99833
-  [+] albasrah_2                       8189.1 KB  9fad6549
-  [+] andromeda                          28.3 KB  ccf24912
-  [+] asad_khal                        6869.4 KB  73d3184d
-  [+] ascheberg                       11039.9 KB  5f26f495
-  [+] assault_on_grozny               16212.5 KB  3165f847
-  [+] assault_on_mestia               10476.8 KB  49d90fe2
-  [+] bamyan                          12157.7 KB  3dfe8920
-  [+] battle_of_debrecen              10488.0 KB  ddccfa71
-  [+] battle_of_ia_drang              10975.2 KB  61f4ffe5
-  [+] battle_of_kerch                  9562.4 KB  db46f13f
-  [+] beirut                           8873.3 KB  f20bb1ab
-  [+] belyaevo                         3311.3 KB  36932dc6
-  [+] black_gold                      11169.8 KB  d2702e1c
-  [+] brecourt_assault                10638.4 KB  9660c10e
-  [+] burning_sands                   10522.6 KB  ec3bad7c
-  [+] carentan                        16954.1 KB  14a94500
-  [+] charlies_point                   8904.7 KB  11ba5aea
-  [+] deagle5                            27.5 KB  bb38abfe
-  [+] donbas                           2081.0 KB  4a9ce8f8
-  [+] dovre                           14520.1 KB  6a8ff66e
-  [+] dovre_winter                    14342.6 KB  2de23998
-  [+] dragon_fly                      12797.9 KB  32a1b27f
-  [+] fallujah_west                    9467.6 KB  aceb94fd
-  [+] fields_of_kassel                 9213.1 KB  f70cb2cf
-  [+] fools_road                      14329.5 KB  0a5fac12
-  [+] gaza_2                           7352.1 KB  ba33742f
-  [+] goose_green                      7824.4 KB  37445e6f
-  [+] grostok                         12816.3 KB  59f40465
-  [+] hades_peak                      12891.1 KB  01f3c979
-  [+] hill_488                        11552.6 KB  33a6b605
-  [+] iron_ridge                      10089.3 KB  a5755446
-  [+] kafar_halab                     12808.1 KB  6d053fec
-  [+] karbala                         11152.1 KB  fb5070cb
-  [+] kashan_desert                    6822.4 KB  2cf47f51
-  [+] khamisiyah                      11443.0 KB  ee5b57e5
-  [+] kokan                            8319.5 KB  12a567d2
-  [+] korbach_offensive               13244.4 KB  d9c326c2
-  [+] korengal                        11751.8 KB  6c5d28c8
-  [+] kozelsk                         14493.9 KB  9c3d1e98
-  [+] krivaja_valley                  11563.9 KB  c3efb333
-  [+] kunar_province                  12509.0 KB  0daaeead
-  [+] lashkar_valley                  16495.6 KB  1ade9aaa
-  [+] masirah                         11588.9 KB  c854d339
-  [+] merville                         7286.0 KB  95ad3767
-  [+] musa_qala                        6788.5 KB  4d3b78ae
-  [+] muttrah_city_2                   8038.1 KB  5620bd50
-  [+] nuijamaa                        12689.5 KB  19256e66
-  [+] omaha_beach                     10734.6 KB  500a6756
-  [+] op_barracuda                    13361.8 KB  0465c126
-  [+] operation_bobcat                10239.0 KB  5349734f
-  [+] operation_brunswick             11568.7 KB  d26c86b2
-  [+] operation_falcon                13632.4 KB  fe62345e
-  [+] operation_marlin                14416.4 KB  43bb5369
-  [+] operation_soul_rebel             7623.0 KB  77def4d5
-  [+] operation_thunder               15623.6 KB  fba3d1d5
-  [+] outpost                         15380.8 KB  9426d49b
-  [+] pavlovsk_bay                    12083.7 KB  b0a8aca7
-  [+] ramiel                          12946.3 KB  e506136f
-  [+] ras_el_masri_2                  17510.1 KB  4b99c25e
-  [+] reichswald                      11547.6 KB  70ba00a2
-  [+] road_to_damascus                12810.7 KB  92866c08
-  [+] route                           14801.8 KB  edf91ef4
-  [+] rzhev                           14067.8 KB  c81f4923
-  [+] saaremaa                        14428.8 KB  207c3c18
-  [+] sahel                           16142.2 KB  8c1f2445
-  [+] sbeneh_outskirts                13791.2 KB  02a9a8ba
-  [+] shahadah                        12554.4 KB  ee2c5202
-  [+] shijiavalley                    14845.0 KB  f69f97c2
-  [+] shipment                           28.0 KB  4213ab8e
-  [+] silent_eagle                    12180.3 KB  c9226c6d
-  [+] stalingrad                      18467.9 KB  b64d0de4
-  [+] stalingrad_summer               18218.7 KB  9f943b68
-  [+] tad_sae                         11349.9 KB  1b906eb7
-  [+] test_airfield                    2350.5 KB  382dffdd
-  [+] test_bootcamp                     381.6 KB  62ca8ec2
-  [+] the_falklands                    5901.0 KB  9a67a4ef
-  [+] ulyanovsk                       12182.0 KB  22ffbf54
-  [+] vadso_city                      11132.8 KB  d6484049
-  [+] vung_ro                         12904.6 KB  55f3f169
-  [+] wanda_shan                      11957.4 KB  99d923fb
-  [+] xiangshan                        6989.0 KB  e80ddc31
-  [+] yamalia                         10319.6 KB  aa64ec6c
-  [+] zakho                           14648.3 KB  a5eb065a
+  [↻] adak                            10420.8 KB [+minimap]
+  [↻] albasrah_2                       8189.1 KB [+minimap]
+  [↻] andromeda                          28.3 KB [+minimap]
+  [↻] asad_khal                        6869.4 KB [+minimap]
+  [↻] ascheberg                       11039.9 KB [+minimap]
+  [↻] assault_on_grozny               16212.5 KB [+minimap]
+  [↻] assault_on_mestia               10476.8 KB [+minimap]
+  [↻] bamyan                          12157.7 KB [+minimap]
+  [↻] battle_of_debrecen              10488.0 KB [+minimap]
+  [↻] battle_of_ia_drang              10975.2 KB [+minimap]
+  [↻] battle_of_kerch                  9562.4 KB [+minimap]
+  [↻] beirut                           8873.3 KB [+minimap]
+  [↻] belyaevo                         3311.3 KB [+minimap]
+  [↻] black_gold                      11169.8 KB [+minimap]
+  [↻] brecourt_assault                10638.4 KB [+minimap]
+  [↻] burning_sands                   10522.6 KB [+minimap]
+  [↻] carentan                        16954.1 KB [+minimap]
+  [↻] charlies_point                   8904.7 KB [+minimap]
+  [↻] deagle5                            27.5 KB [+minimap]
+  [↻] donbas                           2081.0 KB [+minimap]
+  [↻] dovre                           14520.1 KB [+minimap]
+  [↻] dovre_winter                    14342.6 KB [+minimap]
+  [↻] dragon_fly                      12797.9 KB [+minimap]
+  [↻] fallujah_west                    9467.6 KB [+minimap]
+  [↻] fields_of_kassel                 9213.1 KB [+minimap]
+  [↻] fools_road                      14329.5 KB [+minimap]
+  [↻] gaza_2                           7352.1 KB [+minimap]
+  [↻] goose_green                      7824.4 KB [+minimap]
+  [↻] grostok                         12816.3 KB [+minimap]
+  [↻] hades_peak                      12891.1 KB [+minimap]
+  [↻] hill_488                        11552.6 KB [+minimap]
+  [↻] iron_ridge                      10089.3 KB [+minimap]
+  [↻] kafar_halab                     12808.1 KB [+minimap]
+  [↻] karbala                         11152.1 KB [+minimap]
+  [↻] kashan_desert                    6822.4 KB [+minimap]
+  [↻] khamisiyah                      11443.0 KB [+minimap]
+  [↻] kokan                            8319.5 KB [+minimap]
+  [↻] korbach_offensive               13244.4 KB [+minimap]
+  [↻] korengal                        11751.8 KB [+minimap]
+  [↻] kozelsk                         14493.9 KB [+minimap]
+  [↻] krivaja_valley                  11563.9 KB [+minimap]
+  [↻] kunar_province                  12509.0 KB [+minimap]
+  [↻] lashkar_valley                  16495.6 KB [+minimap]
+  [↻] masirah                         11588.9 KB [+minimap]
+  [↻] merville                         7286.0 KB [+minimap]
+  [↻] musa_qala                        6788.5 KB [+minimap]
+  [↻] muttrah_city_2                   8038.1 KB [+minimap]
+  [↻] nuijamaa                        12689.5 KB [+minimap]
+  [↻] omaha_beach                     10734.6 KB [+minimap]
+  [↻] op_barracuda                    13361.8 KB [+minimap]
+  [↻] operation_bobcat                10239.0 KB [+minimap]
+  [↻] operation_brunswick             11568.7 KB [+minimap]
+  [↻] operation_falcon                13632.4 KB [+minimap]
+  [↻] operation_marlin                14416.4 KB [+minimap]
+  [↻] operation_soul_rebel             7623.0 KB [+minimap]
+  [↻] operation_thunder               15623.6 KB [+minimap]
+  [↻] outpost                         15380.8 KB [+minimap]
+  [↻] pavlovsk_bay                    12083.7 KB [+minimap]
+  [↻] ramiel                          12946.3 KB [+minimap]
+  [↻] ras_el_masri_2                  17510.1 KB [+minimap]
+  [↻] reichswald                      11547.6 KB [+minimap]
+  [↻] road_to_damascus                12810.7 KB [+minimap]
+  [↻] route                           14801.8 KB [+minimap]
+  [↻] rzhev                           14067.8 KB [+minimap]
+  [↻] saaremaa                        14428.8 KB [+minimap]
+  [↻] sahel                           16142.2 KB [+minimap]
+  [↻] sbeneh_outskirts                13791.2 KB [+minimap]
+  [↻] shahadah                        12554.4 KB [+minimap]
+  [↻] shijiavalley                    14845.0 KB [+minimap]
+  [↻] shipment                           28.0 KB [+minimap]
+  [↻] silent_eagle                    12180.3 KB [+minimap]
+  [↻] stalingrad                      18467.9 KB [+minimap]
+  [↻] stalingrad_summer               18218.7 KB [+minimap]
+  [↻] tad_sae                         11349.9 KB [+minimap]
+  [↻] test_airfield                    2350.5 KB [+minimap]
+  [↻] test_bootcamp                     381.6 KB [+minimap]
+  [↻] the_falklands                    5901.0 KB [+minimap]
+  [↻] ulyanovsk                       12182.0 KB [+minimap]
+  [↻] vadso_city                      11132.8 KB [+minimap]
+  [↻] vung_ro                         12904.6 KB [+minimap]
+  [↻] wanda_shan                      11957.4 KB [+minimap]
+  [↻] xiangshan                        6989.0 KB [+minimap]
+  [↻] yamalia                         10319.6 KB [+minimap]
+  [↻] zakho                           14648.3 KB [+minimap]
 
 OUTPUT:
   Data directory: raw_map_data/
