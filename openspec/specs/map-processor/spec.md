@@ -214,7 +214,7 @@ The system SHALL display real-time progress indicators during batch processing i
 
 #### Scenario: Error during processing
 - **WHEN** map 23 fails with extraction error
-- **THEN** error displays "✗ ERROR: [error message]"
+- **THEN** error displays "ERROR: [error message]"
 - **AND** processing continues with map 24
 - **AND** failed maps are listed in final summary
 
@@ -235,7 +235,7 @@ The system SHALL generate comprehensive collection report with summary statistic
 #### Scenario: Report with errors
 - **WHEN** collection completes with 2 maps failing validation
 - **THEN** errors section lists failed maps with reasons
-- **AND** summary shows "✗ Errors: 2"
+- **AND** summary shows "Errors: 2"
 
 ### Requirement: Continuous Processing on Failure
 
