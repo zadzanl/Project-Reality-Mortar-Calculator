@@ -255,7 +255,8 @@ body {
   transform: translateY(-10px);
 }
 .grid-label--row {
-  transform: translateX(-10px);
+  transform: translateX(10px);
+  text-align: right;
 }
 
 .calculator__map-loading {

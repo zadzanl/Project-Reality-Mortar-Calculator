@@ -4,7 +4,7 @@
  */
 
 import { calculateFiringSolution, PR_PHYSICS } from './ballistics.js';
-import { gridToXY, formatGridReference, xyToGrid, gridRefToXY, calculateGridScale } from './coordinates.js';
+import { gridToXY, formatGridReference, xyToGrid, gridRefToXY, calculateGridScale, getRowLabelCenterX } from './coordinates.js';
 import { loadMapData } from './heightmap.js';
 
 // ====================================
@@ -17,7 +17,10 @@ const state = {
   leafletMap: null,
   mortarMarker: null,
   targetMarker: null,
-  pathLine: null
+  pathLine: null,
+  // Store precise marker coordinates (not rounded to grid)
+  mortarPreciseXY: null,  // { x: number, y: number } in meters
+  targetPreciseXY: null   // { x: number, y: number } in meters
 };
 
 // Overlay layers
@@ -108,6 +111,10 @@ async function loadSelectedMap() {
     // Reset map size override dropdown to auto
     document.getElementById('map-size-override').value = 'auto';
     
+    // Reset precise coordinates
+    state.mortarPreciseXY = null;
+    state.targetPreciseXY = null;
+    
     console.log('Map loaded:', mapName);
     console.log('Map metadata:', state.mapData.metadata);
     
@@ -122,6 +129,9 @@ async function loadSelectedMap() {
     
     // Update grid displays
     updateGridDisplays();
+    
+    // Reset results to initial state
+    resetResults();
     
     // Hide loading message
     document.getElementById('map-loading').style.display = 'none';
@@ -343,12 +353,12 @@ function addGridOverlay() {
     }).addTo(state.gridLabelGroup);
   }
 
-  // Add row labels (1-13) at left center of each row
-  // Row 1 is at the top (row index 0), Row 13 is at the bottom (row index 12)
+  // Add row labels (1-13) at right center of each row
+  // Row 1 is at the bottom (row index 0), Row 13 is at the top (row index 12)
   for (let row = 0; row < 13; row++) {
-    const centerX = gridScale * 0.15; // position near left
+    const centerX = getRowLabelCenterX(mapSize, gridScale); // position near right
     const centerY = (row + 0.5) * gridScale;
-    const rowNumber = row + 1; // 1 at top, 13 at bottom
+    const rowNumber = 13 - row; // 1 at bottom, 1 at bottom
     const label = L.marker([centerY, centerX], {
       icon: L.divIcon({
         className: 'grid-label grid-label--row',
@@ -382,7 +392,10 @@ function handleMapClick(e) {
       state.mortarMarker.setLatLng([y, x]);
     }
 
-    // Update dropdowns (safely)
+    // Store PRECISE coordinates (NOT rounded to grid)
+    state.mortarPreciseXY = { x, y };
+
+    // Update dropdowns to show NEAREST keypad (for display/communication only)
     try {
       const grid = xyToGrid(x, y, metadata.grid_scale);
       document.getElementById('mortar-column').value = grid.column;
@@ -404,7 +417,10 @@ function handleMapClick(e) {
       state.targetMarker.setLatLng([y, x]);
     }
 
-    // Update dropdowns (safely)
+    // Store PRECISE coordinates (NOT rounded to grid)
+    state.targetPreciseXY = { x, y };
+
+    // Update dropdowns to show NEAREST keypad (for display/communication only)
     try {
       const grid = xyToGrid(x, y, metadata.grid_scale);
       document.getElementById('target-column').value = grid.column;
@@ -439,9 +455,13 @@ function placeMarkers() {
   const targetRow = parseInt(document.getElementById('target-row').value);
   const targetKeypad = parseInt(document.getElementById('target-keypad').value);
   
-  // Convert to XY coordinates
+  // Convert to XY coordinates (these snap to keypad centers when user changes dropdown)
   const mortarXY = gridToXY(mortarColumn, mortarRow, mortarKeypad, metadata.grid_scale);
   const targetXY = gridToXY(targetColumn, targetRow, targetKeypad, metadata.grid_scale);
+  
+  // Store precise coordinates (will be keypad centers when set from dropdown)
+  state.mortarPreciseXY = { x: mortarXY.x, y: mortarXY.y };
+  state.targetPreciseXY = { x: targetXY.x, y: targetXY.y };
   
   // Convert to Leaflet coordinates (Y-inverted for Leaflet)
   const mortarLatLng = [mortarXY.y, mortarXY.x];
@@ -504,6 +524,14 @@ function setupMarkerEvents(marker, type) {
     const x = latlng.lng;
     const y = latlng.lat;
     try {
+      // Store PRECISE position (NOT snapped to grid)
+      if (type === 'mortar') {
+        state.mortarPreciseXY = { x, y };
+      } else {
+        state.targetPreciseXY = { x, y };
+      }
+      
+      // Update dropdown to show NEAREST keypad (for display only)
       const grid = xyToGrid(x, y, metadata.grid_scale);
 
       if (type === 'mortar') {
@@ -535,6 +563,9 @@ function setupMarkerEvents(marker, type) {
       if (type === 'mortar' && state.mortarMarker) {
         updateRangeCircle(state.mortarMarker.getLatLng());
       }
+      
+      // Auto-calculate firing solution after drag
+      autoCalculateFiringSolution();
     } catch (err) {
       console.warn('Marker drag error:', err);
     }
@@ -621,6 +652,41 @@ function createCustomIcon(color) {
 // CALCULATION
 // ====================================
 
+/**
+ * Automatically calculate firing solution if both markers are placed
+ */
+function autoCalculateFiringSolution() {
+  // Only auto-calculate if both markers exist and map is loaded
+  if (!state.mapData || !state.mortarMarker || !state.targetMarker) {
+    // Reset to initial state if markers missing
+    resetResults();
+    return;
+  }
+  
+  try {
+    performCalculation();
+  } catch (err) {
+    console.warn('Auto-calculation failed:', err);
+    resetResults();
+  }
+}
+
+/**
+ * Reset results display to initial state
+ */
+function resetResults() {
+  document.getElementById('result-distance').textContent = '--';
+  document.getElementById('result-azimuth').textContent = '--';
+  document.getElementById('result-height-delta').textContent = '--';
+  document.getElementById('result-elevation-mils').textContent = '----';
+  document.getElementById('result-elevation-degrees').textContent = '--';
+  document.getElementById('result-tof').textContent = '--';
+  
+  const statusElement = document.getElementById('result-status');
+  statusElement.textContent = 'Place markers and calculate';
+  statusElement.className = 'calculator__result-status calculator__result-status--ready';
+}
+
 function performCalculation() {
   if (!state.mapData) {
     alert('Please load a map first');
@@ -629,11 +695,34 @@ function performCalculation() {
   
   const metadata = state.mapData.metadata;
   
-  // Get mortar position
-  const mortarColumn = document.getElementById('mortar-column').value;
-  const mortarRow = parseInt(document.getElementById('mortar-row').value);
-  const mortarKeypad = parseInt(document.getElementById('mortar-keypad').value);
-  const mortarXY = gridToXY(mortarColumn, mortarRow, mortarKeypad, metadata.grid_scale);
+  // Use PRECISE marker coordinates (not rounded to grid)
+  // If precise coordinates not set, fall back to grid conversion
+  let mortarXY, targetXY;
+  
+  if (state.mortarPreciseXY) {
+    // Use precise coordinates from marker position
+    mortarXY = state.mortarPreciseXY;
+  } else {
+    // Fallback: convert from grid reference (happens on initial load)
+    const mortarColumn = document.getElementById('mortar-column').value;
+    const mortarRow = parseInt(document.getElementById('mortar-row').value);
+    const mortarKeypad = parseInt(document.getElementById('mortar-keypad').value);
+    mortarXY = gridToXY(mortarColumn, mortarRow, mortarKeypad, metadata.grid_scale);
+    state.mortarPreciseXY = { x: mortarXY.x, y: mortarXY.y };
+  }
+  
+  if (state.targetPreciseXY) {
+    // Use precise coordinates from marker position
+    targetXY = state.targetPreciseXY;
+  } else {
+    // Fallback: convert from grid reference (happens on initial load)
+    const targetColumn = document.getElementById('target-column').value;
+    const targetRow = parseInt(document.getElementById('target-row').value);
+    const targetKeypad = parseInt(document.getElementById('target-keypad').value);
+    targetXY = gridToXY(targetColumn, targetRow, targetKeypad, metadata.grid_scale);
+    state.targetPreciseXY = { x: targetXY.x, y: targetXY.y };
+  }
+  
   // Use the helper returned by loadMapData: getElevationAt(x, y)
   if (typeof state.mapData.getElevationAt !== 'function') {
     console.error('getElevationAt not available on mapData');
@@ -641,12 +730,6 @@ function performCalculation() {
     return;
   }
   const mortarZ = state.mapData.getElevationAt(mortarXY.x, mortarXY.y);
-  
-  // Get target position
-  const targetColumn = document.getElementById('target-column').value;
-  const targetRow = parseInt(document.getElementById('target-row').value);
-  const targetKeypad = parseInt(document.getElementById('target-keypad').value);
-  const targetXY = gridToXY(targetColumn, targetRow, targetKeypad, metadata.grid_scale);
   const targetZ = state.mapData.getElevationAt(targetXY.x, targetXY.y);
   
   // Update elevation displays
@@ -738,6 +821,8 @@ function setupEventListeners() {
       updateGridDisplays();
       if (state.leafletMap) {
         placeMarkers();
+        // Auto-calculate after dropdown change
+        autoCalculateFiringSolution();
       }
     });
     // Pressing Enter while focused on any dropdown triggers calculation
