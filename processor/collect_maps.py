@@ -98,6 +98,39 @@ def validate_server_zip(zip_path: Path) -> Tuple[bool, Optional[str]]:
         return False, f"Validation error: {str(e)}"
 
 
+def validate_client_zip(zip_path: Path) -> Tuple[bool, Optional[str]]:
+    """Validate that client.zip is a valid zip file and contains minimap DDS files.
+    
+    Args:
+        zip_path: Path to client.zip file
+        
+    Returns:
+        Tuple of (is_valid, error_message)
+        - is_valid: True if valid, False otherwise
+        - error_message: Warning/error description if invalid, None if valid
+    """
+    try:
+        with zipfile.ZipFile(zip_path, 'r') as zf:
+            # Check if zip file is corrupted
+            bad_file = zf.testzip()
+            if bad_file is not None:
+                return False, f"Corrupted file in zip: {bad_file}"
+            
+            # Check for hud/minimap/ingamemap.dds
+            file_list = zf.namelist()
+            has_minimap = any('hud/minimap/ingamemap.dds' in f.lower() for f in file_list)
+            
+            if not has_minimap:
+                return False, "Missing hud/minimap/ingamemap.dds"
+            
+            return True, None
+            
+    except zipfile.BadZipFile:
+        return False, "Not a valid zip file"
+    except Exception as e:
+        return False, f"Validation error: {str(e)}"
+
+
 def find_pr_installation(custom_path: Optional[str] = None) -> Optional[Path]:
     """Find Project Reality installation directory.
     
@@ -136,7 +169,7 @@ def discover_maps(pr_path: Path) -> List[Path]:
         pr_path: Path to PR:BF2 installation
         
     Returns:
-        List of paths to map folders containing server.zip
+        List of paths to map folders containing server.zip (client.zip is optional)
     """
     levels_dir = pr_path / "mods" / "pr" / "levels"
     map_folders = []
@@ -148,6 +181,7 @@ def discover_maps(pr_path: Path) -> List[Path]:
     for item in levels_dir.iterdir():
         if item.is_dir():
             server_zip = item / "server.zip"
+            # Only require server.zip, client.zip is optional
             if server_zip.exists():
                 map_folders.append(item)
     
@@ -167,53 +201,112 @@ def process_map(map_folder: Path, output_dir: Path, existing_manifest: Dict) -> 
     """
     map_name = map_folder.name
     server_zip = map_folder / "server.zip"
+    client_zip = map_folder / "client.zip"
     
     print(f"\n{Colors.BLUE}Processing: {map_name}{Colors.RESET}")
     
-    # Validate zip file
+    # Validate server.zip (required)
     is_valid, error_msg = validate_server_zip(server_zip)
     if not is_valid:
-        print(f"  {Colors.RED}✗ Validation failed: {error_msg}{Colors.RESET}")
+        print(f"  {Colors.RED}✗ Server.zip validation failed: {error_msg}{Colors.RESET}")
         return None
     
-    print(f"  {Colors.GREEN}Validation passed{Colors.RESET}")
+    print(f"  {Colors.GREEN}✓ Server.zip validation passed{Colors.RESET}")
     
-    # Calculate MD5 checksum
-    print(f"  Calculating MD5 checksum...")
-    md5_checksum = calculate_md5(server_zip)
-    print(f"  MD5: {md5_checksum}")
+    # Calculate server.zip MD5
+    print(f"  Calculating server.zip MD5...")
+    server_md5 = calculate_md5(server_zip)
+    print(f"  Server MD5: {server_md5}")
     
-    # Check for duplicate
+    # Check for client.zip (optional)
+    has_client_zip = client_zip.exists()
+    client_md5 = None
+    client_size = 0
+    
+    if has_client_zip:
+        is_valid, error_msg = validate_client_zip(client_zip)
+        if is_valid:
+            print(f"  {Colors.GREEN}✓ Client.zip found and valid{Colors.RESET}")
+            print(f"  Calculating client.zip MD5...")
+            client_md5 = calculate_md5(client_zip)
+            print(f"  Client MD5: {client_md5}")
+        else:
+            print(f"  {Colors.YELLOW}⚠ Client.zip found but invalid: {error_msg}{Colors.RESET}")
+            print(f"  {Colors.YELLOW}  Continuing in heightmap-only mode{Colors.RESET}")
+            has_client_zip = False
+    else:
+        print(f"  {Colors.YELLOW}⚠ Client.zip not found - heightmap-only mode{Colors.RESET}")
+    
+    # Check for duplicates
     existing_maps = existing_manifest.get('maps', [])
     existing_map = next((m for m in existing_maps if m['name'] == map_name), None)
     
-    if existing_map and existing_map.get('md5') == md5_checksum:
-        print(f"  {Colors.YELLOW}⊙ Skipped (identical to existing){Colors.RESET}")
-        return existing_map  # Return existing data
+    # Check if both zips are unchanged
+    server_unchanged = False
+    client_unchanged = False
+    
+    if existing_map:
+        existing_server = existing_map.get('server_zip', {})
+        existing_client = existing_map.get('client_zip')  # Can be None or dict
+        
+        server_unchanged = existing_server.get('md5') == server_md5
+        client_unchanged = (
+            (has_client_zip and existing_client and existing_client.get('md5') == client_md5) or
+            (not has_client_zip and not existing_client)
+        )
+        
+        if server_unchanged and client_unchanged:
+            print(f"  {Colors.YELLOW}⊙ Skipped (identical to existing){Colors.RESET}")
+            return existing_map
     
     # Create output directory
     map_output_dir = output_dir / map_name
     map_output_dir.mkdir(parents=True, exist_ok=True)
     
     # Copy server.zip
-    output_zip = map_output_dir / "server.zip"
-    print(f"  Copying to {output_zip.relative_to(output_dir.parent)}...")
-    shutil.copy2(server_zip, output_zip)
+    output_server = map_output_dir / "server.zip"
+    if not server_unchanged:
+        print(f"  Copying server.zip...")
+        shutil.copy2(server_zip, output_server)
+        server_size = output_server.stat().st_size
+        print(f"  {Colors.GREEN}✓ Server.zip copied ({server_size / 1024:.1f} KB){Colors.RESET}")
+    else:
+        server_size = output_server.stat().st_size
     
-    # Get file size
-    file_size = output_zip.stat().st_size
+    # Copy client.zip if present
+    if has_client_zip:
+        output_client = map_output_dir / "client.zip"
+        if not client_unchanged:
+            print(f"  Copying client.zip...")
+            shutil.copy2(client_zip, output_client)
+            client_size = output_client.stat().st_size
+            print(f"  {Colors.GREEN}✓ Client.zip copied ({client_size / 1024:.1f} KB){Colors.RESET}")
+        else:
+            client_size = output_client.stat().st_size
     
-    print(f"  {Colors.GREEN}Copied successfully ({file_size / 1024:.1f} KB){Colors.RESET}")
-    
-    # Return metadata
-    return {
+    # Build metadata
+    metadata = {
         'name': map_name,
-        'md5': md5_checksum,
-        'size_bytes': file_size,
+        'server_zip': {
+            'md5': server_md5,
+            'size_bytes': server_size,
+            'has_heightmap': True
+        },
         'collected_at': datetime.utcnow().isoformat() + 'Z',
         'source_path': str(map_folder),
         'status': 'updated' if existing_map else 'new'
     }
+    
+    if has_client_zip:
+        metadata['client_zip'] = {
+            'md5': client_md5,
+            'size_bytes': client_size,
+            'has_minimap': True
+        }
+    else:
+        metadata['client_zip'] = None
+    
+    return metadata
 
 
 def generate_manifest(maps_data: List[Dict], output_dir: Path) -> None:
@@ -223,11 +316,23 @@ def generate_manifest(maps_data: List[Dict], output_dir: Path) -> None:
         maps_data: List of map metadata dictionaries
         output_dir: Path to raw_map_data directory
     """
-    total_size = sum(m['size_bytes'] for m in maps_data)
+    # Calculate total size (both server and client zips)
+    total_size = 0
+    maps_with_minimaps = 0
+    
+    for m in maps_data:
+        total_size += m['server_zip']['size_bytes']
+        if m.get('client_zip'):
+            total_size += m['client_zip']['size_bytes']
+            maps_with_minimaps += 1
+    
+    maps_heightmap_only = len(maps_data) - maps_with_minimaps
     
     manifest = {
         'maps': maps_data,
         'total_maps': len(maps_data),
+        'maps_with_minimaps': maps_with_minimaps,
+        'maps_heightmap_only': maps_heightmap_only,
         'total_size_bytes': total_size,
         'total_size_mb': round(total_size / (1024 * 1024), 2),
         'collection_date': datetime.utcnow().isoformat() + 'Z',
@@ -239,6 +344,9 @@ def generate_manifest(maps_data: List[Dict], output_dir: Path) -> None:
         json.dump(manifest, f, indent=2, ensure_ascii=False)
     
     print(f"\n{Colors.GREEN}Generated manifest: {manifest_path}{Colors.RESET}")
+    print(f"  Total maps: {len(maps_data)}")
+    print(f"  With minimaps: {maps_with_minimaps}")
+    print(f"  Heightmap-only: {maps_heightmap_only}")
 
 
 def configure_git_lfs(total_size_bytes: int, repo_root: Path) -> None:
@@ -310,6 +418,8 @@ def generate_report(maps_data: List[Dict], errors: List[str], output_dir: Path) 
     new_maps = [m for m in maps_data if m.get('status') == 'new']
     updated_maps = [m for m in maps_data if m.get('status') == 'updated']
     skipped_maps = [m for m in maps_data if m.get('status') not in ['new', 'updated']]
+    maps_with_minimaps = len([m for m in maps_data if m.get('client_zip')])
+    maps_heightmap_only = len(maps_data) - maps_with_minimaps
     
     report_lines.append("SUMMARY:")
     report_lines.append(f"  Total maps found: {len(maps_data) + len(errors)}")
@@ -317,6 +427,8 @@ def generate_report(maps_data: List[Dict], errors: List[str], output_dir: Path) 
     report_lines.append(f"    - New maps: {len(new_maps)}")
     report_lines.append(f"    - Updated maps: {len(updated_maps)}")
     report_lines.append(f"    - Unchanged (skipped): {len(skipped_maps)}")
+    report_lines.append(f"    - With minimaps: {maps_with_minimaps}")
+    report_lines.append(f"    - Heightmap-only: {maps_heightmap_only}")
     report_lines.append(f"  ✗ Errors: {len(errors)}")
     report_lines.append("")
     
@@ -325,8 +437,9 @@ def generate_report(maps_data: List[Dict], errors: List[str], output_dir: Path) 
         report_lines.append("COLLECTED MAPS:")
         for map_data in sorted(maps_data, key=lambda x: x['name']):
             status_icon = "+" if map_data.get('status') == 'new' else "↻" if map_data.get('status') == 'updated' else "="
-            size_kb = map_data['size_bytes'] / 1024
-            report_lines.append(f"  [{status_icon}] {map_data['name']:<30} {size_kb:>8.1f} KB  {map_data['md5'][:8]}")
+            server_size_kb = map_data['server_zip']['size_bytes'] / 1024
+            has_minimap = " [+minimap]" if map_data.get('client_zip') else " [no minimap]"
+            report_lines.append(f"  [{status_icon}] {map_data['name']:<30} {server_size_kb:>8.1f} KB{has_minimap}")
         report_lines.append("")
     
     # Errors
@@ -454,7 +567,11 @@ Examples:
         generate_manifest(maps_data, output_dir)
     
     # Configure Git LFS
-    total_size = sum(m['size_bytes'] for m in maps_data)
+    total_size = 0
+    for m in maps_data:
+        total_size += m['server_zip']['size_bytes']
+        if m.get('client_zip'):
+            total_size += m['client_zip']['size_bytes']
     configure_git_lfs(total_size, repo_root)
     
     # Generate report

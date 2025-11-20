@@ -30,25 +30,27 @@ This tool does the math automatically.
 **Map Processing has two parts:**
 
 **Phase 1 - Local Collection Script** (`collect_maps.py`):
-- **Purpose:** Extract server.zip files from PR:BF2 installation
+- **Purpose:** Extract server.zip (heightmaps) and client.zip (minimaps) from PR:BF2 installation
 - **Libraries:** Standard library only (`os`, `shutil`, `zipfile`, `json`, `hashlib`)
 - **Features:**
   - Auto-detect game installation
-  - Validate files with MD5 checksums
+  - Validate both zip types with MD5 checksums
   - Handle duplicates and versioning
   - Configure Git LFS automatically
-  - Generate manifest.json
+  - Generate manifest.json with metadata for both file types
 
 **Phase 2 - Cloud Processing Notebook** (`process_maps.ipynb`):
 - **Format:** `.ipynb` notebook for cloud or local execution
 - **Environments:** Google Colab (primary), local Jupyter (secondary)
 - **Required Libraries:**
   - `numpy` - Array operations for heightmap processing
-  - `zipfile` - Extract from server.zip
+  - `Pillow` (PIL) - DDS to PNG conversion for minimaps
+  - `zipfile` - Extract from server.zip and client.zip
   - `struct` - Parse binary RAW heightmaps
   - `json` - Output JSON files
   - `subprocess` - Git operations (commit, push)
-  - `PIL/Pillow` - Optional minimap generation
+- **Optional Libraries:**
+  - `Wand` - Fallback DDS converter (ImageMagick binding)
 
 **Web Server (Python Script):**
 - **Flask 2.3+** - Static file server
@@ -501,6 +503,7 @@ D = sqrt((x2 - x1)² + (y2 - y1)²)
   - Custom paths supported via config
 - **Required Files:**
   - `/mods/pr/levels/[map_name]/server.zip` (contains heightmapprimary.raw)
+  - `/mods/pr/levels/[map_name]/client.zip` (contains minimap DDS in info/ folder)
   - `/mods/pr/levels/[map_name]/init.con` (map size)
   - `/mods/pr/levels/[map_name]/terrain.con` (height scale)
 
@@ -509,6 +512,7 @@ D = sqrt((x2 - x1)² + (y2 - y1)²)
 Flask==2.3.3
 numpy==1.24.3
 Werkzeug==2.3.7
+Pillow>=10.0.0
 ```
 
 ### JavaScript Dependencies (Bundled)
@@ -520,10 +524,10 @@ Werkzeug==2.3.7
 **Phase 1: Local Collection (Maintainer only, one-time per map update)**
 1. Run `python processor/collect_maps.py` on machine with PR:BF2 installed
 2. Script auto-detects installation at standard paths
-3. Script copies server.zip files to `/raw_map_data/[map_name]/`
-4. Script validates each file (MD5 checksum, integrity check)
+3. Script copies server.zip (heightmaps) and client.zip (minimaps) to `/raw_map_data/[map_name]/`
+4. Script validates each file type (MD5 checksum, integrity check, content verification)
 5. Script handles duplicates (skip if identical, update if changed)
-6. Script generates `manifest.json` with map inventory
+6. Script generates `manifest.json` with inventory of both file types
 7. Script configures Git LFS if total size > 10MB threshold
 8. Maintainer commits: `git add raw_map_data/ && git commit && git push`
 
@@ -535,17 +539,20 @@ Werkzeug==2.3.7
 4. Run all cells sequentially
 5. Notebook processes all maps from `/raw_map_data/`:
    - Extracts heightmapprimary.raw from each server.zip (case-insensitive)
+   - Extracts minimap DDS files from client.zip/info/ directory
    - Parses 16-bit RAW data, extracts config files
-   - Converts to JSON format (lossless)
-   - Generates metadata.json for each map
+   - Converts heightmaps to JSON format (lossless)
+   - Converts minimap DDS to PNG format using Pillow
+   - Generates metadata.json for each map (includes minimap info)
    - Outputs to `/processed_maps/[map_name]/`
 6. Notebook automatically commits and pushes results to GitHub
 7. Processing time: ~5-10 minutes for 45 maps (depending on hardware)
 
 **End Users:**
 - Clone repository (includes pre-processed maps in `/processed_maps/`)
+- Pre-processed heightmaps (JSON) and minimaps (PNG) already included
 - No processing needed, just run calculator with `run.bat` or `run.sh`
-- For custom maps: Contact maintainer to add server.zip to `/raw_map_data/`
+- For custom maps: Contact maintainer to add server.zip and client.zip to `/raw_map_data/`
 
 ## Quick Reference
 

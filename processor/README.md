@@ -6,8 +6,8 @@ This directory contains scripts for processing Project Reality map data.
 
 The map processing workflow is split into two independent phases:
 
-1. **Phase 1: Local Collection** (`collect_maps.py`) - Extracts server.zip files from PR:BF2 installation
-2. **Phase 2: Cloud Processing** (`process_maps.ipynb`) - Converts heightmaps to JSON format
+1. **Phase 1: Local Collection** (`collect_maps.py`) - Extracts server.zip (heightmaps) and client.zip (minimaps) from PR:BF2 installation
+2. **Phase 2: Cloud Processing** (`process_maps.ipynb`) - Converts heightmaps to JSON and minimaps to PNG format
 
 ---
 
@@ -35,10 +35,15 @@ python collect_maps.py --path "D:\Games\Project Reality\Project Reality BF2"
    - Checks zip integrity
    - Verifies contains `heightmapprimary.raw` (case-insensitive)
    - Calculates MD5 checksum
-3. Copies server.zip files to `/raw_map_data/[map_name]/`
-4. Handles duplicates (skips if identical, updates if changed)
-5. Generates `manifest.json` with map inventory
-6. Configures Git LFS if total size > 10MB
+3. Validates each `client.zip` file:
+   - Checks zip integrity
+   - Verifies contains `info/` directory with `.dds` files
+   - Calculates MD5 checksum (separate from server.zip)
+   - Logs warning if missing but continues (heightmap-only mode)
+4. Copies both zip files to `/raw_map_data/[map_name]/`
+5. Handles duplicates (skips if identical, updates if changed)
+6. Generates `manifest.json` with inventory of both file types
+7. Configures Git LFS if total size > 10MB
 
 ### Output
 
@@ -46,9 +51,11 @@ python collect_maps.py --path "D:\Games\Project Reality\Project Reality BF2"
 raw_map_data/
 ├── manifest.json              # Map inventory with checksums
 ├── muttrah_city_2/
-│   └── server.zip
+│   ├── server.zip            # Heightmap data
+│   └── client.zip            # Minimap textures
 ├── fallujah_west/
-│   └── server.zip
+│   ├── server.zip
+│   └── client.zip
 └── ...
 ```
 
@@ -73,7 +80,7 @@ git push origin main
 ### Prerequisites
 
 - Repository cloned (includes `/raw_map_data/`)
-- Python 3.8+ with NumPy
+- Python 3.8+ with NumPy and Pillow
 - Git credentials (name, email, GitHub Personal Access Token)
 
 ### Environments
@@ -100,11 +107,17 @@ jupyter notebook processor/process_maps.ipynb
 
 1. Reads `manifest.json` from `/raw_map_data/`
 2. For each map:
-   - Extracts `heightmapprimary.raw` from `server.zip` (case-insensitive)
-   - Parses as 16-bit unsigned integer array
-   - Extracts config files (`init.con`, `terrain.con`)
-   - Converts RAW to JSON format (lossless)
-   - Generates `metadata.json` with map configuration
+   - **Heightmap Processing:**
+     - Extracts `heightmapprimary.raw` from `server.zip` (case-insensitive)
+     - Parses as 16-bit unsigned integer array
+     - Extracts config files (`init.con`, `terrain.con`)
+     - Converts RAW to JSON format (lossless)
+   - **Minimap Processing:**
+     - Extracts DDS files from `client.zip/info/` directory
+     - Converts DDS to PNG using Pillow library
+     - Handles missing client.zip gracefully (heightmap-only mode)
+     - Validates PNG dimensions and file size
+   - Generates `metadata.json` with map configuration and minimap info
 3. Outputs to `/processed_maps/[map_name]/`
 4. Automatically commits and pushes to GitHub
 
@@ -114,10 +127,14 @@ jupyter notebook processor/process_maps.ipynb
 processed_maps/
 ├── muttrah_city_2/
 │   ├── heightmap.json    # 16-bit height data
-│   └── metadata.json     # Map configuration
+│   ├── metadata.json     # Map configuration + minimap info
+│   ├── minimap.png       # Visual map representation
+│   └── background.png    # Optional: Scaled version
 ├── fallujah_west/
 │   ├── heightmap.json
-│   └── metadata.json
+│   ├── metadata.json
+│   ├── minimap.png
+│   └── background.png
 └── ...
 ```
 
@@ -210,16 +227,26 @@ processed_maps/
   "maps": [
     {
       "name": "muttrah_city_2",
-      "md5": "a1b2c3d4e5f6...",
-      "size_bytes": 1048576,
+      "server_zip": {
+        "md5": "a1b2c3d4e5f6...",
+        "size_bytes": 1048576,
+        "has_heightmap": true
+      },
+      "client_zip": {
+        "md5": "b2c3d4e5f6a7...",
+        "size_bytes": 2097152,
+        "has_minimap": true
+      },
       "collected_at": "2024-11-19T10:30:00Z",
       "source_path": "C:\\PR\\levels\\muttrah_city_2",
       "status": "new"
     }
   ],
   "total_maps": 45,
-  "total_size_bytes": 91750400,
-  "total_size_mb": 87.5,
+  "maps_with_minimaps": 43,
+  "maps_heightmap_only": 2,
+  "total_size_bytes": 150000000,
+  "total_size_mb": 143.1,
   "collection_date": "2024-11-19T10:30:00Z",
   "format_version": "1.0"
 }
@@ -247,6 +274,12 @@ processed_maps/
   "height_scale": 300,
   "grid_scale": 157.538,
   "heightmap_resolution": 1025,
+  "minimap": {
+    "source_file": "info/minimap.dds",
+    "resolution": "2048x2048",
+    "file_size_kb": 1024,
+    "converted_at": "2024-11-19T11:45:00Z"
+  },
   "processed_at": "2024-11-19T11:45:00Z",
   "format_version": "1.0"
 }

@@ -25,13 +25,15 @@ Right now, we have no user interface.
   - Works on phones (switches to single column)
 
 - **Map Visualization Component** (`ui.js` + Leaflet.js):
-  - Interactive map showing selected PR map
-  - PR grid overlay (13×13 grid with labels: A-M columns, 1-13 rows)
+  - Interactive map showing selected PR map with minimap base layer
+  - Minimap PNG displayed as background (satellite/overview imagery)
+  - PR grid overlay (13×13 grid with labels: A-M columns, 1-13 rows) overlaid on minimap
   - Draggable markers: Blue (mortar), Red (target)
   - Click map to place markers
   - Range circle showing 1500m maximum distance
   - Zoom and pan controls
   - Shows elevation (height) as you move markers
+  - Graceful fallback if minimap.png unavailable (grid-only mode with warning)
 
 - **Input Panel** (`calculator/templates/index.html` + `ui.js`):
   - Map selection dropdown with map names
@@ -81,7 +83,8 @@ Right now, we have no user interface.
 - **Dependencies**: 
   - Leaflet.js 1.9.4 (bundled locally)
   - Ballistics engine (proposal 3)
-  - Heightmap data (proposal 1)
+  - Heightmap data (proposal 1 - JSON format)
+  - Minimap images (proposal 1 - PNG format)
   - Flask server (proposal 2)
 - **User Impact**: End users interact exclusively with this UI for all calculator functionality
 - **Testing**: Integration with in-game testing on Korengal Valley, Vadso City, Burning Sands
