@@ -6,6 +6,7 @@ import {
   xyToGrid,
   gridRefToXY,
   calculateGridScale
+  ,getRowLabelCenterX
 } from '../static/js/coordinates.js';
 
 export async function runCoordinatesTests() {
@@ -43,4 +44,13 @@ export async function runCoordinatesTests() {
   assertApprox(calculateGridScale(2048), 2048 / 13, 0.001);
   assertApprox(calculateGridScale(1024), 1024 / 13, 0.001);
   assertApprox(calculateGridScale(4096), 4096 / 13, 0.001);
+
+  // getRowLabelCenterX should place labels near the right edge
+  const scale1 = calculateGridScale(1024);
+  const scale2 = calculateGridScale(2048);
+  const scale3 = calculateGridScale(4096);
+  // Expect center X to be mapSize - (gridScale * 0.15)
+  assertApprox(getRowLabelCenterX(1024, scale1), 1024 - (scale1 * 0.15), 0.0001);
+  assertApprox(getRowLabelCenterX(2048, scale2), 2048 - (scale2 * 0.15), 0.0001);
+  assertApprox(getRowLabelCenterX(4096, scale3), 4096 - (scale3 * 0.15), 0.0001);
 }

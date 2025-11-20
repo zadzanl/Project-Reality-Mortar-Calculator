@@ -352,6 +352,21 @@ export function calculateGridScale(mapSize) {
 }
 
 /**
+ * Calculate the X coordinate for the row label anchor on the right side of the map.
+ * This places the label approximately gridScale*0.15 meters from the right edge.
+ *
+ * @param {number} mapSize - Map size in meters
+ * @param {number} gridScale - Size of one grid square in meters
+ * @returns {number} X coordinate for row label anchor
+ */
+export function getRowLabelCenterX(mapSize, gridScale) {
+  if (typeof mapSize !== 'number' || typeof gridScale !== 'number') {
+    throw new Error('mapSize and gridScale must be numbers');
+  }
+  return mapSize - (gridScale * 0.15);
+}
+
+/**
  * Format grid reference from components.
  * 
  * @param {string} column - Column letter (A-M)
