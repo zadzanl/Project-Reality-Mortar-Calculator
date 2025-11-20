@@ -26,6 +26,9 @@
         <button id="load-map-btn" class="calculator__button calculator__button--primary" disabled>
           Load Map
         </button>
+        <div class="calculator__hint" style="margin-left: 0.5rem; color: #f8f9fa;">
+          <small>Tip: Click map to place target. Shift+click to place mortar. Drag markers to refine.</small>
+        </div>
       </div>
     </header>
 
@@ -80,11 +83,11 @@
           <div class="calculator__input-group">
             <label for="mortar-keypad">Keypad:</label>
             <select id="mortar-keypad" class="calculator__dropdown calculator__dropdown--small">
-              <option value="7" selected>7 (Top-Left)</option>
+              <option value="7">7 (Top-Left)</option>
               <option value="8">8 (Top)</option>
               <option value="9">9 (Top-Right)</option>
               <option value="4">4 (Left)</option>
-              <option value="5">5 (Center)</option>
+              <option value="5" selected>5 (Center)</option>
               <option value="6">6 (Right)</option>
               <option value="1">1 (Bottom-Left)</option>
               <option value="2">2 (Bottom)</option>
@@ -95,7 +98,7 @@
           <div class="calculator__info">
             <div class="calculator__info-item">
               <span class="calculator__info-label">Grid:</span>
-              <span id="mortar-grid-display" class="calculator__info-value">D 6-7</span>
+              <span id="mortar-grid-display" class="calculator__info-value">D 6-5</span>
             </div>
             <div class="calculator__info-item">
               <span class="calculator__info-label">Elevation:</span>
@@ -113,9 +116,9 @@
             <select id="target-column" class="calculator__dropdown calculator__dropdown--small">
               <option value="A">A</option>
               <option value="B">B</option>
-              <option value="C" selected>C</option>
+              <option value="C">C</option>
               <option value="D">D</option>
-              <option value="E">E</option>
+              <option value="E" selected>E</option>
               <option value="F">F</option>
               <option value="G">G</option>
               <option value="H">H</option>
@@ -131,12 +134,12 @@
             <label for="target-row">Row:</label>
             <select id="target-row" class="calculator__dropdown calculator__dropdown--small">
               <option value="1">1</option>
-              <option value="2" selected>2</option>
+              <option value="2">2</option>
               <option value="3">3</option>
               <option value="4">4</option>
               <option value="5">5</option>
               <option value="6">6</option>
-              <option value="7">7</option>
+              <option value="7" selected>7</option>
               <option value="8">8</option>
               <option value="9">9</option>
               <option value="10">10</option>
@@ -153,18 +156,18 @@
               <option value="8">8 (Top)</option>
               <option value="9">9 (Top-Right)</option>
               <option value="4">4 (Left)</option>
-              <option value="5">5 (Center)</option>
+              <option value="5" selected>5 (Center)</option>
               <option value="6">6 (Right)</option>
               <option value="1">1 (Bottom-Left)</option>
               <option value="2">2 (Bottom)</option>
-              <option value="3" selected>3 (Bottom-Right)</option>
+              <option value="3">3 (Bottom-Right)</option>
             </select>
           </div>
           
           <div class="calculator__info">
             <div class="calculator__info-item">
               <span class="calculator__info-label">Grid:</span>
-              <span id="target-grid-display" class="calculator__info-value">C 2-3</span>
+              <span id="target-grid-display" class="calculator__info-value">E 7-5</span>
             </div>
             <div class="calculator__info-item">
               <span class="calculator__info-label">Elevation:</span>

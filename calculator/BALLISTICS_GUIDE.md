@@ -574,10 +574,10 @@ assert(centerElev >= 0 && centerElev <= heightScale);
 - `"D6-kpad7"` ✓
 
 **Invalid formats:**
-- `"D-6-7"` ✗ (wrong delimiter)
-- `"D6"` ✗ (missing keypad)
-- `"D14-7"` ✗ (row out of range)
-- `"N6-7"` ✗ (column out of range)
+- `"D-6-7"` (wrong delimiter)
+- `"D6"` (missing keypad)
+- `"D14-7"` (row out of range)
+- `"N6-7"` (column out of range)
 
 **Debugging:**
 

@@ -109,8 +109,8 @@ if __name__ == '__main__':
         print("="*70)
         
     except AssertionError as e:
-        print(f"\n✗ Test failed: {e}")
+        print(f"\nTest failed: {e}")
         sys.exit(1)
     except Exception as e:
-        print(f"\n✗ Unexpected error: {e}")
+        print(f"\nUnexpected error: {e}")
         sys.exit(1)

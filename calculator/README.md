@@ -176,3 +176,10 @@ console.assert(Math.abs(dist - 500) < 0.01, 'Distance should be 500m');
 - Physics formulas: `PRD.md` (Ballistic Calculation section)
 - Grid system: `PRD.md` (Grid Coordinate Parsing section)
 - Heightmap format: `PRD.md` (Heightmap Coordinate Conversion section)
+
+## Map Interactions
+
+- Click on the map to place the target marker.
+- Shift+Click on the map to place the mortar marker.
+- Drag markers to adjust positions; markers update grid and elevation displays on drag end.
+- Use the dropdowns to enter grid coordinates (Column A-M, Row 1-13, Keypad 1-9).

@@ -241,6 +241,23 @@ body {
   font-size: 0.875rem;
 }
 
+/* Grid labels (column/row headings) */
+.grid-label {
+  pointer-events: none;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+.grid-label--column {
+  transform: translateY(-10px);
+}
+.grid-label--row {
+  transform: translateX(-10px);
+}
+
 .calculator__map-loading {
   position: absolute;
   top: 50%;
@@ -422,4 +439,15 @@ body {
 
 .target-marker {
   filter: hue-rotate(0deg); /* Red tint */
+}
+
+/* Out-of-range marker visual indicator */
+.marker--out-of-range {
+  filter: grayscale(100%) brightness(0.8) !important;
+  opacity: 0.8;
+}
+
+/* Range circle subtle stroke */
+.range-circle {
+  stroke: #00bcd4;
 }
