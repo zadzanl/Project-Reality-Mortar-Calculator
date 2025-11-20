@@ -3,8 +3,8 @@
 Project Reality Mortar Calculator - Map Collection Script
 Extracts server.zip files from PR:BF2 installation and prepares them for GitHub upload.
 
-This script is Phase 1 of the map processing workflow:
-- Scans PR:BF2 installation for map files
+This script is  of the map processing workflow:
+- Scans PR:BF2 installPhase 1ation for map files
 - Validates and copies server.zip files
 - Generates manifest with MD5 checksums
 - Configures Git LFS if needed
@@ -208,7 +208,7 @@ def process_map(map_folder: Path, output_dir: Path, existing_manifest: Dict) -> 
     # Validate server.zip (required)
     is_valid, error_msg = validate_server_zip(server_zip)
     if not is_valid:
-        print(f"  {Colors.RED}✗ Server.zip validation failed: {error_msg}{Colors.RESET}")
+        print(f"  {Colors.RED}Server.zip validation failed: {error_msg}{Colors.RESET}")
         return None
     
     print(f"  {Colors.GREEN}✓ Server.zip validation passed{Colors.RESET}")
@@ -429,7 +429,7 @@ def generate_report(maps_data: List[Dict], errors: List[str], output_dir: Path) 
     report_lines.append(f"    - Unchanged (skipped): {len(skipped_maps)}")
     report_lines.append(f"    - With minimaps: {maps_with_minimaps}")
     report_lines.append(f"    - Heightmap-only: {maps_heightmap_only}")
-    report_lines.append(f"  ✗ Errors: {len(errors)}")
+    report_lines.append(f"  Errors: {len(errors)}")
     report_lines.append("")
     
     # Collected maps
@@ -446,7 +446,7 @@ def generate_report(maps_data: List[Dict], errors: List[str], output_dir: Path) 
     if errors:
         report_lines.append("ERRORS:")
         for error in errors:
-            report_lines.append(f"  ✗ {error}")
+            report_lines.append(f"  {error}")
         report_lines.append("")
     
     # File paths
@@ -513,7 +513,7 @@ Examples:
     pr_path = find_pr_installation(args.path)
     
     if pr_path is None:
-        print(f"\n{Colors.RED}✗ Could not find PR:BF2 installation{Colors.RESET}")
+        print(f"\n{Colors.RED}Could not find PR:BF2 installation{Colors.RESET}")
         print(f"\nSearched paths:")
         for path in DEFAULT_PR_PATHS:
             print(f"  - {path}")
@@ -525,7 +525,7 @@ Examples:
     map_folders = discover_maps(pr_path)
     
     if not map_folders:
-        print(f"{Colors.RED}✗ No maps found in {pr_path / 'mods' / 'pr' / 'levels'}{Colors.RESET}")
+        print(f"{Colors.RED}No maps found in {pr_path / 'mods' / 'pr' / 'levels'}{Colors.RESET}")
         sys.exit(1)
     
     print(f"{Colors.GREEN}Found {len(map_folders)} maps{Colors.RESET}")
@@ -560,7 +560,7 @@ Examples:
         except Exception as e:
             error_msg = f"{map_folder.name}: {str(e)}"
             errors.append(error_msg)
-            print(f"  {Colors.RED}✗ Error: {e}{Colors.RESET}")
+            print(f"  {Colors.RED}Error: {e}{Colors.RESET}")
     
     # Generate manifest
     if maps_data:

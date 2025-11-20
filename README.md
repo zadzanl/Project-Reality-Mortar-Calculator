@@ -2,6 +2,13 @@
 
 Calculate accurate firing solutions for mortars in Project Reality: BF2.
 
+**IMPORTANT: shallow clone only the ~5 latest commit. DO NOT FULL CLONE THE REPO**
+```bash
+git clone --depth 5 https://github.com/zadzanl/Project_Reality-Mortar-Calculator
+```
+Only after finishing i realise that the repo size are over 10GB 
+(because all maps' `client.zip` and `server.zip` are pushed) 
+
 ## Quick Start
 
 **Windows:**
@@ -9,12 +16,12 @@ Calculate accurate firing solutions for mortars in Project Reality: BF2.
 run.bat
 ```
 
-**Linux/Mac:**
+**Linux/Mac:** (Untested)
 ```bash
 ./run.sh
 ```
 
-The calculator opens automatically at `http://localhost:8080`
+The calculator opens automatically (if port unoccupied) at `http://localhost:8080`
 
 ## Requirements
 
@@ -27,8 +34,7 @@ The calculator opens automatically at `http://localhost:8080`
 - Visual map representation with satellite/overview imagery
 - Automatic elevation detection from heightmaps
 - High-angle firing solutions in Mils and Degrees
-- Support for 80+ Project Reality maps
-- Grid coordinate system (A-M columns, 1-13 rows, keypad 1-9)
+- Support for all 84 Project Reality maps (as of 20/11/2025)
 - Completely offline operation
 - One-click launch
 
@@ -81,4 +87,14 @@ MIT License - See [LICENSE](LICENSE) file
 
 ## Credits
 
-Built for the Project Reality: BF2 community
+To previous attempt at making a mortar calculator:
+[BiNoops's Mortar Calculator](https://github.com/BiNoopsGITHUB/PRBF2-Mortar-Calculator)
+[Shemich's Mortar Calculator](https://github.com/Shemich/project-reality-mortar-calculator)
+
+And other repo found when searching ["Project Reality Mortar" in github](https://github.com/search?q=project%20reality%20mortar&type=repositories)
+
+To PRID for how badly we aim the mortar and motivating me to create the calculator
+
+To all community member and devs that discussed and answers mortar mechanics and physics discussion
+
+To copilot for implementing the UI

@@ -11,7 +11,7 @@ SUMMARY:
     - Unchanged (skipped): 0
     - With minimaps: 84
     - Heightmap-only: 0
-  ✗ Errors: 0
+  Errors: 0
 
 COLLECTED MAPS:
   [↻] adak                            10420.8 KB [+minimap]

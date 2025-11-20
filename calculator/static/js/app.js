@@ -3,8 +3,8 @@
  * Orchestrates UI, map display, and calculation modules
  */
 
-import { calculateFiringSolution } from './ballistics.js';
-import { gridToXY, formatGridReference } from './coordinates.js';
+import { calculateFiringSolution, PR_PHYSICS } from './ballistics.js';
+import { gridToXY, formatGridReference, xyToGrid, gridRefToXY, calculateGridScale } from './coordinates.js';
 import { loadMapData } from './heightmap.js';
 
 // ====================================
@@ -19,6 +19,11 @@ const state = {
   targetMarker: null,
   pathLine: null
 };
+
+// Overlay layers
+state.gridGroup = null;
+state.gridLabelGroup = null;
+state.rangeCircle = null;
 
 // ====================================
 // INITIALIZATION
@@ -63,6 +68,12 @@ async function loadAvailableMaps() {
       
       dropdown.disabled = false;
       
+      // Restore last selected map if available
+      const lastMap = localStorage.getItem('pr_last_map');
+      if (lastMap) {
+        dropdown.value = lastMap;
+        document.getElementById('load-map-btn').disabled = !dropdown.value;
+      }
       console.log(`Loaded ${data.maps.length} maps`);
     } else {
       dropdown.innerHTML = '<option value="">No maps available</option>';
@@ -99,6 +110,9 @@ async function loadSelectedMap() {
     
     // Enable calculate button
     document.getElementById('calculate-btn').disabled = false;
+
+    // Remember last selected map for convenience
+    try { localStorage.setItem('pr_last_map', mapName); } catch (e) { /* ignore */ }
     
     // Update grid displays
     updateGridDisplays();
@@ -124,6 +138,13 @@ function initializeLeafletMap() {
   // Remove existing map if any
   if (state.leafletMap) {
     state.leafletMap.remove();
+    // Clear all marker and layer references
+    state.mortarMarker = null;
+    state.targetMarker = null;
+    state.pathLine = null;
+    state.gridGroup = null;
+    state.gridLabelGroup = null;
+    state.rangeCircle = null;
   }
   
   // Create Leaflet map with Simple CRS (non-geographic coordinates)
@@ -191,14 +212,153 @@ function initializeLeafletMap() {
   
   // Place initial markers
   placeMarkers();
+
+  // Add click handler for placing markers (default: set target, SHIFT-click sets mortar)
+  state.leafletMap.on('click', (e) => {
+    handleMapClick(e);
+  });
   
   console.log('Leaflet map initialized');
 }
 
+/**
+ * Clear any existing grid overlays (lines and labels).
+ */
+function clearGridOverlay() {
+  if (state.gridGroup) {
+    state.gridGroup.clearLayers();
+    state.gridGroup.remove();
+    state.gridGroup = null;
+  }
+  if (state.gridLabelGroup) {
+    state.gridLabelGroup.clearLayers();
+    state.gridLabelGroup.remove();
+    state.gridLabelGroup = null;
+  }
+}
+
+/**
+ * Add grid lines and labels to the Leaflet map using map metadata
+ */
 function addGridOverlay() {
-  // Grid overlay will be added in future version
-  // For now, just log that it's ready
-  console.log('Grid overlay ready (to be implemented)');
+  const metadata = state.mapData.metadata;
+  const mapSize = metadata.map_size;
+  const gridScale = metadata.grid_scale;
+
+  // Remove existing overlay if any
+  clearGridOverlay();
+
+  // Create a new layer group
+  state.gridGroup = L.layerGroup().addTo(state.leafletMap);
+  state.gridLabelGroup = L.layerGroup().addTo(state.leafletMap);
+
+  // Draw vertical and horizontal grid lines
+  for (let i = 0; i <= 13; i++) {
+    const x = i * gridScale;
+    const y = i * gridScale;
+
+    // Vertical line: from top (0,x) to bottom (mapSize,x)
+    const vLine = L.polyline([[0, x], [mapSize, x]], {
+      color: '#999',
+      weight: 1,
+      opacity: 0.6
+    }).addTo(state.gridGroup);
+
+    // Horizontal line: from left (y,0) to right (y,mapSize)
+    const hLine = L.polyline([[y, 0], [y, mapSize]], {
+      color: '#999',
+      weight: 1,
+      opacity: 0.6
+    }).addTo(state.gridGroup);
+  }
+
+  // Add column labels (A-M) at top center of each square
+  const columns = ['A','B','C','D','E','F','G','H','I','J','K','L','M'];
+  for (let col = 0; col < 13; col++) {
+    const centerX = (col + 0.5) * gridScale;
+    const centerY = gridScale * 0.15; // position near top
+    const label = L.marker([centerY, centerX], {
+      icon: L.divIcon({
+        className: 'grid-label grid-label--column',
+        html: `<div>${columns[col]}</div>`,
+        iconSize: [40, 18]
+      })
+    }).addTo(state.gridLabelGroup);
+  }
+
+  // Add row labels (1-13) at left center of each row
+  for (let row = 0; row < 13; row++) {
+    const centerX = gridScale * 0.15; // position near left
+    const centerY = (row + 0.5) * gridScale;
+    const label = L.marker([centerY, centerX], {
+      icon: L.divIcon({
+        className: 'grid-label grid-label--row',
+        html: `<div>${row + 1}</div>`,
+        iconSize: [24, 18]
+      })
+    }).addTo(state.gridLabelGroup);
+  }
+}
+
+/**
+ * Handle map click events to place mortar/target markers.
+ * Default click: set target marker. Shift+click: set mortar marker.
+ */
+function handleMapClick(e) {
+  const latlng = e.latlng;
+  const x = latlng.lng;
+  const y = latlng.lat;
+  const metadata = state.mapData.metadata;
+
+  // Decide which marker to place
+  if (e.originalEvent && e.originalEvent.shiftKey) {
+    // Place mortar
+    if (!state.mortarMarker) {
+      state.mortarMarker = L.marker([y, x], {
+        icon: createCustomIcon('blue'),
+        draggable: true
+      }).addTo(state.leafletMap);
+      setupMarkerEvents(state.mortarMarker, 'mortar');
+    } else {
+      state.mortarMarker.setLatLng([y, x]);
+    }
+
+    // Update dropdowns (safely)
+    try {
+      const grid = xyToGrid(x, y, metadata.grid_scale);
+      document.getElementById('mortar-column').value = grid.column;
+      document.getElementById('mortar-row').value = grid.row;
+      document.getElementById('mortar-keypad').value = grid.keypad;
+      updateGridDisplays();
+    } catch (err) {
+      console.warn('Marker placed out of bounds or conversion error:', err);
+    }
+  } else {
+    // Default: place target
+    if (!state.targetMarker) {
+      state.targetMarker = L.marker([y, x], {
+        icon: createCustomIcon('red'),
+        draggable: true
+      }).addTo(state.leafletMap);
+      setupMarkerEvents(state.targetMarker, 'target');
+    } else {
+      state.targetMarker.setLatLng([y, x]);
+    }
+
+    // Update dropdowns (safely)
+    try {
+      const grid = xyToGrid(x, y, metadata.grid_scale);
+      document.getElementById('target-column').value = grid.column;
+      document.getElementById('target-row').value = grid.row;
+      document.getElementById('target-keypad').value = grid.keypad;
+      updateGridDisplays();
+    } catch (err) {
+      console.warn('Marker placed out of bounds or conversion error:', err);
+    }
+  }
+
+  // Redraw range circle and path
+  placeMarkers();
 }
 
 // ====================================
@@ -231,8 +391,9 @@ function placeMarkers() {
   } else {
     state.mortarMarker = L.marker(mortarLatLng, {
       icon: createCustomIcon('blue'),
-      draggable: false  // V1: not draggable, V2+: enable dragging
+      draggable: true
     }).addTo(state.leafletMap);
+    setupMarkerEvents(state.mortarMarker, 'mortar');
   }
   
   // Create red marker for target
@@ -241,11 +402,90 @@ function placeMarkers() {
   } else {
     state.targetMarker = L.marker(targetLatLng, {
       icon: createCustomIcon('red'),
-      draggable: false  // V1: not draggable, V2+: enable dragging
+      draggable: true
     }).addTo(state.leafletMap);
+    setupMarkerEvents(state.targetMarker, 'target');
   }
   
   // Draw line between markers
+  updatePathLine();
+
+  // Update range circle (show MAX range from mortar)
+  updateRangeCircle(mortarLatLng);
+}
+
+/**
+ * Setup drag and tooltip behavior for a marker
+ */
+function setupMarkerEvents(marker, type) {
+  const metadata = state.mapData.metadata;
+
+  if (!marker) return;
+
+  marker.on('dragend', (e) => {
+    const latlng = e.target.getLatLng();
+    const x = latlng.lng;
+    const y = latlng.lat;
+    try {
+      const grid = xyToGrid(x, y, metadata.grid_scale);
+
+      if (type === 'mortar') {
+        document.getElementById('mortar-column').value = grid.column;
+        document.getElementById('mortar-row').value = grid.row;
+        document.getElementById('mortar-keypad').value = grid.keypad;
+      } else {
+        document.getElementById('target-column').value = grid.column;
+        document.getElementById('target-row').value = grid.row;
+        document.getElementById('target-keypad').value = grid.keypad;
+      }
+
+      updateGridDisplays();
+
+      // Update elevation display for this marker
+      try {
+        const elev = state.mapData.getElevationAt(x, y);
+        if (type === 'mortar') {
+          document.getElementById('mortar-elevation-display').textContent = `${elev.toFixed(1)}m`;
+        } else {
+          document.getElementById('target-elevation-display').textContent = `${elev.toFixed(1)}m`;
+        }
+      } catch (err) {
+        // ignore elevation update errors
+      }
+
+      // Update path line between markers
+      updatePathLine();
+    } catch (err) {
+      console.warn('Marker drag error:', err);
+    }
+  });
+
+  // Tooltip update on each move (optional)
+  marker.on('move', (e) => {
+    const latlng = e.latlng || e.target.getLatLng();
+    const x = latlng.lng;
+    const y = latlng.lat;
+    try {
+      const grid = xyToGrid(x, y, metadata.grid_scale);
+      const elev = state.mapData.getElevationAt(x, y);
+      marker.bindTooltip(`${grid.column}${grid.row}-${grid.keypad} ${elev.toFixed(1)}m`, { permanent: false }).openTooltip();
+    } catch (err) {
+      // ignore
+    }
+  });
+}
+
+/**
+ * Update the path line between mortar and target markers
+ */
+function updatePathLine() {
+  if (!state.mortarMarker || !state.targetMarker || !state.leafletMap) {
+    return;
+  }
+
+  const mortarLatLng = state.mortarMarker.getLatLng();
+  const targetLatLng = state.targetMarker.getLatLng();
+
   if (state.pathLine) {
     state.pathLine.setLatLngs([mortarLatLng, targetLatLng]);
   } else {
@@ -256,6 +496,29 @@ function placeMarkers() {
       dashArray: '5, 10'
     }).addTo(state.leafletMap);
   }
+}
+
+/**
+ * Create or update the range circle centered on mortar marker
+ */
+function updateRangeCircle(centerLatLng) {
+  if (!centerLatLng) return;
+
+  // Remove existing circle if present
+  if (state.rangeCircle) {
+    state.rangeCircle.setLatLng(centerLatLng);
+    state.rangeCircle.setRadius(PR_PHYSICS.MAX_RANGE);
+    return;
+  }
+
+  state.rangeCircle = L.circle(centerLatLng, {
+    radius: PR_PHYSICS.MAX_RANGE,
+    color: '#00bcd4',
+    weight: 2,
+    fillColor: '#00bcd4',
+    fillOpacity: 0.05,
+    className: 'range-circle'
+  }).addTo(state.leafletMap);
 }
 
 function createCustomIcon(color) {
@@ -316,6 +579,9 @@ function performCalculation() {
   
   const solution = calculateFiringSolution(mortar, target);
   
+  // Update path line to reflect current positions
+  updatePathLine();
+  
   // Display results
   displayResults(solution);
   
@@ -334,24 +600,36 @@ function displayResults(solution) {
   document.getElementById('result-height-delta').textContent = `${deltaSign}${solution.heightDelta.toFixed(1)}m`;
   
   // Elevation (primary: mils, secondary: degrees)
-  document.getElementById('result-elevation-mils').textContent = solution.elevationMils.toFixed(0);
-  document.getElementById('result-elevation-degrees').textContent = solution.elevationDeg.toFixed(1);
+  document.getElementById('result-elevation-mils').textContent = solution.elevationMils !== null ? solution.elevationMils.toFixed(0) : '--';
+  document.getElementById('result-elevation-degrees').textContent = solution.elevationDegrees !== null ? solution.elevationDegrees.toFixed(1) : '--';
   
   // Time of flight
   document.getElementById('result-tof').textContent = `${solution.timeOfFlight.toFixed(1)}s`;
   
   // Status
   const statusElement = document.getElementById('result-status');
-  statusElement.textContent = solution.status;
+  statusElement.textContent = solution.message || solution.status;
   
   // Update status styling
   statusElement.className = 'calculator__result-status';
   if (solution.status === 'OK') {
     statusElement.classList.add('calculator__result-status--ok');
-  } else if (solution.status.includes('WARNING')) {
+  } else if (solution.status === 'EXTREME_ELEVATION') {
     statusElement.classList.add('calculator__result-status--warning');
   } else {
     statusElement.classList.add('calculator__result-status--error');
+  }
+
+  // Highlight target if outside range
+  if (state.targetMarker) {
+    const mortarPos = state.mortarMarker.getLatLng();
+    const targetPos = state.targetMarker.getLatLng();
+    const distance = Math.sqrt(Math.pow(targetPos.lng - mortarPos.lng, 2) + Math.pow(targetPos.lat - mortarPos.lat, 2));
+    if (distance > PR_PHYSICS.MAX_RANGE) {
+      state.targetMarker.getElement()?.classList.add('marker--out-of-range');
+    } else {
+      state.targetMarker.getElement()?.classList.remove('marker--out-of-range');
+    }
   }
 }
 
@@ -362,7 +640,9 @@ function displayResults(solution) {
 function setupEventListeners() {
   // Map selection
   document.getElementById('map-dropdown').addEventListener('change', () => {
-    document.getElementById('load-map-btn').disabled = !document.getElementById('map-dropdown').value;
+    const selected = document.getElementById('map-dropdown').value;
+    document.getElementById('load-map-btn').disabled = !selected;
+    try { localStorage.setItem('pr_last_map', selected); } catch (e) { /* ignore */ }
   });
   
   document.getElementById('load-map-btn').addEventListener('click', loadSelectedMap);
@@ -378,6 +658,13 @@ function setupEventListeners() {
       updateGridDisplays();
       if (state.leafletMap) {
         placeMarkers();
+      }
+    });
+    // Pressing Enter while focused on any dropdown triggers calculation
+    document.getElementById(id).addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        performCalculation();
       }
     });
   });
