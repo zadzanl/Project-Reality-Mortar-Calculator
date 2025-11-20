@@ -102,6 +102,12 @@ async function loadSelectedMap() {
     state.mapData = await loadMapData(mapName);
     state.currentMap = mapName;
     
+    // Store original map size for override reset
+    state.originalMapSize = state.mapData.metadata.map_size;
+    
+    // Reset map size override dropdown to auto
+    document.getElementById('map-size-override').value = 'auto';
+    
     console.log('Map loaded:', mapName);
     console.log('Map metadata:', state.mapData.metadata);
     
@@ -210,6 +216,11 @@ function initializeLeafletMap() {
   // Add grid overlay
   addGridOverlay();
   
+  // Set initial grid label visibility (hidden by default)
+  if (state.gridLabelGroup) {
+    state.gridLabelGroup.remove();
+  }
+  
   // Place initial markers
   placeMarkers();
 
@@ -234,6 +245,52 @@ function clearGridOverlay() {
     state.gridLabelGroup.clearLayers();
     state.gridLabelGroup.remove();
     state.gridLabelGroup = null;
+  }
+}
+
+/**
+ * Apply map size override from dropdown
+ */
+function applyMapSizeOverride() {
+  if (!state.mapData || !state.leafletMap) {
+    return;
+  }
+  
+  const overrideSelect = document.getElementById('map-size-override');
+  const overrideValue = overrideSelect.value;
+  
+  if (overrideValue === 'auto') {
+    // Restore original map size from loaded data
+    // The original is stored when we first load the map
+    if (state.originalMapSize) {
+      state.mapData.metadata.map_size = state.originalMapSize;
+      state.mapData.metadata.grid_scale = state.originalMapSize / 13;
+    }
+  } else {
+    // Apply manual override
+    const newMapSize = parseInt(overrideValue, 10);
+    state.mapData.metadata.map_size = newMapSize;
+    state.mapData.metadata.grid_scale = newMapSize / 13;
+  }
+  
+  // Reinitialize the map with new scale
+  initializeLeafletMap();
+  
+  console.log(`Map size: ${state.mapData.metadata.map_size}m, Grid scale: ${state.mapData.metadata.grid_scale.toFixed(1)}m`);
+}
+
+/**
+ * Toggle visibility of grid labels
+ */
+function toggleGridLabels(show) {
+  if (!state.leafletMap || !state.gridLabelGroup) {
+    return;
+  }
+  
+  if (show) {
+    state.gridLabelGroup.addTo(state.leafletMap);
+  } else {
+    state.gridLabelGroup.remove();
   }
 }
 
@@ -287,13 +344,15 @@ function addGridOverlay() {
   }
 
   // Add row labels (1-13) at left center of each row
+  // Row 1 is at the top (row index 0), Row 13 is at the bottom (row index 12)
   for (let row = 0; row < 13; row++) {
     const centerX = gridScale * 0.15; // position near left
     const centerY = (row + 0.5) * gridScale;
+    const rowNumber = row + 1; // 1 at top, 13 at bottom
     const label = L.marker([centerY, centerX], {
       icon: L.divIcon({
         className: 'grid-label grid-label--row',
-        html: `<div>${row + 1}</div>`,
+        html: `<div>${rowNumber}</div>`,
         iconSize: [24, 18]
       })
     }).addTo(state.gridLabelGroup);
@@ -357,8 +416,11 @@ function handleMapClick(e) {
     }
   }
 
-  // Redraw range circle and path
-  placeMarkers();
+  // Update path line and range circle without forcing marker positions
+  updatePathLine();
+  if (state.mortarMarker) {
+    updateRangeCircle(state.mortarMarker.getLatLng());
+  }
 }
 
 // ====================================
@@ -387,7 +449,10 @@ function placeMarkers() {
   
   // Create blue marker for mortar
   if (state.mortarMarker) {
-    state.mortarMarker.setLatLng(mortarLatLng);
+    // Only update position if not currently being dragged
+    if (!state.mortarMarker.dragging || !state.mortarMarker.dragging._draggable._moving) {
+      state.mortarMarker.setLatLng(mortarLatLng);
+    }
   } else {
     state.mortarMarker = L.marker(mortarLatLng, {
       icon: createCustomIcon('blue'),
@@ -398,7 +463,10 @@ function placeMarkers() {
   
   // Create red marker for target
   if (state.targetMarker) {
-    state.targetMarker.setLatLng(targetLatLng);
+    // Only update position if not currently being dragged
+    if (!state.targetMarker.dragging || !state.targetMarker.dragging._draggable._moving) {
+      state.targetMarker.setLatLng(targetLatLng);
+    }
   } else {
     state.targetMarker = L.marker(targetLatLng, {
       icon: createCustomIcon('red'),
@@ -422,6 +490,15 @@ function setupMarkerEvents(marker, type) {
 
   if (!marker) return;
 
+  // Update path line during drag (real-time feedback)
+  marker.on('drag', (e) => {
+    updatePathLine();
+    if (type === 'mortar' && state.mortarMarker) {
+      updateRangeCircle(state.mortarMarker.getLatLng());
+    }
+  });
+
+  // Update grid coordinates after drag ends
   marker.on('dragend', (e) => {
     const latlng = e.target.getLatLng();
     const x = latlng.lng;
@@ -453,8 +530,11 @@ function setupMarkerEvents(marker, type) {
         // ignore elevation update errors
       }
 
-      // Update path line between markers
+      // Final update of path line and range circle
       updatePathLine();
+      if (type === 'mortar' && state.mortarMarker) {
+        updateRangeCircle(state.mortarMarker.getLatLng());
+      }
     } catch (err) {
       console.warn('Marker drag error:', err);
     }
@@ -671,6 +751,16 @@ function setupEventListeners() {
   
   // Calculate button
   document.getElementById('calculate-btn').addEventListener('click', performCalculation);
+  
+  // Grid labels toggle
+  document.getElementById('grid-labels-toggle').addEventListener('change', (e) => {
+    toggleGridLabels(e.target.checked);
+  });
+  
+  // Map size override
+  document.getElementById('map-size-override').addEventListener('change', () => {
+    applyMapSizeOverride();
+  });
 }
 
 function updateGridDisplays() {

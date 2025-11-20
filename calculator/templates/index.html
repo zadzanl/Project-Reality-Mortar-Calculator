@@ -29,6 +29,21 @@
         <div class="calculator__hint" style="margin-left: 0.5rem; color: #f8f9fa;">
           <small>Tip: Click map to place target. Shift+click to place mortar. Drag markers to refine.</small>
         </div>
+        <div class="calculator__grid-toggle" style="margin-left: 1rem;">
+          <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+            <input type="checkbox" id="grid-labels-toggle" style="cursor: pointer;">
+            <span style="font-size: 0.875rem;">Show Grid Labels</span>
+          </label>
+        </div>
+        <div class="calculator__map-size-override" style="margin-left: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+          <label for="map-size-override" style="font-size: 0.875rem;">Map Size:</label>
+          <select id="map-size-override" class="calculator__dropdown" style="width: auto; padding: 0.25rem 0.5rem;">
+            <option value="auto">Auto (Can be mistaken)</option>
+            <option value="1024">1km (1024m)</option>
+            <option value="2048">2km (2048m)</option>
+            <option value="4096">4km (4096m)</option>
+          </select>
+        </div>
       </div>
     </header>
 
