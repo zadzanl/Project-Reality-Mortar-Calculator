@@ -12,6 +12,8 @@ import time
 from pathlib import Path
 from flask import Flask, send_from_directory, render_template, abort, Response
 
+__version__ = "1.0.0"
+
 # Configure Flask application
 app = Flask(__name__, 
             static_folder='static',
@@ -21,7 +23,16 @@ app = Flask(__name__,
 app.config['DEBUG'] = False
 
 # Get project root directory (parent of calculator/)
-PROJECT_ROOT = Path(__file__).parent.parent
+# Handle PyInstaller bundled executable
+if getattr(sys, 'frozen', False):
+    # Running as PyInstaller bundle
+    APPLICATION_PATH = Path(sys._MEIPASS)
+    PROJECT_ROOT = APPLICATION_PATH.parent
+else:
+    # Running as normal Python script
+    APPLICATION_PATH = Path(__file__).parent
+    PROJECT_ROOT = APPLICATION_PATH.parent
+
 PROCESSED_MAPS_DIR = PROJECT_ROOT / 'processed_maps'
 
 # Configure MIME types explicitly
@@ -200,6 +211,7 @@ def print_banner(port):
     """Display startup banner with server information."""
     print("\n" + "="*60)
     print("  PROJECT REALITY MORTAR CALCULATOR")
+    print(f"  Version {__version__}")
     print("="*60)
     print(f"\n  Server running at: http://localhost:{port}")
     print(f"  Network access:    http://127.0.0.1:{port}")

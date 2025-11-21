@@ -36,6 +36,26 @@ Note: When performing whole history clone, some older commits in `raw_map_data/`
 
 ## Installation
 
+### Option 1: Download Portable Executable
+
+**No Python installation required!**
+
+1. Go to [Releases](https://github.com/zadzanl/Project_Reality-Mortar-Calculator/releases)
+
+2. Download for your platform:
+   - **Windows:** `PR-Mortar-Calculator-Windows.zip`
+   - **Linux:** `PR-Mortar-Calculator-Linux.tar.gz`
+
+3. Extract and run:
+   - **Windows:** Double-click `PR-Mortar-Calculator.exe`
+   - **Linux:** `./PR-Mortar-Calculator/PR-Mortar-Calculator`
+
+4. Browser opens automatically!
+
+### Option 2: Run from Source
+
+**For developers or advanced users:**
+
 ### 1. Clone the repository:
 ```bash
 git clone --depth 3 https://github.com/zadzanl/Project_Reality-Mortar-Calculator
@@ -94,6 +114,7 @@ The calculator will open automatically at `http://localhost:8080` (if the port i
 
 ## Documentation
 
+- [BUILD.md](BUILD.md) - Building portable executables and releases
 - [calculator/README.md](calculator/README.md) - Frontend documentation
 - [processor/README.md](processor/README.md) - Map processing guide
 - [openspec/project.md](openspec/project.md) - Technical context
