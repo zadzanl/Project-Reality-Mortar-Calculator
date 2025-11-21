@@ -5,6 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Project Reality Mortar Calculator</title>
   
+  <!-- Inline theme initialization: default to dark for first-time users -->
+  <script>
+    (function() {
+      try {
+        const savedTheme = localStorage.getItem('pr_theme_mode');
+        const shouldDefaultDark = !savedTheme; // true when first-time user
+        const isDark = savedTheme === 'dark' || shouldDefaultDark;
+        if (isDark) {
+          // Add to documentElement so it applies before body exists
+          document.documentElement.classList.add('dark-mode');
+        }
+
+        // When DOM loads: update the toggle state
+        document.addEventListener('DOMContentLoaded', function() {
+          const checkbox = document.getElementById('dark-mode-toggle');
+          if (checkbox) checkbox.checked = isDark;
+        });
+      } catch (e) {
+        console.error('Failed to load theme preference:', e);
+      }
+    })();
+  </script>
+  
   <!-- Favicon (local SVG fallback) -->
   <link rel="icon" href="/favicon.ico" type="image/svg+xml">
   <!-- Leaflet CSS (bundled locally) -->
@@ -34,6 +57,10 @@
             <option value="2048">2km (2048m)</option>
             <option value="4096">4km (4096m)</option>
           </select>
+        </div>
+        <div class="calculator__dark-mode-toggle" style="margin-left: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+          <input type="checkbox" id="dark-mode-toggle" style="cursor: pointer;">
+          <label for="dark-mode-toggle" style="font-size: 0.875rem; cursor: pointer;">Dark Mode</label>
         </div>
       </div>
     </header>
@@ -219,9 +246,9 @@
           <div class="calculator__input-group" style="margin-top: 0.75rem; display: flex; flex-direction: column; align-items: center; text-align: center;">
             <label for="target-height-offset" style="font-size: 0.875rem; display: flex; align-items: center; gap: 0.5rem; justify-content: center;">
               Target Height Offset (m):
-              <span style="font-size: 0.75rem; color: rgba(255,255,255,0.6);" title="Add extra height for buildings. Each floor ≈ 2m in PR">ⓘ</span>
+              <span style="font-size: 0.75rem; color: var(--text-secondary);" title="Add extra height for buildings. Each floor ≈ 2.5m in PR">ⓘ</span>
             </label>
-            <input 
+              <input 
               type="number" 
               id="target-height-offset" 
               class="calculator__dropdown calculator__dropdown--small" 
@@ -232,9 +259,9 @@
               style="padding: 0.25rem 0.5rem; width: 80px; text-align: center; margin-top: 0.25rem;"
               placeholder="0"
             >
-            <small style="font-size: 0.75rem; color: rgba(255,255,255,0.7); margin-top: 0.25rem; display: block;">
-              Tip: Each building floor ≈ 2m in PR
-            </small>
+              <small style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem; display: block;">
+                Tip: Each building floor ≈ 2.5m in PR
+              </small>
           </div>
           
           <div class="calculator__result-elevation">
@@ -271,6 +298,8 @@
       </aside>
     </main>
   </div>
+
+  <!-- Theme initialization occurs in the head before CSS loads -->
 
   <!-- Leaflet JS (bundled locally) -->
   <script src="/static/lib/leaflet.js"></script>

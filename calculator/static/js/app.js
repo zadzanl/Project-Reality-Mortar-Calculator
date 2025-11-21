@@ -842,6 +842,11 @@ function setupEventListeners() {
     toggleGridLabels(e.target.checked);
   });
   
+  // Dark mode toggle
+  document.getElementById('dark-mode-toggle').addEventListener('change', (e) => {
+    toggleTheme(e.target.checked);
+  });
+  
   // Map size override
   document.getElementById('map-size-override').addEventListener('change', () => {
     applyMapSizeOverride();
@@ -862,6 +867,33 @@ function updateGridDisplays() {
   const targetKeypad = document.getElementById('target-keypad').value;
   document.getElementById('target-grid-display').textContent = 
     formatGridReference(targetColumn, targetRow, targetKeypad);
+}
+
+// ====================================
+// THEME MANAGEMENT
+// ====================================
+
+/**
+ * Toggle between light and dark themes
+ * @param {boolean} enableDark - True for dark mode, false for light mode
+ */
+function toggleTheme(enableDark) {
+  try {
+    if (enableDark) {
+      // Set on both html and body so head initialization and runtime toggles align
+      document.documentElement.classList.add('dark-mode');
+      document.body.classList.add('dark-mode');
+      localStorage.setItem('pr_theme_mode', 'dark');
+      console.log('Theme: dark');
+    } else {
+      document.documentElement.classList.remove('dark-mode');
+      document.body.classList.remove('dark-mode');
+      localStorage.setItem('pr_theme_mode', 'light');
+      console.log('Theme: light');
+    }
+  } catch (e) {
+    console.error('Failed to save theme preference:', e);
+  }
 }
 
 // ====================================

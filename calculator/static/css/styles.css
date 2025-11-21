@@ -15,8 +15,105 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   font-size: 14px;
   line-height: 1.6;
-  color: #333;
-  background-color: #f5f5f5;
+  color: var(--text-primary);
+  background-color: var(--bg-body);
+}
+
+/* ====================================
+   THEME VARIABLES
+   ==================================== */
+
+/* Light theme (default) */
+:root {
+  /* Backgrounds */
+  --bg-body: #f5f5f5;
+  --bg-panel: #ffffff;
+  --bg-header: #2c3e50;
+  --bg-input: #ffffff;
+  --bg-info: #f8f9fa;
+  
+  /* Text colors */
+  --text-primary: #333333;
+  --text-secondary: #666666;
+  --text-header: #2c3e50;
+  --text-light: #ffffff;
+  
+  /* Borders */
+  --border-color: #dddddd;
+  --border-focus: #3498db;
+  
+  /* Buttons */
+  --btn-primary: #3498db;
+  --btn-primary-hover: #2980b9;
+  --btn-calculate: #27ae60;
+  --btn-calculate-hover: #229954;
+  
+  /* Status messages */
+  --status-ready-bg: #d4edda;
+  --status-ready-text: #155724;
+  --status-ready-border: #c3e6cb;
+  
+  --status-warning-bg: #fff3cd;
+  --status-warning-text: #856404;
+  --status-warning-border: #ffeaa7;
+  
+  --status-error-bg: #f8d7da;
+  --status-error-text: #721c24;
+  --status-error-border: #f5c6cb;
+  
+  /* Map elements */
+  --map-bg: #e0e0e0;
+  --grid-label-bg: rgba(0, 0, 0, 0.6);
+  --grid-label-text: #ffffff;
+  /* Map overlays */
+  --range-circle-stroke: #00bcd4;
+}
+
+/* Dark theme overrides */
+html.dark-mode,
+body.dark-mode {
+  /* Backgrounds */
+  --bg-body: #1a1a1a;
+  --bg-panel: #2d2d2d;
+  --bg-header: #1f1f1f;
+  --bg-input: #3a3a3a;
+  --bg-info: #3a3a3a;
+  
+  /* Text colors */
+  --text-primary: #e0e0e0;
+  --text-secondary: #b0b0b0;
+  --text-header: #e0e0e0;
+  --text-light: #ffffff;
+  
+  /* Borders */
+  --border-color: #444444;
+  --border-focus: #4a9eff;
+  
+  /* Buttons */
+  --btn-primary: #4a9eff;
+  --btn-primary-hover: #3d8ae0;
+  --btn-calculate: #2ecc71;
+  --btn-calculate-hover: #27ae60;
+  
+  /* Status messages - inverted for dark theme */
+  --status-ready-bg: #1e4620;
+  --status-ready-text: #90ee90;
+  --status-ready-border: #2d6a2f;
+  
+  --status-warning-bg: #4a3c1a;
+  --status-warning-text: #ffd966;
+  --status-warning-border: #6b5324;
+  
+  --status-error-bg: #4a1e1e;
+  --status-error-text: #ff6b6b;
+  --status-error-border: #6b2d2d;
+  
+  /* Map elements */
+  --map-bg: #2d2d2d;
+  --grid-label-bg: rgba(0, 0, 0, 0.8);
+  --grid-label-text: #ffffff;
+  /* Map overlays */
+  --range-circle-stroke: #00bcd4;
 }
 
 /* ====================================
@@ -31,8 +128,8 @@ body {
 }
 
 .calculator__header {
-  background-color: #2c3e50;
-  color: white;
+  background-color: var(--bg-header);
+  color: var(--text-light);
   padding: 1rem 2rem;
   display: flex;
   justify-content: space-between;
@@ -67,25 +164,25 @@ body {
    ==================================== */
 
 .calculator__panel {
-  background-color: white;
+  background-color: var(--bg-panel);
   overflow-y: auto;
 }
 
 .calculator__panel--inputs {
   width: 300px;
-  border-right: 1px solid #ddd;
+  border-right: 1px solid var(--border-color);
   padding: 1.5rem;
 }
 
 .calculator__panel--map {
   flex: 1;
   position: relative;
-  background-color: #e8e8e8;
+  background-color: var(--map-bg);
 }
 
 .calculator__panel--results {
   width: 300px;
-  border-left: 1px solid #ddd;
+  border-left: 1px solid var(--border-color);
   padding: 1.5rem;
 }
 
@@ -93,8 +190,8 @@ body {
   font-size: 1.25rem;
   font-weight: 600;
   margin-bottom: 1rem;
-  color: #2c3e50;
-  border-bottom: 2px solid #3498db;
+  color: var(--text-header);
+  border-bottom: 2px solid var(--border-focus);
   padding-bottom: 0.5rem;
 }
 
@@ -110,7 +207,7 @@ body {
   font-size: 1rem;
   font-weight: 600;
   margin-bottom: 0.75rem;
-  color: #34495e;
+  color: var(--text-header);
 }
 
 .calculator__input-group {
@@ -122,7 +219,7 @@ body {
   font-size: 0.875rem;
   font-weight: 500;
   margin-bottom: 0.25rem;
-  color: #555;
+  color: var(--text-secondary);
 }
 
 /* ====================================
@@ -132,21 +229,22 @@ body {
 .calculator__dropdown {
   width: 100%;
   padding: 0.5rem;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-color);
   border-radius: 4px;
   font-size: 0.875rem;
-  background-color: white;
+  background-color: var(--bg-input);
+  color: var(--text-primary);
   cursor: pointer;
   transition: border-color 0.2s;
 }
 
 .calculator__dropdown:hover {
-  border-color: #3498db;
+  border-color: var(--border-focus);
 }
 
 .calculator__dropdown:focus {
   outline: none;
-  border-color: #3498db;
+  border-color: var(--border-focus);
   box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
 }
 
@@ -171,24 +269,24 @@ body {
 }
 
 .calculator__button--primary {
-  background-color: #3498db;
-  color: white;
+  background-color: var(--btn-primary);
+  color: var(--text-light);
 }
 
 .calculator__button--primary:hover:not(:disabled) {
-  background-color: #2980b9;
+  background-color: var(--btn-primary-hover);
 }
 
 .calculator__button--calculate {
-  background-color: #27ae60;
-  color: white;
+  background-color: var(--btn-calculate);
+  color: var(--text-light);
   font-size: 1rem;
   padding: 1rem;
   margin-top: 1.5rem;
 }
 
 .calculator__button--calculate:hover:not(:disabled) {
-  background-color: #229954;
+  background-color: var(--btn-calculate-hover);
 }
 
 /* ====================================
@@ -198,9 +296,9 @@ body {
 .calculator__info {
   margin-top: 0.75rem;
   padding: 0.75rem;
-  background-color: #f8f9fa;
+  background-color: var(--bg-info);
   border-radius: 4px;
-  border-left: 3px solid #3498db;
+  border-left: 3px solid var(--border-focus);
 }
 
 .calculator__info-item {
@@ -211,13 +309,13 @@ body {
 
 .calculator__info-label {
   font-size: 0.875rem;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .calculator__info-value {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #2c3e50;
+  color: var(--text-header);
 }
 
 /* ====================================
@@ -227,15 +325,15 @@ body {
 .calculator__map {
   width: 100%;
   height: 100%;
-  background-color: #e0e0e0;
+  background-color: var(--map-bg);
 }
 
 .minimap-overlay {
   pointer-events: none;
 }
 .minimap-overlay__content {
-  background: rgba(0, 0, 0, 0.6);
-  color: #fff;
+  background: var(--grid-label-bg);
+  color: var(--grid-label-text);
   padding: 0.5rem 0.75rem;
   border-radius: 4px;
   font-size: 0.875rem;
@@ -244,8 +342,8 @@ body {
 /* Grid labels (column/row headings) */
 .grid-label {
   pointer-events: none;
-  background: rgba(0, 0, 0, 0.6);
-  color: #fff;
+  background: var(--grid-label-bg);
+  color: var(--grid-label-text);
   padding: 2px 6px;
   border-radius: 4px;
   font-weight: 700;
@@ -265,7 +363,7 @@ body {
   left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
-  color: #666;
+  color: var(--text-secondary);
   font-size: 1rem;
 }
 
@@ -283,20 +381,20 @@ body {
   display: flex;
   justify-content: space-between;
   padding: 0.75rem;
-  background-color: #f8f9fa;
+  background-color: var(--bg-info);
   border-radius: 4px;
 }
 
 .calculator__result-label {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .calculator__result-value {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #2c3e50;
+  color: var(--text-header);
 }
 
 /* Elevation Display (Prominent) */
@@ -355,27 +453,27 @@ body {
 }
 
 .calculator__result-status--ready {
-  background-color: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
+  background-color: var(--status-ready-bg);
+  color: var(--status-ready-text);
+  border: 1px solid var(--status-ready-border);
 }
 
 .calculator__result-status--ok {
-  background-color: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
+  background-color: var(--status-ready-bg);
+  color: var(--status-ready-text);
+  border: 1px solid var(--status-ready-border);
 }
 
 .calculator__result-status--warning {
-  background-color: #fff3cd;
-  color: #856404;
-  border: 1px solid #ffeaa7;
+  background-color: var(--status-warning-bg);
+  color: var(--status-warning-text);
+  border: 1px solid var(--status-warning-border);
 }
 
 .calculator__result-status--error {
-  background-color: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
+  background-color: var(--status-error-bg);
+  color: var(--status-error-text);
+  border: 1px solid var(--status-error-border);
 }
 
 /* ====================================
@@ -415,7 +513,7 @@ body {
   .calculator__panel--results {
     width: 100%;
     border: none;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--border-color);
   }
   
   .calculator__panel--map {
@@ -450,5 +548,5 @@ body {
 
 /* Range circle subtle stroke */
 .range-circle {
-  stroke: #00bcd4;
+  stroke: var(--range-circle-stroke);
 }
