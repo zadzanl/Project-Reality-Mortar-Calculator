@@ -2,6 +2,8 @@
 
 Calculate accurate firing solutions for mortars in Project Reality: BF2. Takes into account height deltas automatically. Support 1.8.1.2 (November 2025)
 
+![preview.png](calculator/preview.png)
+
 ## Features
 
 - Visual map representation with satellite/overview imagery
