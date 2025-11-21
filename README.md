@@ -87,14 +87,14 @@ MIT License - See [LICENSE](LICENSE) file
 
 ## Credits
 
-To previous attempt at making a mortar calculator:
-[BiNoops's Mortar Calculator](https://github.com/BiNoopsGITHUB/PRBF2-Mortar-Calculator)
-[Shemich's Mortar Calculator](https://github.com/Shemich/project-reality-mortar-calculator)
+- To previous attempt at making a mortar calculator:
+    - [BiNoops's Mortar Calculator](https://github.com/BiNoopsGITHUB/PRBF2-Mortar-Calculator)
+    - [Shemich's Mortar Calculator](https://github.com/Shemich/project-reality-mortar-calculator)
 
-And other repo found when searching ["Project Reality Mortar" in github](https://github.com/search?q=project%20reality%20mortar&type=repositories)
+- And other repo found when searching ["Project Reality Mortar" in github](https://github.com/search?q=project%20reality%20mortar&type=repositories)
 
-To PRID for how badly we aim the mortar and motivating me to create the calculator
+- To PRID for how badly we aim the mortar and motivating me to create the calculator
 
-To all community member and devs that discussed and answers mortar mechanics and physics discussion
+- To all community member and devs that discussed and answers mortar mechanics and physics discussion
 
-To copilot for implementing the UI
+- To copilot for implementing the UI
