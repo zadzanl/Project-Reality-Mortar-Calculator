@@ -30,6 +30,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 1  # Shallow clone for speed
+          lfs: true  # Download Git LFS files (processed maps)
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -41,6 +42,10 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+
+      - name: Verify LFS files downloaded
+        run: |
+          python -c "import os, sys; size = os.path.getsize('processed_maps/adak/heightmap.json'); print(f'heightmap.json size: {size} bytes'); sys.exit(0 if size > 1000000 else 1)"
 
       - name: Build executable with PyInstaller
         run: |
