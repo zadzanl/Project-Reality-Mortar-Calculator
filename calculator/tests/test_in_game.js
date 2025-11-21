@@ -124,7 +124,7 @@ export async function runInGameTests() {
       assertApprox(solution.elevationMils, expectedElevationMils, tolerance.elevationMils, `Elevation mismatch: ${solution.elevationMils} vs ${expectedElevationMils}`);
     }
 
-    console.log('  ✓ Match within tolerance');
+    console.log('   OK  Match within tolerance');
   }
 
   console.log('\n  In-game validation tests completed.');

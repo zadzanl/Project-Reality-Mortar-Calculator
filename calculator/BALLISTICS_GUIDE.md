@@ -160,13 +160,13 @@ Benchmark results on test_bootcamp map (1000 iterations):
 
 | Operation | Mean | P95 | P99 | Status |
 |-----------|------|-----|-----|--------|
-| Grid Parsing | 0.001ms | 0.002ms | 0.009ms | ✓ Excellent |
-| Grid to XY | 0.001ms | 0.003ms | 0.008ms | ✓ Excellent |
-| Elevation Sampling | 0.001ms | 0.002ms | 0.004ms | ✓ Excellent |
-| Firing Solution | 0.005ms | 0.008ms | 0.032ms | ✓ Excellent |
-| **Full Pipeline** | **0.004ms** | **0.007ms** | **0.014ms** | **✓ Excellent** |
+| Grid Parsing | 0.001ms | 0.002ms | 0.009ms |  OK  Excellent |
+| Grid to XY | 0.001ms | 0.003ms | 0.008ms |  OK  Excellent |
+| Elevation Sampling | 0.001ms | 0.002ms | 0.004ms |  OK  Excellent |
+| Firing Solution | 0.005ms | 0.008ms | 0.032ms |  OK  Excellent |
+| **Full Pipeline** | **0.004ms** | **0.007ms** | **0.014ms** | ** OK  Excellent** |
 
-**Target**: <50ms per full pipeline calculation ✓ **ACHIEVED** (49.996ms margin)
+**Target**: <50ms per full pipeline calculation  OK  **ACHIEVED** (49.996ms margin)
 
 ### Optimization Techniques Applied
 
@@ -568,10 +568,10 @@ assert(centerElev >= 0 && centerElev <= heightScale);
 **Symptom:** `gridRefToXY returns null`
 
 **Valid formats:**
-- `"D6-7"` ✓
-- `"Delta 6-7"` ✓
-- `"d6-7"` ✓ (case insensitive)
-- `"D6-kpad7"` ✓
+- `"D6-7"`  OK 
+- `"Delta 6-7"`  OK 
+- `"d6-7"`  OK  (case insensitive)
+- `"D6-kpad7"`  OK 
 
 **Invalid formats:**
 - `"D-6-7"` (wrong delimiter)
@@ -628,10 +628,10 @@ node calculator/tests/test_map_specific.js # Map-specific validation
 
 ### Performance Targets
 
-- Grid parsing: <1ms ✓
-- Elevation sampling: <1ms ✓
-- Firing solution: <10ms ✓
-- **Full pipeline: <50ms ✓** (Currently ~0.004ms avg)
+- Grid parsing: <1ms  OK 
+- Elevation sampling: <1ms  OK 
+- Firing solution: <10ms  OK 
+- **Full pipeline: <50ms  OK ** (Currently ~0.004ms avg)
 
 ---
 

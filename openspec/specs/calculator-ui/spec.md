@@ -223,7 +223,7 @@ The system SHALL display prominent visual warnings for invalid inputs, out-of-ra
 #### Scenario: Extreme elevation warning
 - **WHEN** elevation difference |ΔZ| exceeds 100m
 - **THEN** yellow alert appears in results panel
-- **AND** alert displays "⚠ Extreme elevation difference - accuracy may suffer"
+- **AND** alert displays " WARNING  Extreme elevation difference - accuracy may suffer"
 - **AND** calculation still completes normally
 
 #### Scenario: Invalid coordinates error

@@ -211,7 +211,7 @@ def process_map(map_folder: Path, output_dir: Path, existing_manifest: Dict) -> 
         print(f"  {Colors.RED}Server.zip validation failed: {error_msg}{Colors.RESET}")
         return None
     
-    print(f"  {Colors.GREEN}✓ Server.zip validation passed{Colors.RESET}")
+    print(f"  {Colors.GREEN} OK  Server.zip validation passed{Colors.RESET}")
     
     # Calculate server.zip MD5
     print(f"  Calculating server.zip MD5...")
@@ -226,16 +226,16 @@ def process_map(map_folder: Path, output_dir: Path, existing_manifest: Dict) -> 
     if has_client_zip:
         is_valid, error_msg = validate_client_zip(client_zip)
         if is_valid:
-            print(f"  {Colors.GREEN}✓ Client.zip found and valid{Colors.RESET}")
+            print(f"  {Colors.GREEN} OK  Client.zip found and valid{Colors.RESET}")
             print(f"  Calculating client.zip MD5...")
             client_md5 = calculate_md5(client_zip)
             print(f"  Client MD5: {client_md5}")
         else:
-            print(f"  {Colors.YELLOW}⚠ Client.zip found but invalid: {error_msg}{Colors.RESET}")
+            print(f"  {Colors.YELLOW} WARNING  Client.zip found but invalid: {error_msg}{Colors.RESET}")
             print(f"  {Colors.YELLOW}  Continuing in heightmap-only mode{Colors.RESET}")
             has_client_zip = False
     else:
-        print(f"  {Colors.YELLOW}⚠ Client.zip not found - heightmap-only mode{Colors.RESET}")
+        print(f"  {Colors.YELLOW} WARNING  Client.zip not found - heightmap-only mode{Colors.RESET}")
     
     # Check for duplicates
     existing_maps = existing_manifest.get('maps', [])
@@ -269,7 +269,7 @@ def process_map(map_folder: Path, output_dir: Path, existing_manifest: Dict) -> 
         print(f"  Copying server.zip...")
         shutil.copy2(server_zip, output_server)
         server_size = output_server.stat().st_size
-        print(f"  {Colors.GREEN}✓ Server.zip copied ({server_size / 1024:.1f} KB){Colors.RESET}")
+        print(f"  {Colors.GREEN} OK  Server.zip copied ({server_size / 1024:.1f} KB){Colors.RESET}")
     else:
         server_size = output_server.stat().st_size
     
@@ -280,7 +280,7 @@ def process_map(map_folder: Path, output_dir: Path, existing_manifest: Dict) -> 
             print(f"  Copying client.zip...")
             shutil.copy2(client_zip, output_client)
             client_size = output_client.stat().st_size
-            print(f"  {Colors.GREEN}✓ Client.zip copied ({client_size / 1024:.1f} KB){Colors.RESET}")
+            print(f"  {Colors.GREEN} OK  Client.zip copied ({client_size / 1024:.1f} KB){Colors.RESET}")
         else:
             client_size = output_client.stat().st_size
     
@@ -394,7 +394,7 @@ def configure_git_lfs(total_size_bytes: int, repo_root: Path) -> None:
                 f.write(pattern + '\n')
         
         print(f"  {Colors.GREEN}Updated .gitattributes with LFS patterns{Colors.RESET}")
-        print(f"  {Colors.YELLOW}⚠ Run 'git lfs install' if not already configured{Colors.RESET}")
+        print(f"  {Colors.YELLOW} WARNING  Run 'git lfs install' if not already configured{Colors.RESET}")
     else:
         print(f"  {Colors.GREEN}LFS patterns already configured{Colors.RESET}")
 
@@ -543,7 +543,7 @@ Examples:
                 existing_manifest = json.load(f)
             print(f"\n{Colors.BLUE}Loaded existing manifest ({existing_manifest.get('total_maps', 0)} maps){Colors.RESET}")
         except Exception as e:
-            print(f"\n{Colors.YELLOW}⚠ Could not load existing manifest: {e}{Colors.RESET}")
+            print(f"\n{Colors.YELLOW} WARNING  Could not load existing manifest: {e}{Colors.RESET}")
     
     # Process maps
     print(f"\n{Colors.BOLD}Processing maps...{Colors.RESET}")
@@ -579,7 +579,7 @@ Examples:
     
     # Exit code
     if errors:
-        print(f"\n{Colors.YELLOW}⚠ Completed with {len(errors)} error(s){Colors.RESET}")
+        print(f"\n{Colors.YELLOW} WARNING  Completed with {len(errors)} error(s){Colors.RESET}")
         sys.exit(1)
     else:
         print(f"\n{Colors.GREEN}{Colors.BOLD}Collection completed successfully!{Colors.RESET}")

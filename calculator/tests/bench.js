@@ -107,13 +107,13 @@ function printResults(label, stats, iterations) {
   
   // Performance assessment
   if (stats.mean < 1) {
-    console.log(`  Assessment: ✓ EXCELLENT (< 1ms)`);
+    console.log(`  Assessment:  OK  EXCELLENT (< 1ms)`);
   } else if (stats.mean < 10) {
-    console.log(`  Assessment: ✓ GOOD (< 10ms)`);
+    console.log(`  Assessment:  OK  GOOD (< 10ms)`);
   } else if (stats.mean < 50) {
-    console.log(`  Assessment: ✓ ACCEPTABLE (< 50ms)`);
+    console.log(`  Assessment:  OK  ACCEPTABLE (< 50ms)`);
   } else {
-    console.log(`  Assessment: ⚠ SLOW (> 50ms) - optimization recommended`);
+    console.log(`  Assessment:  WARNING  SLOW (> 50ms) - optimization recommended`);
   }
 }
 
@@ -388,10 +388,10 @@ async function runBenchmarks() {
     console.log(`\nFull pipeline average: ${pipelineStats.mean.toFixed(3)}ms`);
     
     if (pipelineStats.mean < 50) {
-      console.log(`\n✓ PERFORMANCE TARGET MET: Average < 50ms`);
+      console.log(`\n OK  PERFORMANCE TARGET MET: Average < 50ms`);
       console.log(`  Margin: ${(50 - pipelineStats.mean).toFixed(3)}ms below target`);
     } else {
-      console.log(`\n⚠ PERFORMANCE TARGET MISSED: Average > 50ms`);
+      console.log(`\n WARNING  PERFORMANCE TARGET MISSED: Average > 50ms`);
       console.log(`  Overage: ${(pipelineStats.mean - 50).toFixed(3)}ms above target`);
       console.log(`\nOptimization recommendations:`);
       console.log(`  - Consider WebAssembly for heightmap interpolation`);

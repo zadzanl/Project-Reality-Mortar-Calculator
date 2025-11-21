@@ -165,9 +165,9 @@ async function testKorengalValley() {
   
   // Should be valid or warn about extreme elevation
   if (!sol1.valid || sol1.status === 'EXTREME_ELEVATION') {
-    console.log('    ✓ Correctly identified extreme elevation scenario');
+    console.log('     OK  Correctly identified extreme elevation scenario');
   } else if (Math.abs(sol1.heightDelta) > 50) {
-    console.log('    ✓ Significant elevation change detected');
+    console.log('     OK  Significant elevation change detected');
   }
   
   console.log('');
@@ -179,7 +179,7 @@ async function testKorengalValley() {
   // Verify reciprocal relationship
   assertApprox(sol1.distance, sol2.distance, 0.01, 'Distance should be same in both directions');
   assert.strictEqual(sol1.heightDelta, -sol2.heightDelta, 'Height delta should be opposite in reverse');
-  console.log('    ✓ Reciprocal firing solution verified');
+  console.log('     OK  Reciprocal firing solution verified');
   
   console.log('');
   
@@ -258,7 +258,7 @@ async function testBurningSands() {
   
   // Elevation difference should be minimal
   if (Math.abs(sol1.heightDelta) < 10) {
-    console.log('    ✓ Confirmed flat terrain (height Δ < 10m)');
+    console.log('     OK  Confirmed flat terrain (height Δ < 10m)');
   }
   
   console.log('');
@@ -272,7 +272,7 @@ async function testBurningSands() {
   
   // Should have minimal elevation change
   if (Math.abs(sol2.heightDelta) < 20) {
-    console.log('    ✓ Confirmed flat terrain (height Δ < 20m)');
+    console.log('     OK  Confirmed flat terrain (height Δ < 20m)');
   }
   
   console.log('');
@@ -284,7 +284,7 @@ async function testBurningSands() {
   
   assert.strictEqual(sol3a.distance, sol3b.distance, 'Distance should be consistent');
   assert.strictEqual(sol3a.elevationMils, sol3b.elevationMils, 'Elevation should be consistent');
-  console.log('    ✓ Results are deterministic');
+  console.log('     OK  Results are deterministic');
 }
 
 /**
@@ -307,7 +307,7 @@ export async function runMapSpecificTests() {
     console.log('\n' + '='.repeat(70));
     console.log('MAP-SPECIFIC TESTS COMPLETED');
     console.log('='.repeat(70));
-    console.log('\n✓ All map-specific integration tests passed!');
+    console.log('\n OK  All map-specific integration tests passed!');
     
   } catch (error) {
     console.error('\nMap-specific test error:', error);

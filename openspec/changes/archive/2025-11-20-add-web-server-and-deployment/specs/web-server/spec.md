@@ -203,4 +203,4 @@ The system SHALL display clear startup banner with server information and shutdo
 
 #### Scenario: Development mode warning
 - **WHEN** Flask is run with debug=True (development only)
-- **THEN** warning displays: "⚠ Debug mode enabled - disable for production use"
+- **THEN** warning displays: " WARNING  Debug mode enabled - disable for production use"

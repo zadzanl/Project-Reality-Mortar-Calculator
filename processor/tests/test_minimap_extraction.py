@@ -26,7 +26,7 @@ def test_validate_client_zip_structure():
     assert len(params) == 1, f"Expected 1 parameter, got {len(params)}"
     assert params[0] == 'zip_path', f"Expected parameter 'zip_path', got '{params[0]}'"
     
-    print("✓ validate_client_zip function signature correct")
+    print(" OK  validate_client_zip function signature correct")
 
 def test_manifest_structure():
     """Test expected manifest.json structure for minimap support."""
@@ -70,7 +70,7 @@ def test_manifest_structure():
     assert 'has_heightmap' in map_entry['server_zip']
     assert 'has_minimap' in map_entry['client_zip']
     
-    print("✓ Manifest structure matches specification")
+    print(" OK  Manifest structure matches specification")
 
 def test_metadata_minimap_field():
     """Test expected metadata.json minimap field structure."""
@@ -94,7 +94,7 @@ def test_metadata_minimap_field():
     assert 'file_size_kb' in minimap
     assert 'converted_at' in minimap
     
-    print("✓ Metadata minimap field structure correct")
+    print(" OK  Metadata minimap field structure correct")
 
 if __name__ == '__main__':
     print("Running minimap extraction tests...\n")

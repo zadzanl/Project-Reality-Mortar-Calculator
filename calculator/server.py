@@ -202,9 +202,9 @@ def open_browser(url, delay=1.5):
         time.sleep(delay)
         try:
             webbrowser.open(url)
-            print(f"✓ Browser opened automatically")
+            print(f"[OK] Browser opened automatically")
         except Exception as e:
-            print(f"⚠ Browser did not open automatically: {e}")
+            print(f"[WARNING] Browser did not open automatically: {e}")
             print(f"  Please open manually: {url}")
     
     thread = threading.Thread(target=_open, daemon=True)
@@ -226,7 +226,7 @@ def print_banner(port):
 def check_processed_maps():
     """Check if processed_maps directory exists and warn if missing."""
     if not PROCESSED_MAPS_DIR.is_dir():
-        print("⚠ WARNING: processed_maps directory not found")
+        print("WARNING: processed_maps directory not found")
         print(f"  Expected location: {PROCESSED_MAPS_DIR}")
         print("  Calculator will run but no maps will be available.")
         print()
@@ -234,7 +234,7 @@ def check_processed_maps():
         # Count available maps
         map_count = sum(1 for item in PROCESSED_MAPS_DIR.iterdir() 
                        if item.is_dir() and (item / 'metadata.json').is_file())
-        print(f"✓ Found {map_count} processed maps")
+        print(f" OK OK] Found {map_count} processed maps")
 
 
 def main():

@@ -208,7 +208,7 @@ export async function runIntegrationTests() {
   
   assert(!zeroDistSolution.valid, 'Zero distance should be invalid');
   assert(zeroDistSolution.status === 'TOO_CLOSE', 'Zero distance should return TOO_CLOSE status');
-  console.log(`  Zero distance: ${zeroDistSolution.status} ✓`);
+  console.log(`  Zero distance: ${zeroDistSolution.status}  OK `);
   
   // Out of range (> 1500m)
   const outOfRangeSolution = calculateFiringSolution(
@@ -218,7 +218,7 @@ export async function runIntegrationTests() {
   
   assert(!outOfRangeSolution.valid, 'Out of range should be invalid');
   assert(outOfRangeSolution.status === 'OUT_OF_RANGE', 'Should return OUT_OF_RANGE status');
-  console.log(`  Out of range: ${outOfRangeSolution.status} ✓`);
+  console.log(`  Out of range: ${outOfRangeSolution.status}  OK `);
   
   // Test Case 4: Validate calculation consistency
   console.log('\n  Test 4: Calculation consistency');
@@ -239,7 +239,7 @@ export async function runIntegrationTests() {
   assert.strictEqual(sol2.distance, sol3.distance, 'Distance should be consistent (2nd iteration)');
   assert.strictEqual(sol2.azimuth, sol3.azimuth, 'Azimuth should be consistent (2nd iteration)');
   
-  console.log(`  Consistency check: All calculations identical ✓`);
+  console.log(`  Consistency check: All calculations identical  OK `);
   
   // Test Case 5: Grid conversion round-trip
   console.log('\n  Test 5: Grid conversion round-trip');
@@ -252,7 +252,7 @@ export async function runIntegrationTests() {
   assert(typeof elevation === 'number', 'Elevation should be retrievable');
   assert(!isNaN(elevation), 'Elevation should not be NaN');
   
-  console.log(`  E7-3 → (${originalXY.x.toFixed(1)}, ${originalXY.y.toFixed(1)}) → elevation ${elevation.toFixed(2)}m ✓`);
+  console.log(`  E7-3 → (${originalXY.x.toFixed(1)}, ${originalXY.y.toFixed(1)}) → elevation ${elevation.toFixed(2)}m  OK `);
   
   console.log('\n  Integration tests completed successfully!');
 }

@@ -35,22 +35,22 @@ rem *** HeightmapCluster ***
 HeightmapCluster.setHeightScale 300
     """
     result1 = parse_terrain_con(content1)
-    print(f"Test 1 (height scale 300): {result1} {'✓' if result1 == 300 else '✗'}")
+    print(f"Test 1 (height scale 300): {result1} {' OK ' if result1 == 300 else '✗'}")
     
     # Test 2: Decimal value
     content2 = "HeightmapCluster.setHeightScale 150.5"
     result2 = parse_terrain_con(content2)
-    print(f"Test 2 (height scale 150.5): {result2} {'✓' if result2 == 150.5 else '✗'}")
+    print(f"Test 2 (height scale 150.5): {result2} {' OK ' if result2 == 150.5 else '✗'}")
     
     # Test 3: Case insensitive
     content3 = "heightmapcluster.setheightscale 400"
     result3 = parse_terrain_con(content3)
-    print(f"Test 3 (case insensitive): {result3} {'✓' if result3 == 400 else '✗'}")
+    print(f"Test 3 (case insensitive): {result3} {' OK ' if result3 == 400 else '✗'}")
     
     # Test 4: Not found
     content4 = "nothing here"
     result4 = parse_terrain_con(content4)
-    print(f"Test 4 (not found): {result4} {'✓' if result4 is None else '✗'}")
+    print(f"Test 4 (not found): {result4} {' OK ' if result4 is None else '✗'}")
 
 
 def test_parse_init_con():
@@ -63,22 +63,22 @@ rem *** HeightmapCluster ***
 heightmapCluster.create 2048 2048 128 2
     """
     result1 = parse_init_con(content1)
-    print(f"Test 1 (2048m map): {result1} {'✓' if result1 == 2048 else '✗'}")
+    print(f"Test 1 (2048m map): {result1} {' OK ' if result1 == 2048 else '✗'}")
     
     # Test 2: 4096m map
     content2 = "heightmapCluster.create 4096 4096 128 2"
     result2 = parse_init_con(content2)
-    print(f"Test 2 (4096m map): {result2} {'✓' if result2 == 4096 else '✗'}")
+    print(f"Test 2 (4096m map): {result2} {' OK ' if result2 == 4096 else '✗'}")
     
     # Test 3: Case insensitive
     content3 = "HeightmapCluster.Create 1024 1024 128 2"
     result3 = parse_init_con(content3)
-    print(f"Test 3 (case insensitive): {result3} {'✓' if result3 == 1024 else '✗'}")
+    print(f"Test 3 (case insensitive): {result3} {' OK ' if result3 == 1024 else '✗'}")
     
     # Test 4: Not found
     content4 = "nothing here"
     result4 = parse_init_con(content4)
-    print(f"Test 4 (not found): {result4} {'✓' if result4 is None else '✗'}")
+    print(f"Test 4 (not found): {result4} {' OK ' if result4 is None else '✗'}")
 
 
 def test_grid_scale_calculation():
@@ -94,7 +94,7 @@ def test_grid_scale_calculation():
     for map_size, expected in test_cases:
         grid_scale = map_size / 13
         match = abs(grid_scale - expected) < 0.001
-        print(f"Map size {map_size}m → grid scale {grid_scale:.3f}m {'✓' if match else '✗'}")
+        print(f"Map size {map_size}m → grid scale {grid_scale:.3f}m {' OK ' if match else '✗'}")
 
 
 def test_json_structure():
@@ -112,9 +112,9 @@ def test_json_structure():
     }
     
     print(f"Heightmap JSON keys: {list(heightmap_json.keys())}")
-    print(f"  resolution: {heightmap_json['resolution']} ✓")
-    print(f"  format: {heightmap_json['format']} ✓")
-    print(f"  data length: {len(heightmap_json['data'])} (expected {1025*1025}) {'✓' if len(heightmap_json['data']) == 1025*1025 else '✗'}")
+    print(f"  resolution: {heightmap_json['resolution']}  OK ")
+    print(f"  format: {heightmap_json['format']}  OK ")
+    print(f"  data length: {len(heightmap_json['data'])} (expected {1025*1025}) {' OK ' if len(heightmap_json['data']) == 1025*1025 else '✗'}")
     
     # Metadata JSON structure
     from datetime import datetime
@@ -129,11 +129,11 @@ def test_json_structure():
     }
     
     print(f"\nMetadata JSON keys: {list(metadata_json.keys())}")
-    print(f"  map_name: {metadata_json['map_name']} ✓")
-    print(f"  map_size: {metadata_json['map_size']} ✓")
-    print(f"  height_scale: {metadata_json['height_scale']} ✓")
-    print(f"  grid_scale: {metadata_json['grid_scale']:.3f} ✓")
-    print(f"  format_version: {metadata_json['format_version']} ✓")
+    print(f"  map_name: {metadata_json['map_name']}  OK ")
+    print(f"  map_size: {metadata_json['map_size']}  OK ")
+    print(f"  height_scale: {metadata_json['height_scale']}  OK ")
+    print(f"  grid_scale: {metadata_json['grid_scale']:.3f}  OK ")
+    print(f"  format_version: {metadata_json['format_version']}  OK ")
 
 
 if __name__ == '__main__':
