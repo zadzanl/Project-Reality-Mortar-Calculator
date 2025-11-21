@@ -226,7 +226,10 @@ function initializeLeafletMap() {
   // Add grid overlay
   addGridOverlay();
   
-  // Set initial grid label visibility (hidden by default)
+  // Set initial grid visibility (both lines and labels hidden by default)
+  if (state.gridGroup) {
+    state.gridGroup.remove();
+  }
   if (state.gridLabelGroup) {
     state.gridLabelGroup.remove();
   }
@@ -290,17 +293,27 @@ function applyMapSizeOverride() {
 }
 
 /**
- * Toggle visibility of grid labels
+ * Toggle visibility of grid lines and labels
  */
 function toggleGridLabels(show) {
-  if (!state.leafletMap || !state.gridLabelGroup) {
+  if (!state.leafletMap) {
     return;
   }
   
   if (show) {
-    state.gridLabelGroup.addTo(state.leafletMap);
+    if (state.gridGroup) {
+      state.gridGroup.addTo(state.leafletMap);
+    }
+    if (state.gridLabelGroup) {
+      state.gridLabelGroup.addTo(state.leafletMap);
+    }
   } else {
-    state.gridLabelGroup.remove();
+    if (state.gridGroup) {
+      state.gridGroup.remove();
+    }
+    if (state.gridLabelGroup) {
+      state.gridLabelGroup.remove();
+    }
   }
 }
 
