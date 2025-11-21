@@ -13,17 +13,19 @@ Output:
 """
 
 from PyInstaller.utils.hooks import collect_data_files, collect_submodules
+from PyInstaller.utils.hooks import collect_dynamic_libs
 import os
 
-# Get the root directory
-root_dir = os.path.abspath(SPECPATH)
+# Get the repository root directory (directory containing this spec file)
+root_dir = os.path.abspath(os.getcwd())
 
 # Collect all Flask templates and static files
-datas = [
-    (os.path.join(root_dir, 'calculator', 'templates'), 'calculator/templates'),
-    (os.path.join(root_dir, 'calculator', 'static'), 'calculator/static'),
-    (os.path.join(root_dir, 'processed_maps'), 'processed_maps'),
-]
+d = []
+# Include UI templates and static assets
+d.append((os.path.join(root_dir, 'calculator', 'templates'), 'calculator/templates'))
+d.append((os.path.join(root_dir, 'calculator', 'static'), 'calculator/static'))
+d.append((os.path.join(root_dir, 'processed_maps'), 'processed_maps'))
+datas = d
 
 # Collect Flask data files (Jinja2 templates, etc.)
 datas += collect_data_files('flask')
@@ -34,6 +36,7 @@ hiddenimports = collect_submodules('flask')
 hiddenimports += collect_submodules('werkzeug')
 hiddenimports += collect_submodules('jinja2')
 hiddenimports += ['PIL._tkinter_finder']  # Pillow support
+hiddenimports += ['jaraco.text']
 
 block_cipher = None
 

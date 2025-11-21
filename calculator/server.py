@@ -14,25 +14,29 @@ from flask import Flask, send_from_directory, render_template, abort, Response
 
 __version__ = "1.0.0"
 
-# Configure Flask application
-app = Flask(__name__, 
-            static_folder='static',
-            template_folder='templates')
+# When running as a PyInstaller bundle the application files are extracted into
+# a temporary directory pointed to by sys._MEIPASS. Configure Flask so that
+# templates and static files are resolved from the embedded paths when frozen.
+if getattr(sys, 'frozen', False):
+    _meipass = Path(sys._MEIPASS)
+    # In our spec we include the calculator folder inside the bundle so templates
+    # live at: <meipass>/calculator/templates
+    static_folder = str(_meipass / 'calculator' / 'static')
+    template_folder = str(_meipass / 'calculator' / 'templates')
+    # Project root inside the bundle is the meipass directory
+    PROJECT_ROOT = _meipass
+else:
+    static_folder = 'static'
+    template_folder = 'templates'
+    PROJECT_ROOT = Path(__file__).parent.parent
+
+# Create Flask application with the resolved asset locations
+app = Flask(__name__, static_folder=static_folder, template_folder=template_folder)
 
 # Disable debug mode for production use
 app.config['DEBUG'] = False
 
-# Get project root directory (parent of calculator/)
-# Handle PyInstaller bundled executable
-if getattr(sys, 'frozen', False):
-    # Running as PyInstaller bundle
-    APPLICATION_PATH = Path(sys._MEIPASS)
-    PROJECT_ROOT = APPLICATION_PATH.parent
-else:
-    # Running as normal Python script
-    APPLICATION_PATH = Path(__file__).parent
-    PROJECT_ROOT = APPLICATION_PATH.parent
-
+# Processed maps directory is relative to project root (or bundled meipass)
 PROCESSED_MAPS_DIR = PROJECT_ROOT / 'processed_maps'
 
 # Configure MIME types explicitly

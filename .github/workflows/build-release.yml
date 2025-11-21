@@ -46,17 +46,19 @@ jobs:
         run: |
           pyinstaller PR-Mortar-Calculator.spec
 
-      - name: Create distribution package
-        shell: bash
+      - name: Create ZIP (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: powershell
         run: |
           cd dist
-          if [ "${{ matrix.platform }}" = "Windows" ]; then
-            # Create ZIP for Windows
-            7z a -tzip ${{ matrix.artifact_name }}.zip PR-Mortar-Calculator/
-          else
-            # Create tar.gz for Linux
-            tar -czf ${{ matrix.artifact_name }}.tar.gz PR-Mortar-Calculator/
-          fi
+          Compress-Archive -Path 'PR-Mortar-Calculator' -DestinationPath '${{ matrix.artifact_name }}.zip' -Force
+          cd ..
+
+      - name: Create tar.gz (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          cd dist
+          tar -czf ${{ matrix.artifact_name }}.tar.gz PR-Mortar-Calculator/
           cd ..
 
       - name: Upload build artifact
@@ -64,8 +66,8 @@ jobs:
         with:
           name: ${{ matrix.artifact_name }}
           path: |
-            dist/${{ matrix.artifact_name }}.zip
-            dist/${{ matrix.artifact_name }}.tar.gz
+            dist/*.zip
+            dist/*.tar.gz
           retention-days: 90
           if-no-files-found: error
 
