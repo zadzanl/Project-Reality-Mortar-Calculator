@@ -399,13 +399,19 @@ body.dark-mode {
 
 /* Elevation Display (Prominent) */
 .calculator__result-elevation {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #6b7c4f; /* Olive drab camo green for light mode */
   color: white;
   padding: 1.5rem;
   border-radius: 8px;
   text-align: center;
   margin: 1rem 0;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Dark mode override for elevation display */
+html.dark-mode .calculator__result-elevation,
+body.dark-mode .calculator__result-elevation {
+  background: #3d4a2c; /* Darker forest green for dark mode */
 }
 
 .calculator__result-elevation-title {

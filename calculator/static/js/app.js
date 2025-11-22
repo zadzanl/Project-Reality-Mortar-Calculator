@@ -1,6 +1,11 @@
 /**
  * Project Reality Mortar Calculator - Main Application
  * Orchestrates UI, map display, and calculation modules
+ * 
+ * COORDINATE SYSTEM CRITICAL NOTE:
+ * - PR coordinates: Y increases DOWNWARD (top-left origin, like images)
+ * - Leaflet coordinates: Y increases UPWARD (standard math coordinates)
+ * - All conversions between systems use: leafletY = mapSize - prY
  */
 
 import { calculateFiringSolution, PR_PHYSICS } from './ballistics.js';
@@ -172,9 +177,10 @@ function initializeLeafletMap() {
   });
   
   // Calculate bounds for the map
-  // Leaflet's CRS.Simple has Y increasing upward, but our coordinate system has Y increasing downward
-  // So we need to flip the Y-axis by using [mapSize, 0] to [0, mapSize]
   const mapSize = metadata.map_size;
+  // IMPORTANT: Leaflet's Y-axis goes UP, PR's Y-axis goes DOWN
+  // We handle this by inverting Y in all coordinate conversions (leafletY = mapSize - prY)
+  // Bounds stay standard: [[minLat, minLng], [maxLat, maxLng]] = [[0,0], [mapSize, mapSize]]
   const bounds = [[0, 0], [mapSize, mapSize]];
   
   // Add a simple background (will be replaced with actual map imagery in future)
@@ -390,12 +396,12 @@ function addGridOverlay() {
  */
 function handleMapClick(e) {
   const latlng = e.latlng;
-  const x = latlng.lng;
+  const x = latlng.lng;  // X-axis is same in both systems
   const metadata = state.mapData.metadata;
-  // Leaflet Y increases upward, but PR Y increases downward, so invert
+  // IMPORTANT: Convert Leaflet Y (up) to PR Y (down): prY = mapSize - leafletY
   const y = metadata.map_size - latlng.lat;
   
-  // For placing markers, keep original Leaflet coordinates
+  // For placing markers, keep original Leaflet coordinates (will display at correct visual position)
   const leafletLat = latlng.lat;
   const leafletLng = latlng.lng;
 
@@ -483,8 +489,8 @@ function placeMarkers() {
   state.mortarPreciseXY = { x: mortarXY.x, y: mortarXY.y };
   state.targetPreciseXY = { x: targetXY.x, y: targetXY.y };
   
-  // Convert to Leaflet coordinates
-  // Leaflet Y increases upward, but PR Y increases downward, so invert: (mapSize - y)
+  // Convert to Leaflet coordinates: [lat, lng] where lat=Y, lng=X
+  // IMPORTANT: Invert Y-axis because Leaflet Y goes UP, PR Y goes DOWN
   const mortarLatLng = [metadata.map_size - mortarXY.y, mortarXY.x];
   const targetLatLng = [metadata.map_size - targetXY.y, targetXY.x];
   
@@ -542,8 +548,8 @@ function setupMarkerEvents(marker, type) {
   // Update grid coordinates after drag ends
   marker.on('dragend', (e) => {
     const latlng = e.target.getLatLng();
-    const x = latlng.lng;
-    // Leaflet Y increases upward, but PR Y increases downward, so invert
+    const x = latlng.lng;  // X-axis is same in both systems
+    // IMPORTANT: Convert Leaflet Y (up) to PR Y (down): prY = mapSize - leafletY
     const y = metadata.map_size - latlng.lat;
     try {
       // Store PRECISE position (NOT snapped to grid)
@@ -596,8 +602,8 @@ function setupMarkerEvents(marker, type) {
   // Tooltip update on each move (optional)
   marker.on('move', (e) => {
     const latlng = e.latlng || e.target.getLatLng();
-    const x = latlng.lng;
-    // Leaflet Y increases upward, but PR Y increases downward, so invert
+    const x = latlng.lng;  // X-axis is same in both systems
+    // IMPORTANT: Convert Leaflet Y (up) to PR Y (down): prY = mapSize - leafletY
     const y = metadata.map_size - latlng.lat;
     try {
       const grid = xyToGrid(x, y, metadata.grid_scale);
@@ -634,7 +640,7 @@ function updatePathLine() {
 
 /**
  * Create or update the range circle centered on mortar marker.
- * Note: With angle-based constraint (89° max), effective range varies greatly with elevation.
+ * Note: With angle-based constraint (85° max), effective range varies greatly with elevation.
  * Circle shows approximate flat-ground max range (~1485m) - actual range depends on height difference.
  */
 function updateRangeCircle(centerLatLng) {
