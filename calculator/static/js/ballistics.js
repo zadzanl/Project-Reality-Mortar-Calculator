@@ -28,7 +28,7 @@ export const PR_PHYSICS = Object.freeze({
   PROJECTILE_VELOCITY: 148.64,
   
   /** Maximum practical firing angle (radians) - 85 degrees for high-angle mortars */
-  MAX_ELEVATION_ANGLE: 85 * Math.PI / 180, // 85 degrees = 1.48353 radians = 1511 mils
+  MAX_ELEVATION_ANGLE: 89 * Math.PI / 180, // 85 degrees = 1.48353 radians = 1511 mils
   
   /** Mils per full circle (NATO standard) */
   MILS_PER_CIRCLE: 6400,
