@@ -27,8 +27,8 @@ export const PR_PHYSICS = Object.freeze({
   /** Mortar projectile initial velocity (m/s) */
   PROJECTILE_VELOCITY: 148.64,
   
-  /** Maximum practical firing angle (radians) - 85 degrees for high-angle mortars */
-  MAX_ELEVATION_ANGLE: 89 * Math.PI / 180, // 85 degrees = 1.48353 radians = 1511 mils
+  /** Maximum practical firing angle (radians) - 89 degrees for high-angle mortars */
+  MAX_ELEVATION_ANGLE: 89 * Math.PI / 180, // 89 degrees = 1.48353 radians = 1511 mils
   
   /** Mils per full circle (NATO standard) */
   MILS_PER_CIRCLE: 6400,
@@ -151,7 +151,7 @@ export function calculateElevationAngle(distance, heightDiff) {
     return null;
   }
   
-  // Check against maximum practical firing angle (85 degrees for high-angle mortars)
+  // Check against maximum practical firing angle (89 degrees for high-angle mortars)
   // This prevents nearly-vertical shots that would be impractical
   if (angle > PR_PHYSICS.MAX_ELEVATION_ANGLE) {
     return null; // Exceeds maximum elevation capability
@@ -331,7 +331,7 @@ export function validateFiringSolution(distance, heightDiff) {
     };
   }
   
-  // Check if elevation exceeds maximum firing angle (85 degrees for high-angle mortars)
+  // Check if elevation exceeds maximum firing angle (89 degrees for high-angle mortars)
   if (elevationAngle > PR_PHYSICS.MAX_ELEVATION_ANGLE) {
     const maxAngleDegrees = radiansToDegrees(PR_PHYSICS.MAX_ELEVATION_ANGLE);
     const currentAngleDegrees = radiansToDegrees(elevationAngle);
