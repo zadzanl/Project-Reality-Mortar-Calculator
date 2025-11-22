@@ -47,6 +47,10 @@ jobs:
         run: |
           python -c "import os, sys; size = os.path.getsize('processed_maps/adak/heightmap.json'); print(f'heightmap.json size: {size} bytes'); sys.exit(0 if size > 1000000 else 1)"
 
+      - name: Compress heightmap JSON files
+        run: |
+          python -c "import gzip, json, os, pathlib; [gzip.open(f'{p}.gz', 'wt', compresslevel=9).write(p.read_text()) for p in pathlib.Path('processed_maps').rglob('heightmap.json')]; print(f'Compressed {len(list(pathlib.Path(\"processed_maps\").rglob(\"heightmap.json.gz\")))} heightmap files')"
+
       - name: Build executable with PyInstaller
         run: |
           pyinstaller PR-Mortar-Calculator.spec
@@ -56,14 +60,25 @@ jobs:
         shell: powershell
         run: |
           cd dist
-          Compress-Archive -Path 'PR-Mortar-Calculator' -DestinationPath '${{ matrix.artifact_name }}.zip' -Force
+          # Create standard ZIP for maximum compatibility (Windows 7+)
+          Write-Host "Creating standard ZIP for compatibility..."
+          Compress-Archive -Path 'PR-Mortar-Calculator' -DestinationPath '${{ matrix.artifact_name }}.zip' -CompressionLevel Optimal -Force
+          
+          # Create 7z archive if 7-Zip is available (better compression)
+          if (Get-Command 7z -ErrorAction SilentlyContinue) {
+            Write-Host "Creating 7z archive for maximum compression..."
+            7z a -t7z -mx=9 -mfb=258 -mpass=15 '${{ matrix.artifact_name }}.7z' 'PR-Mortar-Calculator'
+          } else {
+            Write-Host "7-Zip not found, skipping .7z creation"
+          }
           cd ..
 
       - name: Create tar.gz (Linux)
         if: matrix.os == 'ubuntu-latest'
         run: |
           cd dist
-          tar -czf ${{ matrix.artifact_name }}.tar.gz PR-Mortar-Calculator/
+          # Use maximum gzip compression (level 9)
+          tar -czf ${{ matrix.artifact_name }}.tar.gz --use-compress-program="gzip -9" PR-Mortar-Calculator/
           cd ..
 
       - name: Upload build artifact
@@ -72,6 +87,7 @@ jobs:
           name: ${{ matrix.artifact_name }}
           path: |
             dist/*.zip
+            dist/*.7z
             dist/*.tar.gz
           retention-days: 90
           if-no-files-found: error
@@ -106,6 +122,7 @@ jobs:
           generate_release_notes: true
           files: |
             release-artifacts/**/*.zip
+            release-artifacts/**/*.7z
             release-artifacts/**/*.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -117,7 +134,8 @@ jobs:
           echo "**Version:** ${{ inputs.version }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Download Links:" >> $GITHUB_STEP_SUMMARY
-          echo "- Windows: \`PR-Mortar-Calculator-Windows.zip\`" >> $GITHUB_STEP_SUMMARY
-          echo "- Linux: \`PR-Mortar-Calculator-Linux.tar.gz\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Windows (Standard ZIP):** \`PR-Mortar-Calculator-Windows.zip\` - Compatible with Windows 7+" >> $GITHUB_STEP_SUMMARY
+          echo "- **Windows (7-Zip):** \`PR-Mortar-Calculator-Windows.7z\` - Smaller size, requires 7-Zip" >> $GITHUB_STEP_SUMMARY
+          echo "- **Linux:** \`PR-Mortar-Calculator-Linux.tar.gz\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Users can download from: https://github.com/${{ github.repository }}/releases/tag/${{ inputs.version }}" >> $GITHUB_STEP_SUMMARY

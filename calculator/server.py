@@ -85,6 +85,7 @@ def serve_map_data(map_name, filename):
     
     Examples:
     - /maps/muttrah_city_2/heightmap.json
+    - /maps/muttrah_city_2/heightmap.json.gz (gzip compressed)
     - /maps/muttrah_city_2/metadata.json
     """
     map_dir = PROCESSED_MAPS_DIR / map_name
@@ -98,8 +99,16 @@ def serve_map_data(map_name, filename):
     if not file_path.is_file():
         abort(404, description=f"File '{filename}' not found in map '{map_name}'")
     
-    # Serve with correct MIME type
-    if filename.endswith('.json'):
+    # Serve with correct MIME type and encoding
+    if filename.endswith('.json.gz'):
+        # Serve gzipped JSON with proper headers
+        return send_from_directory(
+            map_dir, 
+            filename, 
+            mimetype='application/json',
+            as_attachment=False
+        )
+    elif filename.endswith('.json'):
         return send_from_directory(map_dir, filename, mimetype='application/json')
     else:
         return send_from_directory(map_dir, filename)

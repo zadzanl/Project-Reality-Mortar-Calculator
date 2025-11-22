@@ -24,6 +24,7 @@ d = []
 # Include UI templates and static assets
 d.append((os.path.join(root_dir, 'calculator', 'templates'), 'calculator/templates'))
 d.append((os.path.join(root_dir, 'calculator', 'static'), 'calculator/static'))
+# Include processed maps (both .json and .json.gz files)
 d.append((os.path.join(root_dir, 'processed_maps'), 'processed_maps'))
 datas = d
 
@@ -81,6 +82,7 @@ exe = EXE(
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
+    upx_exclude=[],  # Don't exclude any files from UPX compression
     console=True,  # Show console for server logs
     disable_windowed_traceback=False,
     argv_emulation=False,
@@ -97,6 +99,6 @@ coll = COLLECT(
     a.datas,
     strip=False,
     upx=True,
-    upx_exclude=[],
+    upx_exclude=[],  # Compress all binaries with UPX
     name='PR-Mortar-Calculator'
 )
