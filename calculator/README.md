@@ -78,15 +78,15 @@ Core ballistics engine for calculating mortar firing solutions.
 **Critical Constants (DO NOT MODIFY):**
 - `PR_PHYSICS.GRAVITY = 14.86` m/s² (Project Reality engine)
 - `PR_PHYSICS.PROJECTILE_VELOCITY = 148.64` m/s
-- `PR_PHYSICS.MAX_ELEVATION_ANGLE = 85°` (1.48 radians, 1511 mils)
+- `PR_PHYSICS.MAX_ELEVATION_ANGLE = 89°` (1.553 radians, ~1609 mils)
 
 **Range Constraint:**
-- Maximum firing angle is 85 degrees (prevents nearly-vertical shots)
+ - Maximum firing angle is 89 degrees (prevents nearly-vertical shots)
 - Effective range varies dramatically with elevation difference:
   - On flat ground: ~1485 meters (at 45° optimal angle)
   - From high ground (100m+ advantage): Can exceed 1600m horizontal distance
   - To high ground: Significantly reduced effective range
-- Mortars use high-angle trajectories (typically 60-85°) for shorter ranges
+ - Mortars use high-angle trajectories (typically 60-89°) for shorter ranges
 
 ### coordinates.js
 

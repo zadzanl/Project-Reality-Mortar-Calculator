@@ -172,6 +172,8 @@ function initializeLeafletMap() {
   });
   
   // Calculate bounds for the map
+  // Leaflet's CRS.Simple has Y increasing upward, but our coordinate system has Y increasing downward
+  // So we need to flip the Y-axis by using [mapSize, 0] to [0, mapSize]
   const mapSize = metadata.map_size;
   const bounds = [[0, 0], [mapSize, mapSize]];
   
@@ -389,20 +391,25 @@ function addGridOverlay() {
 function handleMapClick(e) {
   const latlng = e.latlng;
   const x = latlng.lng;
-  const y = latlng.lat;
   const metadata = state.mapData.metadata;
+  // Leaflet Y increases upward, but PR Y increases downward, so invert
+  const y = metadata.map_size - latlng.lat;
+  
+  // For placing markers, keep original Leaflet coordinates
+  const leafletLat = latlng.lat;
+  const leafletLng = latlng.lng;
 
   // Decide which marker to place
   if (e.originalEvent && e.originalEvent.shiftKey) {
     // Place mortar
     if (!state.mortarMarker) {
-      state.mortarMarker = L.marker([y, x], {
+      state.mortarMarker = L.marker([leafletLat, leafletLng], {
         icon: createCustomIcon('blue'),
         draggable: true
       }).addTo(state.leafletMap);
       setupMarkerEvents(state.mortarMarker, 'mortar');
     } else {
-      state.mortarMarker.setLatLng([y, x]);
+      state.mortarMarker.setLatLng([leafletLat, leafletLng]);
     }
 
     // Store PRECISE coordinates (NOT rounded to grid)
@@ -421,13 +428,13 @@ function handleMapClick(e) {
   } else {
     // Default: place target
     if (!state.targetMarker) {
-      state.targetMarker = L.marker([y, x], {
+      state.targetMarker = L.marker([leafletLat, leafletLng], {
         icon: createCustomIcon('red'),
         draggable: true
       }).addTo(state.leafletMap);
       setupMarkerEvents(state.targetMarker, 'target');
     } else {
-      state.targetMarker.setLatLng([y, x]);
+      state.targetMarker.setLatLng([leafletLat, leafletLng]);
     }
 
     // Store PRECISE coordinates (NOT rounded to grid)
@@ -476,9 +483,10 @@ function placeMarkers() {
   state.mortarPreciseXY = { x: mortarXY.x, y: mortarXY.y };
   state.targetPreciseXY = { x: targetXY.x, y: targetXY.y };
   
-  // Convert to Leaflet coordinates (Y-inverted for Leaflet)
-  const mortarLatLng = [mortarXY.y, mortarXY.x];
-  const targetLatLng = [targetXY.y, targetXY.x];
+  // Convert to Leaflet coordinates
+  // Leaflet Y increases upward, but PR Y increases downward, so invert: (mapSize - y)
+  const mortarLatLng = [metadata.map_size - mortarXY.y, mortarXY.x];
+  const targetLatLng = [metadata.map_size - targetXY.y, targetXY.x];
   
   // Create blue marker for mortar
   if (state.mortarMarker) {
@@ -535,7 +543,8 @@ function setupMarkerEvents(marker, type) {
   marker.on('dragend', (e) => {
     const latlng = e.target.getLatLng();
     const x = latlng.lng;
-    const y = latlng.lat;
+    // Leaflet Y increases upward, but PR Y increases downward, so invert
+    const y = metadata.map_size - latlng.lat;
     try {
       // Store PRECISE position (NOT snapped to grid)
       if (type === 'mortar') {
@@ -588,7 +597,8 @@ function setupMarkerEvents(marker, type) {
   marker.on('move', (e) => {
     const latlng = e.latlng || e.target.getLatLng();
     const x = latlng.lng;
-    const y = latlng.lat;
+    // Leaflet Y increases upward, but PR Y increases downward, so invert
+    const y = metadata.map_size - latlng.lat;
     try {
       const grid = xyToGrid(x, y, metadata.grid_scale);
       const elev = state.mapData.getElevationAt(x, y);
@@ -624,7 +634,7 @@ function updatePathLine() {
 
 /**
  * Create or update the range circle centered on mortar marker.
- * Note: With angle-based constraint (85° max), effective range varies greatly with elevation.
+ * Note: With angle-based constraint (89° max), effective range varies greatly with elevation.
  * Circle shows approximate flat-ground max range (~1485m) - actual range depends on height difference.
  */
 function updateRangeCircle(centerLatLng) {

@@ -59,7 +59,7 @@ export async function runBallisticsTests() {
   assertApprox(tof0, approx0, 0.1, 'TOF approximates 2*v*sin(phi)/g for ΔZ=0');
 
   // calculateFiringSolution basic object shape
-  // Use a valid scenario that doesn't exceed 85°: 600m flat ground
+  // Use a valid scenario that doesn't exceed 89°: 600m flat ground
   const sol = calculateFiringSolution({ x: 1000, y: 1000, z: 50 }, { x: 1600, y: 1000, z: 50 });
   assert.ok(sol.distance && sol.azimuth !== undefined && sol.elevationRadians !== null, 'calculateFiringSolution returns fields');
   assertApprox(sol.distance, 600, 1, 'distance approx match');
@@ -69,7 +69,7 @@ export async function runBallisticsTests() {
   assert.strictEqual(PR_PHYSICS.PROJECTILE_VELOCITY, 148.64, 'Projectile velocity');
 
   // validateFiringSolution edge cases
-  // With 85° max angle, very long distances on flat ground are still invalid (require >85°)
+  // With 89° max angle, very long distances on flat ground are still invalid (require >89°)
   // But moderate long distances like 1600m should be UNREACHABLE (discriminant < 0)
   const overRange = validateFiringSolution(1600, 0);
   assert.ok(!overRange.valid, 'Long distance (1600m) on flat should be invalid');

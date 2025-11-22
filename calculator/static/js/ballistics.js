@@ -27,8 +27,8 @@ export const PR_PHYSICS = Object.freeze({
   /** Mortar projectile initial velocity (m/s) */
   PROJECTILE_VELOCITY: 148.64,
   
-  /** Maximum practical firing angle (radians) - 85 degrees for high-angle mortars */
-  MAX_ELEVATION_ANGLE: 85 * Math.PI / 180, // 85 degrees = 1.48353 radians = 1511 mils
+  /** Maximum practical firing angle (radians) - 89 degrees for high-angle mortars */
+  MAX_ELEVATION_ANGLE: 89 * Math.PI / 180, // 89 degrees = 1.55334 radians ~ 1609 mils
   
   /** Mils per full circle (NATO standard) */
   MILS_PER_CIRCLE: 6400,
@@ -84,7 +84,9 @@ export function calculateAzimuth(x1, y1, x2, y2) {
   
   // atan2 gives angle from positive X-axis, counterclockwise
   // We need compass bearing from North (top), clockwise
-  // Convert: North is -Y direction, so we swap and negate
+  // In PR: North is -Y direction (upward), East is +X (rightward)
+  // For compass: 0° = North, 90° = East, 180° = South, 270° = West
+  // Formula: atan2(dx, -dy) where dx is East-West, dy is North-South
   let azimuth = Math.atan2(dx, -dy) * (180 / Math.PI);
   
   // Normalize to 0-360° range
@@ -150,7 +152,7 @@ export function calculateElevationAngle(distance, heightDiff) {
     return null;
   }
   
-  // Check against maximum practical firing angle (85 degrees for high-angle mortars)
+  // Check against maximum practical firing angle (89 degrees for high-angle mortars)
   // This prevents nearly-vertical shots that would be impractical
   if (angle > PR_PHYSICS.MAX_ELEVATION_ANGLE) {
     return null; // Exceeds maximum elevation capability
@@ -330,7 +332,7 @@ export function validateFiringSolution(distance, heightDiff) {
     };
   }
   
-  // Check if elevation exceeds maximum firing angle (85 degrees for high-angle mortars)
+  // Check if elevation exceeds maximum firing angle (89 degrees for high-angle mortars)
   if (elevationAngle > PR_PHYSICS.MAX_ELEVATION_ANGLE) {
     const maxAngleDegrees = radiansToDegrees(PR_PHYSICS.MAX_ELEVATION_ANGLE);
     const currentAngleDegrees = radiansToDegrees(elevationAngle);
