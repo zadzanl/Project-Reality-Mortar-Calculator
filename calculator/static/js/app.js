@@ -762,11 +762,20 @@ function performCalculation() {
     return;
   }
   const mortarZ = state.mapData.getElevationAt(mortarXY.x, mortarXY.y);
-  const targetZ = state.mapData.getElevationAt(targetXY.x, targetXY.y);
+  const targetZBase = state.mapData.getElevationAt(targetXY.x, targetXY.y);
+  
+  // Get height offset from input field (for buildings, etc.)
+  const heightOffsetInput = document.getElementById('target-height-offset');
+  const heightOffset = heightOffsetInput ? parseFloat(heightOffsetInput.value) || 0 : 0;
+  const targetZ = targetZBase + heightOffset;
   
   // Update elevation displays
   document.getElementById('mortar-elevation-display').textContent = `${mortarZ.toFixed(1)}m`;
-  document.getElementById('target-elevation-display').textContent = `${targetZ.toFixed(1)}m`;
+  if (heightOffset > 0) {
+    document.getElementById('target-elevation-display').textContent = `${targetZBase.toFixed(1)}m (+${heightOffset.toFixed(1)}m) = ${targetZ.toFixed(1)}m`;
+  } else {
+    document.getElementById('target-elevation-display').textContent = `${targetZ.toFixed(1)}m`;
+  }
   
   // Calculate firing solution
   const mortar = { x: mortarXY.x, y: mortarXY.y, z: mortarZ };
@@ -844,6 +853,22 @@ function setupEventListeners() {
     'mortar-column', 'mortar-row', 'mortar-keypad',
     'target-column', 'target-row', 'target-keypad'
   ];
+  
+  // Height offset input - triggers auto-calculation
+  const heightOffsetInput = document.getElementById('target-height-offset');
+  if (heightOffsetInput) {
+    heightOffsetInput.addEventListener('input', () => {
+      if (state.leafletMap) {
+        autoCalculateFiringSolution();
+      }
+    });
+    heightOffsetInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        performCalculation();
+      }
+    });
+  }
   
   inputIds.forEach(id => {
     document.getElementById(id).addEventListener('change', () => {
