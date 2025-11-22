@@ -24,11 +24,20 @@ The Ballistics Calculation Engine provides pure functions for calculating mortar
 **DO NOT MODIFY THESE VALUES** - They are derived from the Project Reality game engine:
 
 ```javascript
-GRAVITY = 14.86 m/s²           // PR engine gravity (NOT Earth's 9.8)
+GRAVITY = 14.86 m/s²              // PR engine gravity (NOT Earth's 9.8)
 PROJECTILE_VELOCITY = 148.64 m/s  // Mortar shell speed
-MAX_RANGE = 1500 meters        // Gameplay limit
-MILS_PER_CIRCLE = 6400         // NATO military angular unit
+MAX_ELEVATION_ANGLE = 85°         // Maximum practical firing angle (1.48 radians, 1511 mils)
+MILS_PER_CIRCLE = 6400            // NATO military angular unit
 ```
+
+**Range Constraint Note:**
+The calculator uses an **85-degree maximum firing angle** constraint (not a fixed distance limit).
+- Mortars use **high-angle trajectories** (steep arcs, typically 60-85°)
+- On flat ground: Maximum range ≈ 1485 meters (occurs at 45° optimal trajectory)
+- From elevated positions: Can shoot well beyond 1500m horizontal distance
+- To elevated positions: Reduced effective range (requires steeper angle)
+- Very short distances (< ~200m) may require angles approaching 85-89°
+- The 85° limit prevents impractical nearly-vertical shots
 
 ## Architecture
 

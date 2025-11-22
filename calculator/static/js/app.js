@@ -623,7 +623,9 @@ function updatePathLine() {
 }
 
 /**
- * Create or update the range circle centered on mortar marker
+ * Create or update the range circle centered on mortar marker.
+ * Note: With angle-based constraint (85° max), effective range varies greatly with elevation.
+ * Circle shows approximate flat-ground max range (~1485m) - actual range depends on height difference.
  */
 function updateRangeCircle(centerLatLng) {
   if (!centerLatLng) return;
@@ -631,12 +633,13 @@ function updateRangeCircle(centerLatLng) {
   // Remove existing circle if present
   if (state.rangeCircle) {
     state.rangeCircle.setLatLng(centerLatLng);
-    state.rangeCircle.setRadius(PR_PHYSICS.MAX_RANGE);
+    // Display approximate max range on flat ground (45° optimal angle ≈ 1485m)
+    state.rangeCircle.setRadius(1485);
     return;
   }
 
   state.rangeCircle = L.circle(centerLatLng, {
-    radius: PR_PHYSICS.MAX_RANGE,
+    radius: 1485,  // Approximate max range at 45° on level ground
     color: '#00bcd4',
     weight: 2,
     fillColor: '#00bcd4',
@@ -796,12 +799,9 @@ function displayResults(solution) {
     statusElement.classList.add('calculator__result-status--error');
   }
 
-  // Highlight target if outside range
+  // Highlight target if angle is too high or unreachable
   if (state.targetMarker) {
-    const mortarPos = state.mortarMarker.getLatLng();
-    const targetPos = state.targetMarker.getLatLng();
-    const distance = Math.sqrt(Math.pow(targetPos.lng - mortarPos.lng, 2) + Math.pow(targetPos.lat - mortarPos.lat, 2));
-    if (distance > PR_PHYSICS.MAX_RANGE) {
+    if (solution.status === 'ANGLE_TOO_HIGH' || solution.status === 'UNREACHABLE' || solution.status === 'OUT_OF_RANGE') {
       state.targetMarker.getElement()?.classList.add('marker--out-of-range');
     } else {
       state.targetMarker.getElement()?.classList.remove('marker--out-of-range');

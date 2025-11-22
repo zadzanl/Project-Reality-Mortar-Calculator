@@ -27,8 +27,8 @@ export const PR_PHYSICS = Object.freeze({
   /** Mortar projectile initial velocity (m/s) */
   PROJECTILE_VELOCITY: 148.64,
   
-  /** Maximum effective range (m) - gameplay balance limit */
-  MAX_RANGE: 1500,
+  /** Maximum practical firing angle (radians) - 85 degrees for high-angle mortars */
+  MAX_ELEVATION_ANGLE: 85 * Math.PI / 180, // 85 degrees = 1.48353 radians = 1511 mils
   
   /** Mils per full circle (NATO standard) */
   MILS_PER_CIRCLE: 6400,
@@ -145,9 +145,15 @@ export function calculateElevationAngle(distance, heightDiff) {
   const denominator = g * D;
   const angle = Math.atan(numerator / denominator);
   
-  // Validate result is in valid range (0 to π/2 radians = 0° to 90°)
+  // Validate result is in valid range (0° to 90°)
   if (angle < 0 || angle > Math.PI / 2) {
     return null;
+  }
+  
+  // Check against maximum practical firing angle (85 degrees for high-angle mortars)
+  // This prevents nearly-vertical shots that would be impractical
+  if (angle > PR_PHYSICS.MAX_ELEVATION_ANGLE) {
+    return null; // Exceeds maximum elevation capability
   }
   
   return angle;
@@ -298,15 +304,6 @@ export function validateFiringSolution(distance, heightDiff) {
     };
   }
   
-  // Check maximum range
-  if (distance > PR_PHYSICS.MAX_RANGE) {
-    return {
-      valid: false,
-      status: 'OUT_OF_RANGE',
-      message: `OUT OF RANGE - Maximum range ${PR_PHYSICS.MAX_RANGE}m (current: ${Math.round(distance)}m)`
-    };
-  }
-  
   // Check physical possibility (calculate discriminant)
   const v = PR_PHYSICS.PROJECTILE_VELOCITY;
   const g = PR_PHYSICS.GRAVITY;
@@ -322,7 +319,29 @@ export function validateFiringSolution(distance, heightDiff) {
     };
   }
   
-  // Warn about extreme elevation
+  // Calculate elevation angle to check against maximum
+  const elevationAngle = calculateElevationAngle(distance, heightDiff);
+  
+  if (elevationAngle === null) {
+    return {
+      valid: false,
+      status: 'UNREACHABLE',
+      message: 'TARGET UNREACHABLE - Shot geometry impossible'
+    };
+  }
+  
+  // Check if elevation exceeds maximum firing angle (85 degrees for high-angle mortars)
+  if (elevationAngle > PR_PHYSICS.MAX_ELEVATION_ANGLE) {
+    const maxAngleDegrees = radiansToDegrees(PR_PHYSICS.MAX_ELEVATION_ANGLE);
+    const currentAngleDegrees = radiansToDegrees(elevationAngle);
+    return {
+      valid: false,
+      status: 'ANGLE_TOO_HIGH',
+      message: `OUT OF RANGE - Requires ${currentAngleDegrees.toFixed(1)}° elevation (max: ${maxAngleDegrees.toFixed(1)}°). Target too close or elevation difference too extreme.`
+    };
+  }
+  
+  // Warn about extreme elevation difference
   if (Math.abs(heightDiff) > 200) {
     return {
       valid: true,

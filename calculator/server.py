@@ -18,7 +18,15 @@ __version__ = "1.0.0"
 # a temporary directory pointed to by sys._MEIPASS. Configure Flask so that
 # templates and static files are resolved from the embedded paths when frozen.
 if getattr(sys, 'frozen', False):
-    _meipass = Path(sys._MEIPASS)
+    # PyInstaller extracts files into a temporary directory and exposes the
+    # location via sys._MEIPASS. Static analyzers (like Pylance) may not know
+    # this attribute exists, so use getattr() to avoid attribute access errors.
+    _meipass_value = getattr(sys, '_MEIPASS', None)
+    # If for some reason _MEIPASS is missing when frozen, fall back to CWD
+    if _meipass_value is None:
+        _meipass = Path.cwd()
+    else:
+        _meipass = Path(_meipass_value)
     # In our spec we include the calculator folder inside the bundle so templates
     # live at: <meipass>/calculator/templates
     static_folder = str(_meipass / 'calculator' / 'static')
@@ -64,7 +72,10 @@ def favicon():
 @app.route('/static/<path:filename>')
 def serve_static(filename):
     """Serve static files (CSS, JS, images, libraries)."""
-    return send_from_directory(app.static_folder, filename)
+    # Use the module-level `static_folder` variable (always a str) instead of
+    # `app.static_folder` which can be Optional[str] according to type hints.
+    # This avoids static type check errors while still serving the same files.
+    return send_from_directory(static_folder, filename)
 
 
 @app.route('/maps/<map_name>/<filename>')
@@ -234,7 +245,7 @@ def check_processed_maps():
         # Count available maps
         map_count = sum(1 for item in PROCESSED_MAPS_DIR.iterdir() 
                        if item.is_dir() and (item / 'metadata.json').is_file())
-        print(f" OK OK] Found {map_count} processed maps")
+        print(f"[OK] Found {map_count} processed maps")
 
 
 def main():

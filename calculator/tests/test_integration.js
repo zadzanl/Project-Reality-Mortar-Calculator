@@ -210,14 +210,15 @@ export async function runIntegrationTests() {
   assert(zeroDistSolution.status === 'TOO_CLOSE', 'Zero distance should return TOO_CLOSE status');
   console.log(`  Zero distance: ${zeroDistSolution.status}  OK `);
   
-  // Out of range (> 1500m)
+  // Out of range (2000m on flat ground is beyond physical max)
   const outOfRangeSolution = calculateFiringSolution(
     { x: 0, y: 0, z: 100 },
     { x: 2000, y: 0, z: 100 }
   );
   
   assert(!outOfRangeSolution.valid, 'Out of range should be invalid');
-  assert(outOfRangeSolution.status === 'OUT_OF_RANGE', 'Should return OUT_OF_RANGE status');
+  // At 2000m, discriminant is negative (physically unreachable)
+  assert(outOfRangeSolution.status === 'UNREACHABLE', 'Should return UNREACHABLE status');
   console.log(`  Out of range: ${outOfRangeSolution.status}  OK `);
   
   // Test Case 4: Validate calculation consistency
