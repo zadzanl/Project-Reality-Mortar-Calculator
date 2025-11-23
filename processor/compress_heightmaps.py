@@ -50,6 +50,9 @@ def compress_heightmaps():
         ratio = compressed_size / original_size
         saved = (1 - ratio) * 100
         
+        # Delete original uncompressed file
+        json_file.unlink()
+        
         # Update totals
         total_original_size += original_size
         total_compressed_size += compressed_size
