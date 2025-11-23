@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:d71515e52b7ac25d74e8df240669644056f2971c0094f01fd59b2144d4da2ad0
-size 227
+{
+  "map_name": "pavlovsk_bay",
+  "map_size": 2048,
+  "height_scale": 300,
+  "grid_scale": 157.53846153846155,
+  "heightmap_resolution": 1025,
+  "processed_at": "2025-11-19T08:56:44.475027Z",
+  "format_version": "1.0"
+}

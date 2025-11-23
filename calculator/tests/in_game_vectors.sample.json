@@ -1,3 +1,11 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:75750f6941024f8231604143d747fe02f85f7769a90ba451981b3156806e0d68
-size 283
+[
+  {
+    "mapName": "test_bootcamp",
+    "mortarGridRef": "D6-5",
+    "targetGridRef": "F8-5",
+    "expectedDistance": 891.17,
+    "expectedAzimuth": 135.0,
+    "expectedElevationMils": 1272.82,
+    "tolerance": { "distance": 10, "azimuth": 2, "elevationMils": 1 }
+  }
+]

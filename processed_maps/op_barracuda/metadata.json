@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:d26ef9638a7c3f1f2cd63177f4c62c7ae864451dc65fe436a4c80738b4b48cac
-size 227
+{
+  "map_name": "op_barracuda",
+  "map_size": 2048,
+  "height_scale": 300,
+  "grid_scale": 157.53846153846155,
+  "heightmap_resolution": 1025,
+  "processed_at": "2025-11-19T08:56:35.971469Z",
+  "format_version": "1.0"
+}

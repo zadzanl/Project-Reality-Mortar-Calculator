@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:513fcc4fb68464c7e30d9187b3e09f99e4d4e0e85a8e915c1f342588ab33a73d
-size 229
+{
+  "map_name": "muttrah_city_2",
+  "map_size": 2048,
+  "height_scale": 300,
+  "grid_scale": 157.53846153846155,
+  "heightmap_resolution": 1025,
+  "processed_at": "2025-11-19T08:56:32.508039Z",
+  "format_version": "1.0"
+}

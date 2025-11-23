@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:5e05b4732337bf3079dd6954ce00e97c44ba20653fa8ecfad6e609f3efdbfdad
-size 220
+{
+  "map_name": "sahel",
+  "map_size": 2048,
+  "height_scale": 300,
+  "grid_scale": 157.53846153846155,
+  "heightmap_resolution": 1025,
+  "processed_at": "2025-11-19T08:56:51.950561Z",
+  "format_version": "1.0"
+}

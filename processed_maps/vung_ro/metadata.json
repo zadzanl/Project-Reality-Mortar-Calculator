@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:83bdb419cabd059119d7f1006ea8c91fddbfc6e5f64f21c6a28ef1d8d678778c
-size 222
+{
+  "map_name": "vung_ro",
+  "map_size": 2048,
+  "height_scale": 300,
+  "grid_scale": 157.53846153846155,
+  "heightmap_resolution": 1025,
+  "processed_at": "2025-11-19T08:57:02.532310Z",
+  "format_version": "1.0"
+}

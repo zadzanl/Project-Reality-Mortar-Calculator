@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:bda5a72e3f1f80641dc813cbbfec3dfb44a22815a3f4dfa5fb3b4b4ad43c167f
-size 232
+{
+  "map_name": "stalingrad_summer",
+  "map_size": 2048,
+  "height_scale": 300,
+  "grid_scale": 157.53846153846155,
+  "heightmap_resolution": 1025,
+  "processed_at": "2025-11-19T08:56:58.313392Z",
+  "format_version": "1.0"
+}

@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:dd96692fd5dfd314c7faba5cde3c15a77910bd9f523c95966cf5c54f0ca9a9eb
-size 229
+{
+  "map_name": "charlies_point",
+  "map_size": 2048,
+  "height_scale": 300,
+  "grid_scale": 157.53846153846155,
+  "heightmap_resolution": 1025,
+  "processed_at": "2025-11-19T08:56:00.821813Z",
+  "format_version": "1.0"
+}

@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:409062cea37e89c3f523131aa51d4af44d4672dfc2fab6f182abb327e04c5293
-size 227
+{
+  "map_name": "dovre_winter",
+  "map_size": 2048,
+  "height_scale": 300,
+  "grid_scale": 157.53846153846155,
+  "heightmap_resolution": 1025,
+  "processed_at": "2025-11-19T08:56:05.064955Z",
+  "format_version": "1.0"
+}

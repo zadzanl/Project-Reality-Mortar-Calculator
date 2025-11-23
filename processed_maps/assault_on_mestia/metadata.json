@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:ab0c62ef5d221824eb24d2d851243295212d7fe46a44656439acc750bfdb5c03
-size 230
+{
+  "map_name": "assault_on_mestia",
+  "map_size": 4096,
+  "height_scale": 300,
+  "grid_scale": 315.0769230769231,
+  "heightmap_resolution": 513,
+  "processed_at": "2025-11-19T08:55:39.452950Z",
+  "format_version": "1.0"
+}

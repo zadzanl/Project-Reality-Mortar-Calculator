@@ -1,3 +1,1355 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:e6a90337fad0cfe2a1ee885f335f44c90eea89cb7b66bbea8b081c0b7c4ccef4
-size 45543
+{
+  "maps": [
+    {
+      "name": "adak",
+      "server_zip": {
+        "md5": "73f998336d4e49472ae1ee10b4290a55",
+        "size_bytes": 10670887,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:38:52.387962Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\adak",
+      "status": "updated",
+      "client_zip": {
+        "md5": "134596597023f5294921b649be82c144",
+        "size_bytes": 74446261,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "albasrah_2",
+      "server_zip": {
+        "md5": "9fad654987743aa9c42884d9c4ec921e",
+        "size_bytes": 8385635,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:38:53.551526Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\albasrah_2",
+      "status": "updated",
+      "client_zip": {
+        "md5": "b70adb31819fd294403cb603df3f8c13",
+        "size_bytes": 59417538,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "andromeda",
+      "server_zip": {
+        "md5": "ccf24912fcee991dbbc8df1b535efb63",
+        "size_bytes": 28954,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:38:53.658314Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\andromeda",
+      "status": "updated",
+      "client_zip": {
+        "md5": "6c765b0eac5b3f47c6675ada0d0fdf28",
+        "size_bytes": 4350655,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "asad_khal",
+      "server_zip": {
+        "md5": "73d3184d79289d257b5a6bafef87d028",
+        "size_bytes": 7034246,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:38:54.668695Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\asad_khal",
+      "status": "updated",
+      "client_zip": {
+        "md5": "aef946e31405eba92774dc1e22ebb8bb",
+        "size_bytes": 54223173,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "ascheberg",
+      "server_zip": {
+        "md5": "5f26f495ea2f6c3462fb77be155c2c1d",
+        "size_bytes": 11304809,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:38:55.896042Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\ascheberg",
+      "status": "updated",
+      "client_zip": {
+        "md5": "7251a36b4ceebb1dbf3d5ee30af2d040",
+        "size_bytes": 60622595,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "assault_on_grozny",
+      "server_zip": {
+        "md5": "3165f84790288cb2430a6c99878a16e4",
+        "size_bytes": 16601612,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:38:57.449621Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\assault_on_grozny",
+      "status": "updated",
+      "client_zip": {
+        "md5": "3fb1df1ce78a33b0ab0ecc3e8a43d621",
+        "size_bytes": 82507787,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "assault_on_mestia",
+      "server_zip": {
+        "md5": "49d90fe24c5d26ab857d5cf2b3345996",
+        "size_bytes": 10728273,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:38:58.069827Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\assault_on_mestia",
+      "status": "updated",
+      "client_zip": {
+        "md5": "39d358aa7b006702aca16f40de501e90",
+        "size_bytes": 27733056,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "bamyan",
+      "server_zip": {
+        "md5": "3dfe89203021fded8a5015fd4325b225",
+        "size_bytes": 12449515,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:39:00.454355Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\bamyan",
+      "status": "updated",
+      "client_zip": {
+        "md5": "b2485af7dba8c4c8ac55fb81e085bf94",
+        "size_bytes": 132480045,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "battle_of_debrecen",
+      "server_zip": {
+        "md5": "ddccfa71d6bfc30664578b73483b77be",
+        "size_bytes": 10739738,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:39:01.401392Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\battle_of_debrecen",
+      "status": "updated",
+      "client_zip": {
+        "md5": "780ddcb7c8d005a03b79a06dcb89cda0",
+        "size_bytes": 46124561,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "battle_of_ia_drang",
+      "server_zip": {
+        "md5": "61f4ffe5e8183e96aa1f39ae92e6e1c8",
+        "size_bytes": 11238591,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:39:03.132939Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\battle_of_ia_drang",
+      "status": "updated",
+      "client_zip": {
+        "md5": "34600d7d0ddef3cdb3f68749fb2137db",
+        "size_bytes": 101595124,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "battle_of_kerch",
+      "server_zip": {
+        "md5": "db46f13f78e517711b29d1e773a8333c",
+        "size_bytes": 9791865,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:39:04.260768Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\battle_of_kerch",
+      "status": "updated",
+      "client_zip": {
+        "md5": "77175a2257b0217c0a2c17ee048b56ab",
+        "size_bytes": 51136392,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "beirut",
+      "server_zip": {
+        "md5": "f20bb1ab7bd12bc490041e4b9eb4225d",
+        "size_bytes": 9086230,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:39:05.497938Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\beirut",
+      "status": "updated",
+      "client_zip": {
+        "md5": "b2eb4c46a541ba17d45fdd5cb866fdaf",
+        "size_bytes": 69192878,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "belyaevo",
+      "server_zip": {
+        "md5": "36932dc6643c16d5f0c52a380a03756a",
+        "size_bytes": 3390802,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:39:07.177716Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\belyaevo",
+      "status": "updated",
+      "client_zip": {
+        "md5": "b787ed93d3421d2981e19c9fbf3a1661",
+        "size_bytes": 86665664,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "black_gold",
+      "server_zip": {
+        "md5": "d2702e1ca3f25a01c7c46cab79d8cd3a",
+        "size_bytes": 11437900,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:39:10.348119Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\black_gold",
+      "status": "updated",
+      "client_zip": {
+        "md5": "81086a338b785923cad3bfd4a9f1220a",
+        "size_bytes": 154676117,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "brecourt_assault",
+      "server_zip": {
+        "md5": "9660c10ea87f32ae10872f8065ecbe9d",
+        "size_bytes": 10893697,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:39:12.138660Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\brecourt_assault",
+      "status": "updated",
+      "client_zip": {
+        "md5": "a1fc4e5b391457a734c805a712bfce36",
+        "size_bytes": 67382141,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "burning_sands",
+      "server_zip": {
+        "md5": "ec3bad7c6dce91392a4db8a589c7c142",
+        "size_bytes": 10775116,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:39:14.874214Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\burning_sands",
+      "status": "updated",
+      "client_zip": {
+        "md5": "602a20ac8b0e384ae9ba309127f21fa3",
+        "size_bytes": 135044052,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "carentan",
+      "server_zip": {
+        "md5": "14a94500653a6e8598c82adabeaa437d",
+        "size_bytes": 17360960,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:39:16.554993Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\carentan",
+      "status": "updated",
+      "client_zip": {
+        "md5": "2b00a0795e47dc8f87570de20ec033ca",
+        "size_bytes": 71659283,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "charlies_point",
+      "server_zip": {
+        "md5": "11ba5aea7726c5ffaf9bfae1b9798edf",
+        "size_bytes": 9118460,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:39:17.452040Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\charlies_point",
+      "status": "updated",
+      "client_zip": {
+        "md5": "2f808d14067214fd4b8e83adf46a1588",
+        "size_bytes": 35613142,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "deagle5",
+      "server_zip": {
+        "md5": "bb38abfeb70a0e208ba2989720a5c7ba",
+        "size_bytes": 28116,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:39:17.563636Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\deagle5",
+      "status": "updated",
+      "client_zip": {
+        "md5": "2a13b05d779ebc17e22e9d5ffb2a2016",
+        "size_bytes": 3056397,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "donbas",
+      "server_zip": {
+        "md5": "4a9ce8f83cb94ea11c2487bc299903db",
+        "size_bytes": 2130952,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:39:18.979089Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\donbas",
+      "status": "updated",
+      "client_zip": {
+        "md5": "753053bbebce8c154c13f1e15a057eaa",
+        "size_bytes": 68355876,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "dovre",
+      "server_zip": {
+        "md5": "6a8ff66ec840f34eb51f0a03c8fa0c37",
+        "size_bytes": 14868626,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:39:21.309562Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\dovre",
+      "status": "updated",
+      "client_zip": {
+        "md5": "55bf35da9ad5caaaafdd32605d368e8d",
+        "size_bytes": 96289906,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "dovre_winter",
+      "server_zip": {
+        "md5": "2de239989548e04ce82bbd57b33459c7",
+        "size_bytes": 14686866,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:39:22.751445Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\dovre_winter",
+      "status": "updated",
+      "client_zip": {
+        "md5": "006bb3c6c4911d2b4529889244991989",
+        "size_bytes": 64703963,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "dragon_fly",
+      "server_zip": {
+        "md5": "32a1b27f1ab2326d6ad6c85086d64d46",
+        "size_bytes": 13105086,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:39:24.183496Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\dragon_fly",
+      "status": "updated",
+      "client_zip": {
+        "md5": "64a08eea504d8d63ffee7cdee265adb9",
+        "size_bytes": 68225705,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "fallujah_west",
+      "server_zip": {
+        "md5": "aceb94fd6851b2614989c033b0af55d4",
+        "size_bytes": 9694837,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:39:24.800692Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\fallujah_west",
+      "status": "updated",
+      "client_zip": {
+        "md5": "2454c548f74fdfea09b625ee6dbed71c",
+        "size_bytes": 24602491,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "fields_of_kassel",
+      "server_zip": {
+        "md5": "f70cb2cf205ba1998ae58741a97aa271",
+        "size_bytes": 9434243,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:39:27.902531Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\fields_of_kassel",
+      "status": "updated",
+      "client_zip": {
+        "md5": "1c5fecad9f3647e242a30a6d33e957bd",
+        "size_bytes": 112785512,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "fools_road",
+      "server_zip": {
+        "md5": "0a5fac12a3e7290ff76da360c50d237c",
+        "size_bytes": 14673421,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:39:30.853112Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\fools_road",
+      "status": "updated",
+      "client_zip": {
+        "md5": "c2ca683ef83dc988ae1cd0fb9e0fb003",
+        "size_bytes": 86053279,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "gaza_2",
+      "server_zip": {
+        "md5": "ba33742f28d6e8c619ac9357913445e2",
+        "size_bytes": 7528589,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:39:31.832447Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\gaza_2",
+      "status": "updated",
+      "client_zip": {
+        "md5": "ee55964c6794f35da4d8d528cc9c1c54",
+        "size_bytes": 36636071,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "goose_green",
+      "server_zip": {
+        "md5": "37445e6f322a6a4f12e9c7de4f766a6b",
+        "size_bytes": 8012141,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:39:33.628638Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\goose_green",
+      "status": "updated",
+      "client_zip": {
+        "md5": "c3e305e1a6a4c2ad317805acd1ba8e8f",
+        "size_bytes": 77475876,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "grostok",
+      "server_zip": {
+        "md5": "59f404653e7282711876a1a21ab09449",
+        "size_bytes": 13123877,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:39:35.538823Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\grostok",
+      "status": "updated",
+      "client_zip": {
+        "md5": "a8aaf3f1334ff72a21e51cce76066b12",
+        "size_bytes": 67041841,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "hades_peak",
+      "server_zip": {
+        "md5": "01f3c979755961a9e7c080dfb284ba64",
+        "size_bytes": 13200474,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:39:39.063863Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\hades_peak",
+      "status": "updated",
+      "client_zip": {
+        "md5": "280715130e0ee80b4cfa90f4febf3d92",
+        "size_bytes": 103885005,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "hill_488",
+      "server_zip": {
+        "md5": "33a6b6059dac2aa301b9e307fbbce700",
+        "size_bytes": 11829858,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:39:39.948165Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\hill_488",
+      "status": "updated",
+      "client_zip": {
+        "md5": "9cb68d21ef8bbd697b1568b01de563f2",
+        "size_bytes": 25872285,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "iron_ridge",
+      "server_zip": {
+        "md5": "a5755446b5b37b04fdf759e17347e615",
+        "size_bytes": 10331416,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:39:41.580356Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\iron_ridge",
+      "status": "updated",
+      "client_zip": {
+        "md5": "5fa250f337cc6c24085476d67aa84b2f",
+        "size_bytes": 72146186,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "kafar_halab",
+      "server_zip": {
+        "md5": "6d053fec0d905f1abc483499f778c6b1",
+        "size_bytes": 13115492,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:39:43.704912Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\kafar_halab",
+      "status": "updated",
+      "client_zip": {
+        "md5": "373b17279467517d94df9c90102c3acf",
+        "size_bytes": 101589746,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "karbala",
+      "server_zip": {
+        "md5": "fb5070cb01dea919ccd5eeb535d553dc",
+        "size_bytes": 11419725,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:39:45.639213Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\karbala",
+      "status": "updated",
+      "client_zip": {
+        "md5": "b842d6ec0b93aa85558786cb2f5302fd",
+        "size_bytes": 79872853,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "kashan_desert",
+      "server_zip": {
+        "md5": "2cf47f5147705882cb956345e352fe00",
+        "size_bytes": 6986156,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:39:47.768289Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\kashan_desert",
+      "status": "updated",
+      "client_zip": {
+        "md5": "5d39b44e33e42a94952a12e9d5e77b27",
+        "size_bytes": 95210244,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "khamisiyah",
+      "server_zip": {
+        "md5": "ee5b57e5c78478bafd1186f9536f468c",
+        "size_bytes": 11717638,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:39:49.378695Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\khamisiyah",
+      "status": "updated",
+      "client_zip": {
+        "md5": "e13ac481195a0bfa60fdf5d783ae8c36",
+        "size_bytes": 70603462,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "kokan",
+      "server_zip": {
+        "md5": "12a567d22359a1ff1f85ed954e2e882a",
+        "size_bytes": 8519154,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:39:50.837073Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\kokan",
+      "status": "updated",
+      "client_zip": {
+        "md5": "df17a1dde25bcad0be4086dc51d3ac96",
+        "size_bytes": 61996542,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "korbach_offensive",
+      "server_zip": {
+        "md5": "d9c326c203f382c7a3862e72ea6cb5c5",
+        "size_bytes": 13562235,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:39:52.826403Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\korbach_offensive",
+      "status": "updated",
+      "client_zip": {
+        "md5": "473404a4ee04059eb579bf7a69bb301f",
+        "size_bytes": 93595018,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "korengal",
+      "server_zip": {
+        "md5": "6c5d28c8a9bc9986f2a69b7ae465386a",
+        "size_bytes": 12033796,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:39:54.149539Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\korengal",
+      "status": "updated",
+      "client_zip": {
+        "md5": "76aafa8758830633e868179abfa3ce0e",
+        "size_bytes": 62088670,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "kozelsk",
+      "server_zip": {
+        "md5": "9c3d1e9815d875ec6c16c9c3b63a128f",
+        "size_bytes": 14841767,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:39:55.540135Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\kozelsk",
+      "status": "updated",
+      "client_zip": {
+        "md5": "9a39cfe41ebcbbfbd3563c3beb80c881",
+        "size_bytes": 65040780,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "krivaja_valley",
+      "server_zip": {
+        "md5": "c3efb333996ae859f44344e80db0dd7c",
+        "size_bytes": 11841421,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:39:56.623567Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\krivaja_valley",
+      "status": "updated",
+      "client_zip": {
+        "md5": "90b3ccaf2f7cc4c6fa6e380d7a367c64",
+        "size_bytes": 47143273,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "kunar_province",
+      "server_zip": {
+        "md5": "0daaeead404f8e9311e59add62e1678a",
+        "size_bytes": 12809197,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:39:58.896177Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\kunar_province",
+      "status": "updated",
+      "client_zip": {
+        "md5": "5622057070d10c0b3dd215d9a275185a",
+        "size_bytes": 122710745,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "lashkar_valley",
+      "server_zip": {
+        "md5": "1ade9aaae5339a805b34c954fad00a77",
+        "size_bytes": 16891536,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:40:00.544688Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\lashkar_valley",
+      "status": "updated",
+      "client_zip": {
+        "md5": "edeedcd52a08d7cde3ddf7baf43996fd",
+        "size_bytes": 70258313,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "masirah",
+      "server_zip": {
+        "md5": "c854d339a2ffb5411845f613a5c8a8b8",
+        "size_bytes": 11867032,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:40:02.527642Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\masirah",
+      "status": "updated",
+      "client_zip": {
+        "md5": "b4c28cdf2aba64d4e98164c1ea1149dc",
+        "size_bytes": 92398688,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "merville",
+      "server_zip": {
+        "md5": "95ad3767abc11cff576f89ad3f1ca7eb",
+        "size_bytes": 7460823,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:40:03.232811Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\merville",
+      "status": "updated",
+      "client_zip": {
+        "md5": "8495057ad065a50f4becec74650d70b6",
+        "size_bytes": 28547688,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "musa_qala",
+      "server_zip": {
+        "md5": "4d3b78ae7ea19ec4b106b4b4df53d986",
+        "size_bytes": 6951429,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:40:05.365243Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\musa_qala",
+      "status": "updated",
+      "client_zip": {
+        "md5": "6d67fe6f80494122d5ed0c2e03c8da0a",
+        "size_bytes": 91295547,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "muttrah_city_2",
+      "server_zip": {
+        "md5": "5620bd501ff47be81343b0342eb18814",
+        "size_bytes": 8230994,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:40:07.019615Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\muttrah_city_2",
+      "status": "updated",
+      "client_zip": {
+        "md5": "5c154df4624705c440dc94c0ff731744",
+        "size_bytes": 75491167,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "nuijamaa",
+      "server_zip": {
+        "md5": "19256e6650d92ae2aec9aa7d50c20138",
+        "size_bytes": 12994036,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:40:09.243570Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\nuijamaa",
+      "status": "updated",
+      "client_zip": {
+        "md5": "af5b0b0ccb716f18b873d0e2aa224baa",
+        "size_bytes": 98654839,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "omaha_beach",
+      "server_zip": {
+        "md5": "500a6756e1cebf106f449c9f595638e3",
+        "size_bytes": 10992266,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:40:11.219165Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\omaha_beach",
+      "status": "updated",
+      "client_zip": {
+        "md5": "ecf78f80ea1b2fad1cad613acbf8f3dd",
+        "size_bytes": 90149058,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "op_barracuda",
+      "server_zip": {
+        "md5": "0465c12660690fc021bf668394a2992b",
+        "size_bytes": 13682441,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:40:12.219937Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\op_barracuda",
+      "status": "updated",
+      "client_zip": {
+        "md5": "cd7a0f00e30658edd4dd220172326f55",
+        "size_bytes": 34183173,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "operation_bobcat",
+      "server_zip": {
+        "md5": "5349734fdc43375e4f7508d593b9614d",
+        "size_bytes": 10484787,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:40:13.850864Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\operation_bobcat",
+      "status": "updated",
+      "client_zip": {
+        "md5": "4c3cbc7488cc2f99acdcb5dcba5e06a9",
+        "size_bytes": 67967962,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "operation_brunswick",
+      "server_zip": {
+        "md5": "d26c86b221a1576f9e1ff34f03501ff1",
+        "size_bytes": 11846347,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:40:15.203595Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\operation_brunswick",
+      "status": "updated",
+      "client_zip": {
+        "md5": "9ea7cb2c8050c091187c60db52372344",
+        "size_bytes": 48549592,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "operation_falcon",
+      "server_zip": {
+        "md5": "fe62345edafa6964a3ebaa9199771715",
+        "size_bytes": 13959539,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:40:16.833411Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\operation_falcon",
+      "status": "updated",
+      "client_zip": {
+        "md5": "e56b0e5fdeba5c0d38c3f28240e6cb3e",
+        "size_bytes": 56755429,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "operation_marlin",
+      "server_zip": {
+        "md5": "43bb536953cb36fa79cbc347d53b134e",
+        "size_bytes": 14762439,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:40:18.364295Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\operation_marlin",
+      "status": "updated",
+      "client_zip": {
+        "md5": "9ba41c5d8808695a71d3edb062151001",
+        "size_bytes": 55153200,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "operation_soul_rebel",
+      "server_zip": {
+        "md5": "77def4d500212f24e839f66740d0d842",
+        "size_bytes": 7805918,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:40:18.980172Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\operation_soul_rebel",
+      "status": "updated",
+      "client_zip": {
+        "md5": "c8bfc8bb53d6cf0164eb4c21c3075ffc",
+        "size_bytes": 31721736,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "operation_thunder",
+      "server_zip": {
+        "md5": "fba3d1d5bbd79fa394a0f11d45a53eed",
+        "size_bytes": 15998563,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:40:20.663247Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\operation_thunder",
+      "status": "updated",
+      "client_zip": {
+        "md5": "32ac3f6c9816e12272dc83199120645a",
+        "size_bytes": 79225855,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "outpost",
+      "server_zip": {
+        "md5": "9426d49b7eea55f43e8e08c6434c175f",
+        "size_bytes": 15749896,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:40:22.769344Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\outpost",
+      "status": "updated",
+      "client_zip": {
+        "md5": "0d7c0234a16e73a987a901d758492d71",
+        "size_bytes": 76238367,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "pavlovsk_bay",
+      "server_zip": {
+        "md5": "b0a8aca75e3a4bceb95edf0cddabb048",
+        "size_bytes": 12373726,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:40:24.301173Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\pavlovsk_bay",
+      "status": "updated",
+      "client_zip": {
+        "md5": "039390b8be6b4ea7103b988b5654f778",
+        "size_bytes": 75854014,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "ramiel",
+      "server_zip": {
+        "md5": "e506136f95415b9a32b3ffca027ede55",
+        "size_bytes": 13256978,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:40:25.875315Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\ramiel",
+      "status": "updated",
+      "client_zip": {
+        "md5": "ca9bef5e2457b614ea45e5ac9fc15697",
+        "size_bytes": 85306632,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "ras_el_masri_2",
+      "server_zip": {
+        "md5": "4b99c25ef175178e746766b07027a116",
+        "size_bytes": 17930384,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:40:27.573610Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\ras_el_masri_2",
+      "status": "updated",
+      "client_zip": {
+        "md5": "48cf58d90021489e153bec4af37f019b",
+        "size_bytes": 92542612,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "reichswald",
+      "server_zip": {
+        "md5": "70ba00a2f748a4625545d382cc648f57",
+        "size_bytes": 11824775,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:40:28.842960Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\reichswald",
+      "status": "updated",
+      "client_zip": {
+        "md5": "181c639837a9f6161b5eea96f14caca3",
+        "size_bytes": 71379932,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "road_to_damascus",
+      "server_zip": {
+        "md5": "92866c08204f94a0a1ad53d30cba66e4",
+        "size_bytes": 13118201,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:40:31.110946Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\road_to_damascus",
+      "status": "updated",
+      "client_zip": {
+        "md5": "a10336e7df4ec843556ddc2090d6eee6",
+        "size_bytes": 151771380,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "route",
+      "server_zip": {
+        "md5": "edf91ef405b54fd1c838ab8fac83780d",
+        "size_bytes": 15157021,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:40:32.126976Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\route",
+      "status": "updated",
+      "client_zip": {
+        "md5": "3226eb02a7e1caaf79124b514f2b3672",
+        "size_bytes": 56628308,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "rzhev",
+      "server_zip": {
+        "md5": "c81f4923a72611ea6e7f598c53d01d4c",
+        "size_bytes": 14405397,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:40:33.061972Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\rzhev",
+      "status": "updated",
+      "client_zip": {
+        "md5": "feaf2b8e1707fa220fee378b589701c4",
+        "size_bytes": 45994651,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "saaremaa",
+      "server_zip": {
+        "md5": "207c3c1806f2200303674e0404620d06",
+        "size_bytes": 14775109,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:40:34.098403Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\saaremaa",
+      "status": "updated",
+      "client_zip": {
+        "md5": "53c3173c97d3fb75ba213c3c8af7d636",
+        "size_bytes": 53059890,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "sahel",
+      "server_zip": {
+        "md5": "8c1f2445855e68655dd96baf11fb28d2",
+        "size_bytes": 16529608,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:40:36.143981Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\sahel",
+      "status": "updated",
+      "client_zip": {
+        "md5": "a76cf1c8e7ba66de99f1cad8adf710e0",
+        "size_bytes": 122706725,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "sbeneh_outskirts",
+      "server_zip": {
+        "md5": "02a9a8badb48c2d05b08fb24ebed4f93",
+        "size_bytes": 14122185,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:40:37.983773Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\sbeneh_outskirts",
+      "status": "updated",
+      "client_zip": {
+        "md5": "8d8cc210a467d1393c3f15b1aac0cc02",
+        "size_bytes": 112342987,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "shahadah",
+      "server_zip": {
+        "md5": "ee2c5202a89053f9c4be900caa6405c3",
+        "size_bytes": 12855672,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:40:39.295627Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\shahadah",
+      "status": "updated",
+      "client_zip": {
+        "md5": "44be5c352ed54b1db9a08917befdd854",
+        "size_bytes": 65275984,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "shijiavalley",
+      "server_zip": {
+        "md5": "f69f97c23a4c2a813d9590ce6f14288c",
+        "size_bytes": 15201259,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:40:40.526846Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\shijiavalley",
+      "status": "updated",
+      "client_zip": {
+        "md5": "2b5f16d9889629b615cd4b4c5fd6b410",
+        "size_bytes": 69292325,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "shipment",
+      "server_zip": {
+        "md5": "4213ab8e31430193aa630417f89f2c29",
+        "size_bytes": 28650,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:40:40.679778Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\shipment",
+      "status": "updated",
+      "client_zip": {
+        "md5": "a17d3c972f9a59c3ca64c54219d1b701",
+        "size_bytes": 7779251,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "silent_eagle",
+      "server_zip": {
+        "md5": "c9226c6dd0ec3763807ac3c05e94c376",
+        "size_bytes": 12472651,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:40:42.040876Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\silent_eagle",
+      "status": "updated",
+      "client_zip": {
+        "md5": "6472d228efe5a97f21e3c9e98c57b167",
+        "size_bytes": 82019148,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "stalingrad",
+      "server_zip": {
+        "md5": "b64d0de40a29422ac8642b2da97e5f88",
+        "size_bytes": 18911167,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:40:43.459569Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\stalingrad",
+      "status": "updated",
+      "client_zip": {
+        "md5": "e787551f6de4b80489d3f8595c89a78a",
+        "size_bytes": 74493342,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "stalingrad_summer",
+      "server_zip": {
+        "md5": "9f943b68cc31718506a1be2cbb14f11b",
+        "size_bytes": 18655909,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:40:44.874516Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\stalingrad_summer",
+      "status": "updated",
+      "client_zip": {
+        "md5": "d4a4a7ae3b1dba43dc2d3907670a3911",
+        "size_bytes": 73289104,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "tad_sae",
+      "server_zip": {
+        "md5": "1b906eb701f822ce422d667e4365d768",
+        "size_bytes": 11622271,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:40:45.357925Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\tad_sae",
+      "status": "updated",
+      "client_zip": {
+        "md5": "d52f5621f54ac218cf09d36dd0a94a5e",
+        "size_bytes": 22346168,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "test_airfield",
+      "server_zip": {
+        "md5": "382dffdda2c85d55580283da32c95dd2",
+        "size_bytes": 2406916,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:40:45.758634Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\test_airfield",
+      "status": "updated",
+      "client_zip": {
+        "md5": "5159a9cd41cb9041ba229e0e2c09c729",
+        "size_bytes": 25187468,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "test_bootcamp",
+      "server_zip": {
+        "md5": "62ca8ec269b8e7959e4ec96d07608cfb",
+        "size_bytes": 390734,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:40:46.068376Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\test_bootcamp",
+      "status": "updated",
+      "client_zip": {
+        "md5": "af48ee49e8d1dc6b7439a5d33cb35aca",
+        "size_bytes": 20528805,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "the_falklands",
+      "server_zip": {
+        "md5": "9a67a4ef1b1d441169a626b0ff0e2775",
+        "size_bytes": 6042675,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:40:46.611549Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\the_falklands",
+      "status": "updated",
+      "client_zip": {
+        "md5": "ea141dc8ac07396b1a474d23980bd520",
+        "size_bytes": 30297227,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "ulyanovsk",
+      "server_zip": {
+        "md5": "22ffbf54e65a89839ddeec467426e6f4",
+        "size_bytes": 12474317,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:40:47.924316Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\ulyanovsk",
+      "status": "updated",
+      "client_zip": {
+        "md5": "d1a54cc839b8cd6dcac694efec75ee93",
+        "size_bytes": 70712959,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "vadso_city",
+      "server_zip": {
+        "md5": "d648404902b6e06c9163951dff835b1f",
+        "size_bytes": 11399941,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:40:49.216251Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\vadso_city",
+      "status": "updated",
+      "client_zip": {
+        "md5": "dfa340d4b311495077a86040edef8e21",
+        "size_bytes": 71831975,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "vung_ro",
+      "server_zip": {
+        "md5": "55f3f16956744f240e8dde2fbcaeafe5",
+        "size_bytes": 13214307,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:40:50.525970Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\vung_ro",
+      "status": "updated",
+      "client_zip": {
+        "md5": "71760d625f0ccd0e77dd11acf26b5849",
+        "size_bytes": 76239052,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "wanda_shan",
+      "server_zip": {
+        "md5": "99d923fb17821782590d298ba256e0e3",
+        "size_bytes": 12244362,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:40:51.760923Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\wanda_shan",
+      "status": "updated",
+      "client_zip": {
+        "md5": "91edf24923b9f7581ea00a0f4129a7cc",
+        "size_bytes": 82847556,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "xiangshan",
+      "server_zip": {
+        "md5": "e80ddc31b26d313573da1e427077dd03",
+        "size_bytes": 7156715,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:40:53.068596Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\xiangshan",
+      "status": "updated",
+      "client_zip": {
+        "md5": "39d180f3acf3383cba1b3f436af430bd",
+        "size_bytes": 88305504,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "yamalia",
+      "server_zip": {
+        "md5": "aa64ec6ca51a226d6c1a03c497fdc1bb",
+        "size_bytes": 10567255,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:40:53.928932Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\yamalia",
+      "status": "updated",
+      "client_zip": {
+        "md5": "d58bbee682f3c4ddfe68ca83692274a5",
+        "size_bytes": 48853380,
+        "has_minimap": true
+      }
+    },
+    {
+      "name": "zakho",
+      "server_zip": {
+        "md5": "a5eb065a7d8c8103d11cb31fef7a9505",
+        "size_bytes": 14999876,
+        "has_heightmap": true
+      },
+      "collected_at": "2025-11-19T16:40:55.269835Z",
+      "source_path": "C:\\Program Files (x86)\\Project Reality\\Project Reality BF2\\mods\\pr\\levels\\zakho",
+      "status": "updated",
+      "client_zip": {
+        "md5": "a5ff85f693780d657d33617fc1f8b22f",
+        "size_bytes": 80679273,
+        "has_minimap": true
+      }
+    }
+  ],
+  "total_maps": 84,
+  "maps_with_minimaps": 84,
+  "maps_heightmap_only": 0,
+  "total_size_bytes": 6820356936,
+  "total_size_mb": 6504.4,
+  "collection_date": "2025-11-19T16:40:55.270284Z",
+  "format_version": "1.0"
+}

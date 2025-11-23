@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:e5d39d90c9ccf47f410d26d869ee3ad28f2b24f9d2509d61f9d1658dfd5fd538
-size 221
+{
+  "map_name": "bamyan",
+  "map_size": 2048,
+  "height_scale": 300,
+  "grid_scale": 157.53846153846155,
+  "heightmap_resolution": 1025,
+  "processed_at": "2025-11-19T08:55:41.395497Z",
+  "format_version": "1.0"
+}

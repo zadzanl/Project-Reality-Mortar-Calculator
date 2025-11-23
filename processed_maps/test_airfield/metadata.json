@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:201693333d2165bd8028ea8271297b30197522552dc73a948457b09257e5acd5
-size 228
+{
+  "map_name": "test_airfield",
+  "map_size": 2048,
+  "height_scale": 300,
+  "grid_scale": 157.53846153846155,
+  "heightmap_resolution": 1025,
+  "processed_at": "2025-11-19T08:56:59.546583Z",
+  "format_version": "1.0"
+}

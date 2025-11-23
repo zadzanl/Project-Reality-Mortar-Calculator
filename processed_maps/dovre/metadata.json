@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:3697de91eddf8b7c9120cded6233ceba2219b30961fa8df802a37377f58d3b3f
-size 220
+{
+  "map_name": "dovre",
+  "map_size": 2048,
+  "height_scale": 300,
+  "grid_scale": 157.53846153846155,
+  "heightmap_resolution": 1025,
+  "processed_at": "2025-11-19T08:56:03.828531Z",
+  "format_version": "1.0"
+}

@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:a2512e0068fbd576921dc0a7af6b365f59b343d7c0fbabc58605b547ee7f33b1
-size 228
+{
+  "map_name": "burning_sands",
+  "map_size": 2048,
+  "height_scale": 300,
+  "grid_scale": 157.53846153846155,
+  "heightmap_resolution": 1025,
+  "processed_at": "2025-11-19T08:55:57.932646Z",
+  "format_version": "1.0"
+}

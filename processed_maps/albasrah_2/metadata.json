@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:6827401355fc3b1c6e4ad7da534f1f0f57c98e6f4f1ad02bb6827de4b045528e
-size 225
+{
+  "map_name": "albasrah_2",
+  "map_size": 2048,
+  "height_scale": 300,
+  "grid_scale": 157.53846153846155,
+  "heightmap_resolution": 1025,
+  "processed_at": "2025-11-19T08:55:33.814433Z",
+  "format_version": "1.0"
+}

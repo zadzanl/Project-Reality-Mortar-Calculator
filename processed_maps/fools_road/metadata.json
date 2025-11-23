@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:dd04463f8aa1491fbb257f9e28e1886bf1503fb980afdd7987439eadf855b659
-size 225
+{
+  "map_name": "fools_road",
+  "map_size": 2048,
+  "height_scale": 300,
+  "grid_scale": 157.53846153846155,
+  "heightmap_resolution": 1025,
+  "processed_at": "2025-11-19T08:56:09.262772Z",
+  "format_version": "1.0"
+}

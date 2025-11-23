@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:a7c8cca5b4e2c93c4ef021ad69bbca30f807cab4ebb7897b9af5d4d0262489d3
-size 231
+{
+  "map_name": "sbeneh_outskirts",
+  "map_size": 2048,
+  "height_scale": 300,
+  "grid_scale": 157.53846153846155,
+  "heightmap_resolution": 1025,
+  "processed_at": "2025-11-19T08:56:53.111746Z",
+  "format_version": "1.0"
+}

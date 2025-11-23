@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:4705673357a46267b9b65b0cdcf6e2de71ee9d5bb2a4d2181fb5e49c7c8a16d0
-size 232
+{
+  "map_name": "operation_thunder",
+  "map_size": 2048,
+  "height_scale": 300,
+  "grid_scale": 157.53846153846155,
+  "heightmap_resolution": 1025,
+  "processed_at": "2025-11-19T08:56:41.620750Z",
+  "format_version": "1.0"
+}

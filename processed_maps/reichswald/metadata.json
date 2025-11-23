@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:996e03b931fe2b2ec839337777196f021af8e35332fce88a5efee1fa0136505f
-size 225
+{
+  "map_name": "reichswald",
+  "map_size": 2048,
+  "height_scale": 300,
+  "grid_scale": 157.53846153846155,
+  "heightmap_resolution": 1025,
+  "processed_at": "2025-11-19T08:56:47.298037Z",
+  "format_version": "1.0"
+}

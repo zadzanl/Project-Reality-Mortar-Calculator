@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:840f1e51f322f520dc4b28fdb4ff726161d4044d252b84312ba0bd9875ca9ffa
-size 222
+{
+  "map_name": "yamalia",
+  "map_size": 2048,
+  "height_scale": 300,
+  "grid_scale": 157.53846153846155,
+  "heightmap_resolution": 1025,
+  "processed_at": "2025-11-19T08:57:05.150459Z",
+  "format_version": "1.0"
+}

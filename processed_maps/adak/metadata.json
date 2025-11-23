@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:d74ff6999801e455adf6b3ac04d51170beffb9f07437f5e1b21c3e9f8a670184
-size 219
+{
+  "map_name": "adak",
+  "map_size": 2048,
+  "height_scale": 300,
+  "grid_scale": 157.53846153846155,
+  "heightmap_resolution": 1025,
+  "processed_at": "2025-11-19T08:55:32.566560Z",
+  "format_version": "1.0"
+}

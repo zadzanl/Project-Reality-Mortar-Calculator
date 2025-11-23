@@ -1,3 +1,337 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:9be061e7d76c6e8649c24c845239dcdee62b0985044fa6baa0506b981ea9fa8d
-size 10973
+﻿{
+    "count":  83,
+    "maps":  [
+                 {
+                     "name":  "adak",
+                     "path":  "adak"
+                 },
+                 {
+                     "name":  "albasrah_2",
+                     "path":  "albasrah_2"
+                 },
+                 {
+                     "name":  "andromeda",
+                     "path":  "andromeda"
+                 },
+                 {
+                     "name":  "asad_khal",
+                     "path":  "asad_khal"
+                 },
+                 {
+                     "name":  "ascheberg",
+                     "path":  "ascheberg"
+                 },
+                 {
+                     "name":  "assault_on_grozny",
+                     "path":  "assault_on_grozny"
+                 },
+                 {
+                     "name":  "assault_on_mestia",
+                     "path":  "assault_on_mestia"
+                 },
+                 {
+                     "name":  "bamyan",
+                     "path":  "bamyan"
+                 },
+                 {
+                     "name":  "battle_of_debrecen",
+                     "path":  "battle_of_debrecen"
+                 },
+                 {
+                     "name":  "battle_of_ia_drang",
+                     "path":  "battle_of_ia_drang"
+                 },
+                 {
+                     "name":  "battle_of_kerch",
+                     "path":  "battle_of_kerch"
+                 },
+                 {
+                     "name":  "beirut",
+                     "path":  "beirut"
+                 },
+                 {
+                     "name":  "belyaevo",
+                     "path":  "belyaevo"
+                 },
+                 {
+                     "name":  "black_gold",
+                     "path":  "black_gold"
+                 },
+                 {
+                     "name":  "brecourt_assault",
+                     "path":  "brecourt_assault"
+                 },
+                 {
+                     "name":  "burning_sands",
+                     "path":  "burning_sands"
+                 },
+                 {
+                     "name":  "carentan",
+                     "path":  "carentan"
+                 },
+                 {
+                     "name":  "charlies_point",
+                     "path":  "charlies_point"
+                 },
+                 {
+                     "name":  "deagle5",
+                     "path":  "deagle5"
+                 },
+                 {
+                     "name":  "donbas",
+                     "path":  "donbas"
+                 },
+                 {
+                     "name":  "dovre",
+                     "path":  "dovre"
+                 },
+                 {
+                     "name":  "dovre_winter",
+                     "path":  "dovre_winter"
+                 },
+                 {
+                     "name":  "dragon_fly",
+                     "path":  "dragon_fly"
+                 },
+                 {
+                     "name":  "fallujah_west",
+                     "path":  "fallujah_west"
+                 },
+                 {
+                     "name":  "fields_of_kassel",
+                     "path":  "fields_of_kassel"
+                 },
+                 {
+                     "name":  "fools_road",
+                     "path":  "fools_road"
+                 },
+                 {
+                     "name":  "gaza_2",
+                     "path":  "gaza_2"
+                 },
+                 {
+                     "name":  "goose_green",
+                     "path":  "goose_green"
+                 },
+                 {
+                     "name":  "grostok",
+                     "path":  "grostok"
+                 },
+                 {
+                     "name":  "hades_peak",
+                     "path":  "hades_peak"
+                 },
+                 {
+                     "name":  "hill_488",
+                     "path":  "hill_488"
+                 },
+                 {
+                     "name":  "iron_ridge",
+                     "path":  "iron_ridge"
+                 },
+                 {
+                     "name":  "kafar_halab",
+                     "path":  "kafar_halab"
+                 },
+                 {
+                     "name":  "karbala",
+                     "path":  "karbala"
+                 },
+                 {
+                     "name":  "kashan_desert",
+                     "path":  "kashan_desert"
+                 },
+                 {
+                     "name":  "khamisiyah",
+                     "path":  "khamisiyah"
+                 },
+                 {
+                     "name":  "kokan",
+                     "path":  "kokan"
+                 },
+                 {
+                     "name":  "korbach_offensive",
+                     "path":  "korbach_offensive"
+                 },
+                 {
+                     "name":  "korengal",
+                     "path":  "korengal"
+                 },
+                 {
+                     "name":  "kozelsk",
+                     "path":  "kozelsk"
+                 },
+                 {
+                     "name":  "krivaja_valley",
+                     "path":  "krivaja_valley"
+                 },
+                 {
+                     "name":  "kunar_province",
+                     "path":  "kunar_province"
+                 },
+                 {
+                     "name":  "lashkar_valley",
+                     "path":  "lashkar_valley"
+                 },
+                 {
+                     "name":  "masirah",
+                     "path":  "masirah"
+                 },
+                 {
+                     "name":  "merville",
+                     "path":  "merville"
+                 },
+                 {
+                     "name":  "musa_qala",
+                     "path":  "musa_qala"
+                 },
+                 {
+                     "name":  "muttrah_city_2",
+                     "path":  "muttrah_city_2"
+                 },
+                 {
+                     "name":  "nuijamaa",
+                     "path":  "nuijamaa"
+                 },
+                 {
+                     "name":  "omaha_beach",
+                     "path":  "omaha_beach"
+                 },
+                 {
+                     "name":  "op_barracuda",
+                     "path":  "op_barracuda"
+                 },
+                 {
+                     "name":  "operation_bobcat",
+                     "path":  "operation_bobcat"
+                 },
+                 {
+                     "name":  "operation_brunswick",
+                     "path":  "operation_brunswick"
+                 },
+                 {
+                     "name":  "operation_falcon",
+                     "path":  "operation_falcon"
+                 },
+                 {
+                     "name":  "operation_marlin",
+                     "path":  "operation_marlin"
+                 },
+                 {
+                     "name":  "operation_soul_rebel",
+                     "path":  "operation_soul_rebel"
+                 },
+                 {
+                     "name":  "operation_thunder",
+                     "path":  "operation_thunder"
+                 },
+                 {
+                     "name":  "outpost",
+                     "path":  "outpost"
+                 },
+                 {
+                     "name":  "pavlovsk_bay",
+                     "path":  "pavlovsk_bay"
+                 },
+                 {
+                     "name":  "ramiel",
+                     "path":  "ramiel"
+                 },
+                 {
+                     "name":  "ras_el_masri_2",
+                     "path":  "ras_el_masri_2"
+                 },
+                 {
+                     "name":  "reichswald",
+                     "path":  "reichswald"
+                 },
+                 {
+                     "name":  "road_to_damascus",
+                     "path":  "road_to_damascus"
+                 },
+                 {
+                     "name":  "route",
+                     "path":  "route"
+                 },
+                 {
+                     "name":  "rzhev",
+                     "path":  "rzhev"
+                 },
+                 {
+                     "name":  "saaremaa",
+                     "path":  "saaremaa"
+                 },
+                 {
+                     "name":  "sahel",
+                     "path":  "sahel"
+                 },
+                 {
+                     "name":  "sbeneh_outskirts",
+                     "path":  "sbeneh_outskirts"
+                 },
+                 {
+                     "name":  "shahadah",
+                     "path":  "shahadah"
+                 },
+                 {
+                     "name":  "shijiavalley",
+                     "path":  "shijiavalley"
+                 },
+                 {
+                     "name":  "shipment",
+                     "path":  "shipment"
+                 },
+                 {
+                     "name":  "silent_eagle",
+                     "path":  "silent_eagle"
+                 },
+                 {
+                     "name":  "stalingrad",
+                     "path":  "stalingrad"
+                 },
+                 {
+                     "name":  "stalingrad_summer",
+                     "path":  "stalingrad_summer"
+                 },
+                 {
+                     "name":  "tad_sae",
+                     "path":  "tad_sae"
+                 },
+                 {
+                     "name":  "test_airfield",
+                     "path":  "test_airfield"
+                 },
+                 {
+                     "name":  "test_bootcamp",
+                     "path":  "test_bootcamp"
+                 },
+                 {
+                     "name":  "ulyanovsk",
+                     "path":  "ulyanovsk"
+                 },
+                 {
+                     "name":  "vadso_city",
+                     "path":  "vadso_city"
+                 },
+                 {
+                     "name":  "vung_ro",
+                     "path":  "vung_ro"
+                 },
+                 {
+                     "name":  "wanda_shan",
+                     "path":  "wanda_shan"
+                 },
+                 {
+                     "name":  "xiangshan",
+                     "path":  "xiangshan"
+                 },
+                 {
+                     "name":  "yamalia",
+                     "path":  "yamalia"
+                 },
+                 {
+                     "name":  "zakho",
+                     "path":  "zakho"
+                 }
+             ]
+}

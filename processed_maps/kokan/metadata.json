@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:aa1d9f73bcd8e68d995e751d3d7927592cc916fd60bb27b4ab29c8fe625901e6
-size 220
+{
+  "map_name": "kokan",
+  "map_size": 2048,
+  "height_scale": 300,
+  "grid_scale": 157.53846153846155,
+  "heightmap_resolution": 1025,
+  "processed_at": "2025-11-19T08:56:21.587499Z",
+  "format_version": "1.0"
+}

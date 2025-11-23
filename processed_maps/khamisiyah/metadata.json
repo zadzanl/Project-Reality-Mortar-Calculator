@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:05018a865d741b2306101ab20f7603c3b7fd05218e52ade1d7433e29d1564690
-size 225
+{
+  "map_name": "khamisiyah",
+  "map_size": 2048,
+  "height_scale": 300,
+  "grid_scale": 157.53846153846155,
+  "heightmap_resolution": 1025,
+  "processed_at": "2025-11-19T08:56:20.508326Z",
+  "format_version": "1.0"
+}

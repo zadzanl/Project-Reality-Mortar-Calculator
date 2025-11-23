@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:d4151df566f2c5af5dab38b1e6ffe190e7acce673b24c1bb8bdb528d4a1fed21
-size 229
+{
+  "map_name": "kunar_province",
+  "map_size": 2048,
+  "height_scale": 300,
+  "grid_scale": 157.53846153846155,
+  "heightmap_resolution": 1025,
+  "processed_at": "2025-11-19T08:56:27.248681Z",
+  "format_version": "1.0"
+}

@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:431571a420fda92d58426e666b789573f4db6048a4bbd3be1c3e3a7ce050984e
-size 220
+{
+  "map_name": "deagle5",
+  "map_size": 4096,
+  "height_scale": 300,
+  "grid_scale": 315.0769230769231,
+  "heightmap_resolution": 257,
+  "processed_at": "2025-11-19T08:56:00.928291Z",
+  "format_version": "1.0"
+}

@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:19e128052d629dcaa936a0ba6d69cb5ec6dd231d28544942918bc3b4611dc57f
-size 221
+{
+  "map_name": "merville",
+  "map_size": 4096,
+  "height_scale": 300,
+  "grid_scale": 315.0769230769231,
+  "heightmap_resolution": 513,
+  "processed_at": "2025-11-19T08:56:30.164849Z",
+  "format_version": "1.0"
+}

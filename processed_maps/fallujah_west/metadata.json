@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:9c544bf172457f49f7ab6b3c82c6008488a97114f69ece6ec7fe83e8f3c8946e
-size 226
+{
+  "map_name": "fallujah_west",
+  "map_size": 4096,
+  "height_scale": 300,
+  "grid_scale": 315.0769230769231,
+  "heightmap_resolution": 513,
+  "processed_at": "2025-11-19T08:56:06.686527Z",
+  "format_version": "1.0"
+}

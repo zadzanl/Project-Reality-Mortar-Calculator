@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:3f03fd5dfec4ceaac6f65fc78cc20106f8650dd8240125137cefdcfa669b52b1
-size 224
+{
+  "map_name": "musa_qala",
+  "map_size": 2048,
+  "height_scale": 300,
+  "grid_scale": 157.53846153846155,
+  "heightmap_resolution": 1025,
+  "processed_at": "2025-11-19T08:56:31.487950Z",
+  "format_version": "1.0"
+}

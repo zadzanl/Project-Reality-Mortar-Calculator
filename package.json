@@ -1,3 +1,11 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:22aa7eba4c983e183cdaefe32ccdb80433a294967a1f8ec7e75475e56c5120d2
-size 306
+{
+  "name": "project-reality-mortar-calculator",
+  "version": "0.0.1",
+  "description": "Project Reality Mortar Calculator - Unit tests for ballistics and coordinates",
+  "type": "module",
+  "scripts": {
+    "test": "node calculator/tests/run-tests.js"
+  },
+  "author": "",
+  "license": "MIT"
+}

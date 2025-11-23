@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:c66171de6d41a90efb93201b12e0b5a1289677f1ecf533bd9e8b6a8b5c3479b9
-size 225
+{
+  "map_name": "dragon_fly",
+  "map_size": 2048,
+  "height_scale": 300,
+  "grid_scale": 157.53846153846155,
+  "heightmap_resolution": 1025,
+  "processed_at": "2025-11-19T08:56:06.317076Z",
+  "format_version": "1.0"
+}

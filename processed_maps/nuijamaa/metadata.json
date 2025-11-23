@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:40e8ed7a7d1c4fd64be04adf7bebaf42ab7e24be7ac91d94afddf65523d22362
-size 223
+{
+  "map_name": "nuijamaa",
+  "map_size": 2048,
+  "height_scale": 300,
+  "grid_scale": 157.53846153846155,
+  "heightmap_resolution": 1025,
+  "processed_at": "2025-11-19T08:56:33.543391Z",
+  "format_version": "1.0"
+}

@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:ef8f681c71ea590829e0220c406d2bbc99b3214da31e04911ea48b6a1f4bd76a
-size 222
+{
+  "map_name": "asad_khal",
+  "map_size": 4096,
+  "height_scale": 300,
+  "grid_scale": 315.0769230769231,
+  "heightmap_resolution": 513,
+  "processed_at": "2025-11-19T08:55:34.681519Z",
+  "format_version": "1.0"
+}

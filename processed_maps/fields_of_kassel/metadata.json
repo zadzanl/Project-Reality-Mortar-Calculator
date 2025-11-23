@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:661b831e837a91b17c5b96830993047091a89d8208e7aaa6e468991447279af3
-size 231
+{
+  "map_name": "fields_of_kassel",
+  "map_size": 2048,
+  "height_scale": 300,
+  "grid_scale": 157.53846153846155,
+  "heightmap_resolution": 1025,
+  "processed_at": "2025-11-19T08:56:08.061086Z",
+  "format_version": "1.0"
+}

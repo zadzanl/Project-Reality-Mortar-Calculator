@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:79a7e380662ebaf7ff6e466b7c58ce907036619f70c63ab85c85b9159093ee7a
-size 226
+{
+  "map_name": "omaha_beach",
+  "map_size": 2048,
+  "height_scale": 300,
+  "grid_scale": 157.53846153846155,
+  "heightmap_resolution": 1025,
+  "processed_at": "2025-11-19T08:56:34.896254Z",
+  "format_version": "1.0"
+}

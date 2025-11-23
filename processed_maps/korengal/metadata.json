@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:75e919d0411e2273bef9529de61ceff791958a16f0d05a25725357c49e1e4450
-size 223
+{
+  "map_name": "korengal",
+  "map_size": 2048,
+  "height_scale": 300,
+  "grid_scale": 157.53846153846155,
+  "heightmap_resolution": 1025,
+  "processed_at": "2025-11-19T08:56:23.801194Z",
+  "format_version": "1.0"
+}

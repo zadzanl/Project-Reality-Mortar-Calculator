@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:fd1da631b46854374774de45837f7fe269385ebd562e502a0c4acbc8383c9668
-size 235
+{
+  "map_name": "operation_soul_rebel",
+  "map_size": 2048,
+  "height_scale": 300,
+  "grid_scale": 157.53846153846155,
+  "heightmap_resolution": 1025,
+  "processed_at": "2025-11-19T08:56:40.711640Z",
+  "format_version": "1.0"
+}

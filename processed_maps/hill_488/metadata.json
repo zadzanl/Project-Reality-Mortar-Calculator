@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:226c1affd2407b835b25bdd87bc5585104f511701e2b4925d47df77b90127003
-size 221
+{
+  "map_name": "hill_488",
+  "map_size": 4096,
+  "height_scale": 300,
+  "grid_scale": 315.0769230769231,
+  "heightmap_resolution": 513,
+  "processed_at": "2025-11-19T08:56:14.230466Z",
+  "format_version": "1.0"
+}

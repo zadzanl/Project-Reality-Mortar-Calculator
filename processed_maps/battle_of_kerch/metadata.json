@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:1e543dd6e6d394e2e0615d5150802bfae558725ffc42e3813eeb7cf5a287def7
-size 230
+{
+  "map_name": "battle_of_kerch",
+  "map_size": 2048,
+  "height_scale": 300,
+  "grid_scale": 157.53846153846155,
+  "heightmap_resolution": 1025,
+  "processed_at": "2025-11-19T08:55:47.204081Z",
+  "format_version": "1.0"
+}

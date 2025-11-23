@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:0d3c76db7ea16ef68013232fd90c8ade5726f9453bc1feddb18964a6049fad03
-size 221
+{
+  "map_name": "ramiel",
+  "map_size": 2048,
+  "height_scale": 300,
+  "grid_scale": 157.53846153846155,
+  "heightmap_resolution": 1025,
+  "processed_at": "2025-11-19T08:56:45.505166Z",
+  "format_version": "1.0"
+}

@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:9158192673cbebb380819bfad8087b56e8bc25ab7578f3e98ed5e9323ddc886b
-size 226
+{
+  "map_name": "goose_green",
+  "map_size": 2048,
+  "height_scale": 300,
+  "grid_scale": 157.53846153846155,
+  "heightmap_resolution": 1025,
+  "processed_at": "2025-11-19T08:56:10.779259Z",
+  "format_version": "1.0"
+}

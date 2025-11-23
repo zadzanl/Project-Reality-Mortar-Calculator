@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:8e30fab42a22f578c15e64f9a8daa5dd9d5a118e733c287bf9bafee01bf31aa5
-size 232
+{
+  "map_name": "assault_on_grozny",
+  "map_size": 2048,
+  "height_scale": 300,
+  "grid_scale": 157.53846153846155,
+  "heightmap_resolution": 1025,
+  "processed_at": "2025-11-19T08:55:38.448347Z",
+  "format_version": "1.0"
+}

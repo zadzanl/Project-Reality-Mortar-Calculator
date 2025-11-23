@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:cb470fdf0e4985e042f40ffe920edfa5ac3759fc4966c270c7cd6a8f39c012bb
-size 222
+{
+  "map_name": "masirah",
+  "map_size": 2048,
+  "height_scale": 300,
+  "grid_scale": 157.53846153846155,
+  "heightmap_resolution": 1025,
+  "processed_at": "2025-11-19T08:56:29.832320Z",
+  "format_version": "1.0"
+}

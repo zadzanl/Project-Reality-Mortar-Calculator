@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:1c6d56dc4c27e65b49d6a4904015b9e33a9b5e261a0c19d0004afe9693951a98
-size 222
+{
+  "map_name": "andromeda",
+  "map_size": 4096,
+  "height_scale": 300,
+  "grid_scale": 315.0769230769231,
+  "heightmap_resolution": 513,
+  "processed_at": "2025-11-19T08:55:34.189320Z",
+  "format_version": "1.0"
+}

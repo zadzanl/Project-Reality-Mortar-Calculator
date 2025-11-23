@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:b1d0f858520d52025902f38db2932e8ac46d04535f4e76b564c7e696d0f767eb
-size 219
+{
+  "map_name": "gaza_2",
+  "map_size": 4096,
+  "height_scale": 300,
+  "grid_scale": 315.0769230769231,
+  "heightmap_resolution": 513,
+  "processed_at": "2025-11-19T08:56:09.583966Z",
+  "format_version": "1.0"
+}

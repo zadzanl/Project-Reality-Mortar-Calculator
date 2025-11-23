@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:b59599196161e3e68feebf69596f062ad49067d2d04fc73e231b7e52e1f20598
-size 225
+{
+  "map_name": "stalingrad",
+  "map_size": 2048,
+  "height_scale": 300,
+  "grid_scale": 157.53846153846155,
+  "heightmap_resolution": 1025,
+  "processed_at": "2025-11-19T08:56:57.232178Z",
+  "format_version": "1.0"
+}

@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:033cb3fa83303999b7a4a53df40218aa38eab063913e9129a58c2d36b1b109fd
-size 226
+{
+  "map_name": "test_bootcamp",
+  "map_size": 4096,
+  "height_scale": 300,
+  "grid_scale": 315.0769230769231,
+  "heightmap_resolution": 513,
+  "processed_at": "2025-11-19T08:56:59.766537Z",
+  "format_version": "1.0"
+}

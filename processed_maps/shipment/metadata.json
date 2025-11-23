@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:d645a68fe996c9141e357b2b17e8cd19e6d01f5989a618325a5a68c545ce1bef
-size 221
+{
+  "map_name": "shipment",
+  "map_size": 4096,
+  "height_scale": 300,
+  "grid_scale": 315.0769230769231,
+  "heightmap_resolution": 257,
+  "processed_at": "2025-11-19T08:56:55.011604Z",
+  "format_version": "1.0"
+}

@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:b47913b3611d7116778c4c485aa3be5b44accf3560852c406744de1040b164f4
-size 225
+{
+  "map_name": "hades_peak",
+  "map_size": 2048,
+  "height_scale": 300,
+  "grid_scale": 157.53846153846155,
+  "heightmap_resolution": 1025,
+  "processed_at": "2025-11-19T08:56:13.808320Z",
+  "format_version": "1.0"
+}

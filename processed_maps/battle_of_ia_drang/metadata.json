@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:507b2376e2e3570c9045bb0e381cb7dc9ed8ff1d021628a5a352c37e8b0419c3
-size 233
+{
+  "map_name": "battle_of_ia_drang",
+  "map_size": 2048,
+  "height_scale": 300,
+  "grid_scale": 157.53846153846155,
+  "heightmap_resolution": 1025,
+  "processed_at": "2025-11-19T08:55:45.463593Z",
+  "format_version": "1.0"
+}

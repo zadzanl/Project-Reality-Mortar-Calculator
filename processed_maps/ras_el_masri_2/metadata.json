@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:21331c07b8548b815cd4571f8f26651a69b7cd47c566e9617b722bdeecae8231
-size 229
+{
+  "map_name": "ras_el_masri_2",
+  "map_size": 2048,
+  "height_scale": 300,
+  "grid_scale": 157.53846153846155,
+  "heightmap_resolution": 1025,
+  "processed_at": "2025-11-19T08:56:46.394408Z",
+  "format_version": "1.0"
+}

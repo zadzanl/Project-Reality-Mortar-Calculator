@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:43be1799b35a8dec9c54820650c26713f466be9c7a64c800a0a4b8be608c31f1
-size 223
+{
+  "map_name": "belyaevo",
+  "map_size": 2048,
+  "height_scale": 300,
+  "grid_scale": 157.53846153846155,
+  "heightmap_resolution": 1025,
+  "processed_at": "2025-11-19T08:55:51.981542Z",
+  "format_version": "1.0"
+}

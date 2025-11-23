@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:dc09ae275d52524f6b943b59b3097f3964ca5fa801397d91a153e9e50ded18d8
-size 222
+{
+  "map_name": "outpost",
+  "map_size": 2048,
+  "height_scale": 300,
+  "grid_scale": 157.53846153846155,
+  "heightmap_resolution": 1025,
+  "processed_at": "2025-11-19T08:56:42.773544Z",
+  "format_version": "1.0"
+}

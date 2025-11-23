@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:16f33b2789c2168744ec3e4a93fecf448183bc40799aaab60d446da30b936d14
-size 231
+{
+  "map_name": "brecourt_assault",
+  "map_size": 2048,
+  "height_scale": 300,
+  "grid_scale": 157.53846153846155,
+  "heightmap_resolution": 1025,
+  "processed_at": "2025-11-19T08:55:56.057123Z",
+  "format_version": "1.0"
+}

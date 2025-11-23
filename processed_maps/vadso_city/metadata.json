@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:78f33a875cc7794def137a072af9d096b07d9fa8e11340f7eee990e293ccba7b
-size 225
+{
+  "map_name": "vadso_city",
+  "map_size": 2048,
+  "height_scale": 300,
+  "grid_scale": 157.53846153846155,
+  "heightmap_resolution": 1025,
+  "processed_at": "2025-11-19T08:57:01.658395Z",
+  "format_version": "1.0"
+}
