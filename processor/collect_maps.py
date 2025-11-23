@@ -256,7 +256,7 @@ def process_map(map_folder: Path, output_dir: Path, existing_manifest: Dict) -> 
         )
         
         if server_unchanged and client_unchanged:
-            print(f"  {Colors.YELLOW}⊙ Skipped (identical to existing){Colors.RESET}")
+            print(f"  {Colors.YELLOW}- Skipped (identical to existing){Colors.RESET}")
             return existing_map
     
     # Create output directory
@@ -360,7 +360,7 @@ def configure_git_lfs(total_size_bytes: int, repo_root: Path) -> None:
     
     # Check if LFS is needed
     if total_size_bytes < LFS_THRESHOLD_BYTES:
-        print(f"\n{Colors.YELLOW}ⓘ Total size ({total_size_bytes / (1024*1024):.1f} MB) below {LFS_THRESHOLD_MB} MB threshold{Colors.RESET}")
+        print(f"\n{Colors.YELLOW}i Total size ({total_size_bytes / (1024*1024):.1f} MB) below {LFS_THRESHOLD_MB} MB threshold{Colors.RESET}")
         print(f"  Git LFS configuration optional")
         return
     
@@ -436,7 +436,7 @@ def generate_report(maps_data: List[Dict], errors: List[str], output_dir: Path) 
     if maps_data:
         report_lines.append("COLLECTED MAPS:")
         for map_data in sorted(maps_data, key=lambda x: x['name']):
-            status_icon = "+" if map_data.get('status') == 'new' else "↻" if map_data.get('status') == 'updated' else "="
+            status_icon = "+" if map_data.get('status') == 'new' else "*" if map_data.get('status') == 'updated' else "="
             server_size_kb = map_data['server_zip']['size_bytes'] / 1024
             has_minimap = " [+minimap]" if map_data.get('client_zip') else " [no minimap]"
             report_lines.append(f"  [{status_icon}] {map_data['name']:<30} {server_size_kb:>8.1f} KB{has_minimap}")

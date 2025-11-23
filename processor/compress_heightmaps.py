@@ -56,13 +56,13 @@ def compress_heightmaps():
         
         # Print progress
         map_name = json_file.parent.name
-        print(f"  {map_name:30} {original_size/1024/1024:>6.1f}MB → {compressed_size/1024/1024:>6.1f}MB  (saved {saved:>5.1f}%)")
+        print(f"  {map_name:30} {original_size/1024/1024:>6.1f}MB -> {compressed_size/1024/1024:>6.1f}MB  (saved {saved:>5.1f}%)")
     
     # Print summary
     print("\n" + "="*80)
     total_ratio = total_compressed_size / total_original_size
     total_saved = (1 - total_ratio) * 100
-    print(f"Total: {total_original_size/1024/1024:.1f}MB → {total_compressed_size/1024/1024:.1f}MB")
+    print(f"Total: {total_original_size/1024/1024:.1f}MB -> {total_compressed_size/1024/1024:.1f}MB")
     print(f"Overall compression: {total_saved:.1f}% savings")
     print("="*80)
     print(f"\nCompressed {len(heightmap_files)} files successfully!")
