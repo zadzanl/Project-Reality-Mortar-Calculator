@@ -79,7 +79,7 @@ jobs:
         run: |
           cd dist
           # Use maximum gzip compression (level 9)
-          tar -czf ${{ matrix.artifact_name }}.tar.gz --use-compress-program="gzip -9" PR-Mortar-Calculator/
+          tar --use-compress-program="gzip -9" -cf ${{ matrix.artifact_name }}.tar.gz PR-Mortar-Calculator/
           cd ..
 
       - name: Upload build artifact
