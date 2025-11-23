@@ -7,15 +7,13 @@ This directory contains processed heightmaps (JSON), metadata (JSON), and minima
 ```
 processed_maps/
 ├── muttrah_city_2/
-│   ├── heightmap.json        # 16-bit height data
+│   ├── heightmap.json.gz     # Compressed 16-bit height data (gzip)
 │   ├── metadata.json         # Map configuration (includes minimap info)
-│   ├── minimap.png           # Visual map representation (converted from DDS)
-│   └── background.png        # Optional: Scaled version for UI
+│   └── minimap.png           # Visual map representation (converted from DDS)
 ├── fallujah_west/
-│   ├── heightmap.json
+│   ├── heightmap.json.gz
 │   ├── metadata.json
-│   ├── minimap.png
-│   └── background.png
+│   └── minimap.png
 └── ...
 ```
 
@@ -33,11 +31,13 @@ See `processor/README.md` for detailed instructions.
 
 ## File Formats
 
-### heightmap.json
-- **Purpose:** 16-bit elevation data
-- **Format:** JSON array of uint16 values (0-65535)
-- **Size:** Typically 2-10 MB per map
+### heightmap.json.gz
+- **Purpose:** 16-bit elevation data (gzip compressed)
+- **Format:** Compressed JSON array of uint16 values (0-65535)
+- **Size:** Typically 1-2 MB per map (compressed from 4-10 MB)
 - **Resolution:** 1025×1025 or 2049×2049 pixels
+- **Compression:** gzip level 9 (maximum compression)
+- **Note:** Uncompressed .json files are NOT distributed to reduce package size
 
 ### minimap.png
 - **Purpose:** Visual map representation (satellite/overview imagery)

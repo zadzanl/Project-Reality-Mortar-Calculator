@@ -119,7 +119,19 @@ if __name__ == '__main__':
 
     out_dir = processed_dir / map_name
     out_dir.mkdir(exist_ok=True, parents=True)
-    convert_to_json(heightmap, out_dir / 'heightmap.json')
+    heightmap_json_path = out_dir / 'heightmap.json'
+    convert_to_json(heightmap, heightmap_json_path)
+    
+    # Compress heightmap to .gz format
+    print('Compressing heightmap...')
+    import gzip
+    original_data = heightmap_json_path.read_text()
+    with gzip.open(out_dir / 'heightmap.json.gz', 'wt', compresslevel=9) as f:
+        f.write(original_data)
+    # Delete uncompressed version
+    heightmap_json_path.unlink()
+    print('Heightmap compressed to .json.gz')
+    
     generate_metadata(map_name, heightmap, map_size, height_scale, out_dir / 'metadata.json')
 
     print('Done. Output directory:', out_dir)

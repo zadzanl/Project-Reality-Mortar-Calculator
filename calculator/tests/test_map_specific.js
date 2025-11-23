@@ -13,6 +13,7 @@ import assert from 'node:assert';
 import { readFile } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { gunzipSync } from 'node:zlib';
 import { assertApprox } from './assertApprox.js';
 import { gridRefToXY, calculateGridScale } from '../static/js/coordinates.js';
 import { bilinearInterpolation, worldToPixel } from '../static/js/heightmap.js';
@@ -26,12 +27,13 @@ const __dirname = dirname(__filename);
  * Load heightmap and metadata for a map
  */
 async function loadMapData(mapName) {
-  const heightmapPath = join(__dirname, '..', '..', 'processed_maps', mapName, 'heightmap.json');
+  const heightmapPath = join(__dirname, '..', '..', 'processed_maps', mapName, 'heightmap.json.gz');
   const metadataPath = join(__dirname, '..', '..', 'processed_maps', mapName, 'metadata.json');
   
   const [heightmapData, metadata] = await Promise.all([
-    readFile(heightmapPath, 'utf-8').then(data => {
-      const parsed = JSON.parse(data);
+    readFile(heightmapPath).then(compressed => {
+      const decompressed = gunzipSync(compressed);
+      const parsed = JSON.parse(decompressed.toString('utf-8'));
       parsed.data = new Uint16Array(parsed.data);
       return parsed;
     }),

@@ -24,7 +24,7 @@ d = []
 # Include UI templates and static assets
 d.append((os.path.join(root_dir, 'calculator', 'templates'), 'calculator/templates'))
 d.append((os.path.join(root_dir, 'calculator', 'static'), 'calculator/static'))
-# Include processed maps (both .json and .json.gz files)
+# Include processed maps (only .gz, .png, and metadata.json files)
 d.append((os.path.join(root_dir, 'processed_maps'), 'processed_maps'))
 datas = d
 
@@ -65,6 +65,11 @@ a = Analysis(
     cipher=block_cipher,
     noarchive=False,
 )
+
+# Filter out uncompressed heightmap.json files (keep only .json.gz)
+# This ensures only compressed heightmaps are bundled
+a.datas = [(dest, src, typ) for dest, src, typ in a.datas 
+           if not (dest.startswith('processed_maps') and dest.endswith('heightmap.json'))]
 
 pyz = PYZ(
     a.pure,

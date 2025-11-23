@@ -9,6 +9,7 @@ import assert from 'node:assert';
 import { readFile } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { gunzipSync } from 'node:zlib';
 import { assertApprox } from './assertApprox.js';
 import { gridRefToXY, calculateGridScale } from '../static/js/coordinates.js';
 import { bilinearInterpolation, worldToPixel } from '../static/js/heightmap.js';
@@ -22,9 +23,10 @@ const __dirname = dirname(__filename);
  * Load heightmap data from file system (Node.js version)
  */
 async function loadHeightmapFromFile(mapName) {
-  const heightmapPath = join(__dirname, '..', '..', 'processed_maps', mapName, 'heightmap.json');
-  const data = await readFile(heightmapPath, 'utf-8');
-  const heightmapData = JSON.parse(data);
+  const heightmapPath = join(__dirname, '..', '..', 'processed_maps', mapName, 'heightmap.json.gz');
+  const compressedData = await readFile(heightmapPath);
+  const decompressed = gunzipSync(compressedData);
+  const heightmapData = JSON.parse(decompressed.toString('utf-8'));
   
   // Convert to Uint16Array for consistency with production code
   heightmapData.data = new Uint16Array(heightmapData.data);

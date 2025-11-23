@@ -84,9 +84,11 @@ def serve_map_data(map_name, filename):
     Serve processed map data from /processed_maps/ directory.
     
     Examples:
-    - /maps/muttrah_city_2/heightmap.json
-    - /maps/muttrah_city_2/heightmap.json.gz (gzip compressed)
+    - /maps/muttrah_city_2/heightmap.json.gz (gzip compressed heightmap)
     - /maps/muttrah_city_2/metadata.json
+    - /maps/muttrah_city_2/minimap.png
+    
+    Note: Only .gz compressed heightmaps are distributed to reduce size.
     """
     map_dir = PROCESSED_MAPS_DIR / map_name
     

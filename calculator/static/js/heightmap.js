@@ -61,33 +61,21 @@ export async function loadHeightmap(mapName) {
   }
   
   try {
-    // Try compressed version first, fallback to uncompressed
-    let url = `/maps/${mapName}/heightmap.json.gz`;
-    let response = await fetch(url);
+    // Load compressed heightmap (only .gz format is distributed)
+    const url = `/maps/${mapName}/heightmap.json.gz`;
+    const response = await fetch(url);
     
     if (!response.ok) {
-      // Fallback to uncompressed version
-      url = `/maps/${mapName}/heightmap.json`;
-      response = await fetch(url);
-      
-      if (!response.ok) {
-        throw new Error(`Failed to load heightmap: ${response.status} ${response.statusText}`);
-      }
+      throw new Error(`Failed to load heightmap: ${response.status} ${response.statusText}`);
     }
     
-    // Handle both gzipped and plain JSON
-    let heightmapData;
-    if (url.endsWith('.gz')) {
-      // Decompress gzipped response
-      const blob = await response.blob();
-      const ds = new DecompressionStream('gzip');
-      const decompressedStream = blob.stream().pipeThrough(ds);
-      const decompressedBlob = await new Response(decompressedStream).blob();
-      const text = await decompressedBlob.text();
-      heightmapData = JSON.parse(text);
-    } else {
-      heightmapData = await response.json();
-    }
+    // Decompress gzipped response
+    const blob = await response.blob();
+    const ds = new DecompressionStream('gzip');
+    const decompressedStream = blob.stream().pipeThrough(ds);
+    const decompressedBlob = await new Response(decompressedStream).blob();
+    const text = await decompressedBlob.text();
+    const heightmapData = JSON.parse(text);
     
     // Validate data structure
     if (!heightmapData.resolution || !heightmapData.data || !Array.isArray(heightmapData.data)) {

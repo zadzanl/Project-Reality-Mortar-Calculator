@@ -2,6 +2,7 @@ import assert from 'node:assert';
 import { readFile } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { gunzipSync } from 'node:zlib';
 import { gridRefToXY, calculateGridScale } from '../static/js/coordinates.js';
 import { calculateFiringSolution } from '../static/js/ballistics.js';
 import { assertApprox } from './assertApprox.js';
@@ -51,11 +52,12 @@ export async function runInGameTests() {
     console.log(`\n  Testing map: ${mapName} | ${mortarGridRef} -> ${targetGridRef}`);
 
     // Load map data (Node.js file-loader version)
-    const heightmapPath = join(__dirname, '..', '..', 'processed_maps', mapName, 'heightmap.json');
+    const heightmapPath = join(__dirname, '..', '..', 'processed_maps', mapName, 'heightmap.json.gz');
     const metadataPath = join(__dirname, '..', '..', 'processed_maps', mapName, 'metadata.json');
     const [heightmapData, metadata] = await Promise.all([
-      readFile(heightmapPath, 'utf-8').then(data => {
-        const parsed = JSON.parse(data);
+      readFile(heightmapPath).then(compressed => {
+        const decompressed = gunzipSync(compressed);
+        const parsed = JSON.parse(decompressed.toString('utf-8'));
         parsed.data = new Uint16Array(parsed.data);
         return parsed;
       }),
