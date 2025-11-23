@@ -46,10 +46,11 @@ jobs:
       - name: Verify LFS files downloaded
         run: |
           python -c "import os, sys; size = os.path.getsize('processed_maps/adak/heightmap.json'); print(f'heightmap.json size: {size} bytes'); sys.exit(0 if size > 1000000 else 1)"
+        shell: bash
 
       - name: Compress heightmap JSON files
         run: |
-          python -c "import gzip, json, os, pathlib; [gzip.open(f'{p}.gz', 'wt', compresslevel=9).write(p.read_text()) for p in pathlib.Path('processed_maps').rglob('heightmap.json')]; print(f'Compressed {len(list(pathlib.Path(\"processed_maps\").rglob(\"heightmap.json.gz\")))} heightmap files')"
+          python processor/compress_heightmaps.py
 
       - name: Build executable with PyInstaller
         run: |
