@@ -30,7 +30,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 1  # Shallow clone for speed
-          lfs: true  # Download Git LFS files (processed maps)
+          lfs: true  # Download Git LFS files (compressed heightmaps and minimaps)
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -45,12 +45,14 @@ jobs:
 
       - name: Verify LFS files downloaded
         run: |
-          python -c "import os, sys; size = os.path.getsize('processed_maps/adak/heightmap.json'); print(f'heightmap.json size: {size} bytes'); sys.exit(0 if size > 1000000 else 1)"
+          python -c "import os, sys; size = os.path.getsize('processed_maps/adak/heightmap.json.gz'); print(f'heightmap.json.gz size: {size} bytes'); sys.exit(0 if size > 500000 else 1)"
         shell: bash
 
-      - name: Compress heightmap JSON files
+      - name: Verify processed maps exist
         run: |
-          python processor/compress_heightmaps.py
+          echo "Checking processed maps..."
+          python -c "import os; maps = len([d for d in os.listdir('processed_maps') if os.path.isdir(os.path.join('processed_maps', d))]); print(f'Found {maps} processed maps'); exit(0 if maps > 0 else 1)"
+        shell: bash
 
       - name: Build executable with PyInstaller
         run: |
