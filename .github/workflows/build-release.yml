@@ -68,7 +68,7 @@ jobs:
           # Create 7z archive if 7-Zip is available (better compression)
           if (Get-Command 7z -ErrorAction SilentlyContinue) {
             Write-Host "Creating 7z archive for maximum compression..."
-            7z a -t7z -mx=9 -mfb=258 -mpass=15 '${{ matrix.artifact_name }}.7z' 'PR-Mortar-Calculator'
+            7z a -t7z -mx=9 '${{ matrix.artifact_name }}.7z' 'PR-Mortar-Calculator'
           } else {
             Write-Host "7-Zip not found, skipping .7z creation"
           }
