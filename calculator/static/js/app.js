@@ -396,6 +396,10 @@ function toggleTerrainLayer(visible) {
   
   if (visible) {
     state.terrainLayer.addTo(state.leafletMap);
+    // Ensure contour layer stays on top of terrain layer
+    if (state.contourLayer && state.contourVisible) {
+      state.contourLayer.bringToFront();
+    }
   } else {
     state.terrainLayer.remove();
   }
@@ -445,61 +449,97 @@ function updateContourOpacity() {
 }
 
 /**
- * Add grid lines and labels to the Leaflet map using map metadata
+ * Add grid lines and labels to the Leaflet map using map metadata.
+ * 
+ * The minimap grid structure (41x41 keypads total):
+ * - 1 padding keypad, then 13 major grid squares (each 3x3 keypads), then 1 padding keypad
+ * - Total: 1 + (13 * 3) + 1 = 41 keypads per side
+ * 
+ * Grid line positions (in keypad units, 0-41):
+ * - Thin lines: every keypad boundary
+ * - Thick lines: at major grid square boundaries (every 3 keypads after the first padding)
+ *   Thick line keypad positions: 1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34, 37, 40
  */
 function addGridOverlay() {
   const metadata = state.mapData.metadata;
   const mapSize = metadata.map_size;
-  const gridScale = metadata.grid_scale;
+  
+  // Keypad size: map divided into 41 keypads per side
+  const keypadSize = mapSize / 41;
 
   // Remove existing overlay if any
   clearGridOverlay();
 
-  // Create a new layer group
+  // Create layer groups
   state.gridGroup = L.layerGroup().addTo(state.leafletMap);
   state.gridLabelGroup = L.layerGroup().addTo(state.leafletMap);
 
-  // Draw vertical and horizontal grid lines
-  for (let i = 0; i <= 13; i++) {
-    const x = i * gridScale;
-    const y = i * gridScale;
+  // Major grid boundaries (thick lines) - at these keypad positions
+  // These mark the edges of the 13x13 major grid squares (A-M, 1-13)
+  const thickLinePositions = [1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34, 37, 40];
+  
+  // All keypad boundaries (thin lines) - positions 0 through 41
+  const allLinePositions = [];
+  for (let i = 0; i <= 41; i++) {
+    allLinePositions.push(i);
+  }
 
-    // Vertical line: from top (0,x) to bottom (mapSize,x)
-    const vLine = L.polyline([[0, x], [mapSize, x]], {
+  // Helper function to draw a vertical line at keypad position
+  function drawVerticalLine(keypadPos, isThick) {
+    const x = keypadPos * keypadSize;
+    L.polyline([[0, x], [mapSize, x]], {
       color: '#999',
-      weight: 1,
-      opacity: 0.6
-    }).addTo(state.gridGroup);
-
-    // Horizontal line: from left (y,0) to right (y,mapSize)
-    const hLine = L.polyline([[y, 0], [y, mapSize]], {
-      color: '#999',
-      weight: 1,
-      opacity: 0.6
+      weight: isThick ? 2 : 1,
+      opacity: isThick ? 0.8 : 0.5
     }).addTo(state.gridGroup);
   }
 
-  // Add column labels (A-M) at top center of each square
-  const columns = ['A','B','C','D','E','F','G','H','I','J','K','L','M'];
-  for (let col = 0; col < 13; col++) {
-    const centerX = (col + 0.5) * gridScale;
-    const centerY = gridScale * 0.15; // position near top
-    const label = L.marker([centerY, centerX], {
+  // Helper function to draw a horizontal line at keypad position
+  function drawHorizontalLine(keypadPos, isThick) {
+    const y = keypadPos * keypadSize;
+    L.polyline([[y, 0], [y, mapSize]], {
+      color: '#999',
+      weight: isThick ? 2 : 1,
+      opacity: isThick ? 0.8 : 0.5
+    }).addTo(state.gridGroup);
+  }
+
+  // Draw all grid lines
+  for (const pos of allLinePositions) {
+    const isThick = thickLinePositions.includes(pos);
+    drawVerticalLine(pos, isThick);
+    drawHorizontalLine(pos, isThick);
+  }
+
+  // Column labels (A-M) positioned at center of each major grid square
+  // Major grid squares start at keypad 1 and each spans 3 keypads
+  // Column A: keypads 1-3, center at 2.5
+  // Column B: keypads 4-6, center at 5.5
+  // etc.
+  const columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M'];
+  const columnCenterKeypads = [2.5, 5.5, 8.5, 11.5, 14.5, 17.5, 20.5, 23.5, 26.5, 29.5, 32.5, 35.5, 38.5];
+  
+  for (let i = 0; i < 13; i++) {
+    const x = columnCenterKeypads[i] * keypadSize;
+    const y = 0.5 * keypadSize; // Near top edge (in padding area)
+    L.marker([y, x], {
       icon: L.divIcon({
         className: 'grid-label grid-label--column',
-        html: `<div>${columns[col]}</div>`,
+        html: `<div>${columns[i]}</div>`,
         iconSize: [40, 18]
       })
     }).addTo(state.gridLabelGroup);
   }
 
-  // Add row labels (1-13) at right center of each row
-  // Row 1 is at the bottom (row index 0), Row 13 is at the top (row index 12)
-  for (let row = 0; row < 13; row++) {
-    const centerX = getRowLabelCenterX(mapSize, gridScale); // position near right
-    const centerY = (row + 0.5) * gridScale;
-    const rowNumber = 13 - row; // 1 at bottom, 1 at bottom
-    const label = L.marker([centerY, centerX], {
+  // Row labels (1-13) positioned at center of each major grid row
+  // Row 1 at top (keypads 1-3), Row 13 at bottom (keypads 37-39)
+  const rowCenterKeypads = [2.5, 5.5, 8.5, 11.5, 14.5, 17.5, 20.5, 23.5, 26.5, 29.5, 32.5, 35.5, 38.5];
+  
+  for (let i = 0; i < 13; i++) {
+    const y = rowCenterKeypads[i] * keypadSize;
+    const x = 40.5 * keypadSize; // Near right edge (in padding area)
+    const rowNumber = 13 - i; // 13 at top, 1 at bottom
+    L.marker([y, x], {
       icon: L.divIcon({
         className: 'grid-label grid-label--row',
         html: `<div>${rowNumber}</div>`,
