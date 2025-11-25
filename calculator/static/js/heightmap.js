@@ -269,8 +269,13 @@ export function bilinearInterpolation(heightmapData, pixelX, pixelY, width, heig
  * 
  * This is the main function for height sampling:
  * 1. Convert world coordinates to pixel coordinates
- * 2. Perform bilinear interpolation
- * 3. Apply height scale formula: elevation = (value / 65535) × height_scale
+ * 2. Flip Y-axis to match heightmap storage (row 0 = south, but world Y=0 = north)
+ * 3. Perform bilinear interpolation
+ * 4. Apply height scale formula: elevation = (value / 65535) × height_scale
+ * 
+ * IMPORTANT: The heightmap data is stored with row 0 at the SOUTH of the map,
+ * but the PR coordinate system has Y=0 at the NORTH. We flip the Y pixel
+ * coordinate to align with the minimap and contourmap orientation.
  * 
  * @param {number} x - World X coordinate (meters)
  * @param {number} y - World Y coordinate (meters)
@@ -296,8 +301,12 @@ export function getElevation(x, y, heightmapData, heightScale, mapSize, resoluti
   // Convert world to pixel coordinates
   const { pixelX, pixelY } = worldToPixel(x, y, mapSize, resolution);
   
+  // Flip Y-axis: heightmap row 0 is south, but world Y=0 is north
+  // So we need to read from (resolution - 1 - pixelY) to match minimap/contourmap
+  const flippedPixelY = (resolution - 1) - pixelY;
+  
   // Get interpolated height value (0-65535)
-  const rawValue = bilinearInterpolation(heightmapData, pixelX, pixelY, resolution, resolution);
+  const rawValue = bilinearInterpolation(heightmapData, pixelX, flippedPixelY, resolution, resolution);
   
   // Apply height scale formula: elevation = (value / 65535) × height_scale
   const elevation = (rawValue / 65535.0) * heightScale;
