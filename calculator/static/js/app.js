@@ -25,7 +25,12 @@ const state = {
   pathLine: null,
   // Store precise marker coordinates (not rounded to grid)
   mortarPreciseXY: null,  // { x: number, y: number } in meters
-  targetPreciseXY: null   // { x: number, y: number } in meters
+  targetPreciseXY: null,  // { x: number, y: number } in meters
+  // Layer overlays for terrain and contour maps
+  terrainLayer: null,     // Leaflet ImageOverlay for minimap.png
+  contourLayer: null,     // Leaflet ImageOverlay for contourmap.png
+  terrainVisible: true,   // Terrain checkbox state (default ON)
+  contourVisible: false   // Contour checkbox state (default OFF)
 };
 
 // Overlay layers
@@ -166,7 +171,17 @@ function initializeLeafletMap() {
     state.gridGroup = null;
     state.gridLabelGroup = null;
     state.rangeCircle = null;
+    state.terrainLayer = null;
+    state.contourLayer = null;
   }
+  
+  // Reset layer visibility state and checkboxes when loading new map
+  state.terrainVisible = true;
+  state.contourVisible = false;
+  document.getElementById('terrain-layer-toggle').checked = true;
+  document.getElementById('contour-layer-toggle').checked = false;
+  document.getElementById('contour-layer-toggle').disabled = false;
+  document.getElementById('contour-layer-label').textContent = 'Contour Map';
   
   // Create Leaflet map with Simple CRS (non-geographic coordinates)
   state.leafletMap = L.map('map', {
@@ -183,13 +198,18 @@ function initializeLeafletMap() {
   // Bounds stay standard: [[minLat, minLng], [maxLat, maxLng]] = [[0,0], [mapSize, mapSize]]
   const bounds = [[0, 0], [mapSize, mapSize]];
   
-  // Add a simple background (will be replaced with actual map imagery in future)
-  const imageUrl = `/maps/${state.currentMap}/minimap.png`;
+  // Create terrain layer (minimap.png)
+  const minimapUrl = `/maps/${state.currentMap}/minimap.png`;
   
   // Try to load minimap, fallback to colored rectangle
   const img = new Image();
   img.onload = () => {
-    L.imageOverlay(imageUrl, bounds).addTo(state.leafletMap);
+    state.terrainLayer = L.imageOverlay(minimapUrl, bounds);
+    if (state.terrainVisible) {
+      state.terrainLayer.addTo(state.leafletMap);
+    }
+    // Load contour map after terrain layer is ready
+    loadContourLayer(bounds);
   };
   img.onerror = () => {
     // Fallback: Draw a simple colored rectangle
@@ -216,7 +236,10 @@ function initializeLeafletMap() {
       ctx.stroke();
     }
     
-    L.imageOverlay(canvas.toDataURL(), bounds).addTo(state.leafletMap);
+    state.terrainLayer = L.imageOverlay(canvas.toDataURL(), bounds);
+    if (state.terrainVisible) {
+      state.terrainLayer.addTo(state.leafletMap);
+    }
     // Add an overlay label to indicate minimap not available
     const overlay = L.control({ position: 'topright' });
     overlay.onAdd = function () {
@@ -225,8 +248,10 @@ function initializeLeafletMap() {
       return div;
     };
     overlay.addTo(state.leafletMap);
+    // Try to load contour layer even without minimap
+    loadContourLayer(bounds);
   };
-  img.src = imageUrl;
+  img.src = minimapUrl;
   
   // Set view to map center
   state.leafletMap.fitBounds(bounds);
@@ -322,6 +347,100 @@ function toggleGridLabels(show) {
     if (state.gridLabelGroup) {
       state.gridLabelGroup.remove();
     }
+  }
+}
+
+/**
+ * Load contour map layer for the current map.
+ * @param {L.LatLngBounds} bounds - The map bounds to use for the overlay
+ */
+function loadContourLayer(bounds) {
+  const contourUrl = `/maps/${state.currentMap}/contourmap.png`;
+  
+  // Test if contour map exists
+  const testImg = new Image();
+  testImg.onload = () => {
+    // Contour map exists, create the layer
+    state.contourLayer = L.imageOverlay(contourUrl, bounds);
+    // Set initial opacity based on terrain visibility
+    updateContourOpacity();
+    // Add to map if contour should be visible
+    if (state.contourVisible) {
+      state.contourLayer.addTo(state.leafletMap);
+    }
+    console.log('Contour layer loaded for', state.currentMap);
+  };
+  testImg.onerror = () => {
+    // Contour map not available
+    console.warn('Contour map not found for', state.currentMap);
+    state.contourLayer = null;
+    // Disable the contour checkbox and update label
+    document.getElementById('contour-layer-toggle').disabled = true;
+    document.getElementById('contour-layer-toggle').checked = false;
+    document.getElementById('contour-layer-label').textContent = 'Contour Map (unavailable)';
+    state.contourVisible = false;
+  };
+  testImg.src = contourUrl;
+}
+
+/**
+ * Toggle visibility of terrain (minimap) layer
+ * @param {boolean} visible - Whether to show the terrain layer
+ */
+function toggleTerrainLayer(visible) {
+  state.terrainVisible = visible;
+  
+  if (!state.leafletMap || !state.terrainLayer) {
+    return;
+  }
+  
+  if (visible) {
+    state.terrainLayer.addTo(state.leafletMap);
+  } else {
+    state.terrainLayer.remove();
+  }
+  
+  // Update contour opacity when both layers state changes
+  updateContourOpacity();
+}
+
+/**
+ * Toggle visibility of contour map layer
+ * @param {boolean} visible - Whether to show the contour layer
+ */
+function toggleContourLayer(visible) {
+  state.contourVisible = visible;
+  
+  if (!state.leafletMap || !state.contourLayer) {
+    return;
+  }
+  
+  if (visible) {
+    state.contourLayer.addTo(state.leafletMap);
+  } else {
+    state.contourLayer.remove();
+  }
+  
+  // Update contour opacity based on terrain visibility
+  updateContourOpacity();
+}
+
+/**
+ * Update contour layer opacity based on terrain visibility.
+ * - If both layers visible: contour opacity = 0.7
+ * - If contour only: contour opacity = 1.0
+ */
+function updateContourOpacity() {
+  if (!state.contourLayer) {
+    return;
+  }
+  
+  if (state.terrainVisible && state.contourVisible) {
+    // Both layers visible - reduce contour opacity for overlay effect
+    state.contourLayer.setOpacity(0.5);
+  } else if (state.contourVisible) {
+    // Contour only - full opacity
+    state.contourLayer.setOpacity(1.0);
   }
 }
 
@@ -894,6 +1013,16 @@ function setupEventListeners() {
   // Grid labels toggle
   document.getElementById('grid-labels-toggle').addEventListener('change', (e) => {
     toggleGridLabels(e.target.checked);
+  });
+  
+  // Terrain layer toggle
+  document.getElementById('terrain-layer-toggle').addEventListener('change', (e) => {
+    toggleTerrainLayer(e.target.checked);
+  });
+  
+  // Contour layer toggle
+  document.getElementById('contour-layer-toggle').addEventListener('change', (e) => {
+    toggleContourLayer(e.target.checked);
   });
   
   // Dark mode toggle
