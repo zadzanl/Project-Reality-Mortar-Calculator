@@ -114,7 +114,6 @@ The calculator will open automatically at `http://localhost:8080` (if the port i
 
 ## Documentation
 
-- [BUILD.md](BUILD.md) - Building portable executables and releases
 - [calculator/README.md](calculator/README.md) - Frontend documentation
 - [processor/README.md](processor/README.md) - Map processing guide
 - [openspec/project.md](openspec/project.md) - Technical context

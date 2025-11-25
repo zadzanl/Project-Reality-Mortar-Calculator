@@ -54,6 +54,27 @@ jobs:
           python -c "import os; maps = len([d for d in os.listdir('processed_maps') if os.path.isdir(os.path.join('processed_maps', d))]); print(f'Found {maps} processed maps'); exit(0 if maps > 0 else 1)"
         shell: bash
 
+      - name: Verify contour maps exist
+        run: |
+          echo "Checking contour maps..."
+          python -c "
+          import os
+          maps_dir = 'processed_maps'
+          total = 0
+          with_contour = 0
+          for d in os.listdir(maps_dir):
+              map_path = os.path.join(maps_dir, d)
+              if os.path.isdir(map_path):
+                  total += 1
+                  if os.path.exists(os.path.join(map_path, 'contourmap.png')):
+                      with_contour += 1
+          print(f'Contour maps: {with_contour}/{total}')
+          if with_contour == 0:
+              print('WARNING: No contour maps found!')
+              exit(1)
+          "
+        shell: bash
+
       - name: Build executable with PyInstaller
         run: |
           pyinstaller PR-Mortar-Calculator.spec
