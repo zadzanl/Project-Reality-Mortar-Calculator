@@ -5,5 +5,12 @@
   "grid_scale": 157.53846153846155,
   "heightmap_resolution": 1025,
   "processed_at": "2025-11-19T08:57:04.296933Z",
-  "format_version": "1.0"
+  "format_version": "1.0",
+  "contourmap": {
+    "file": "contourmap.png",
+    "resolution": "2048x2048",
+    "generated_at": "2025-11-25T05:12:10.501597Z",
+    "thin_interval_m": 5,
+    "thick_interval_m": 15
+  }
 }
