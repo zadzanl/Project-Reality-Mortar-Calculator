@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">PR Mortar Calculator</string>
+    <string name="title_activity_main">PR Mortar Calculator</string>
+    <string name="package_name">com.projectreality.mortarcalculator</string>
+    <string name="custom_url_scheme">com.projectreality.mortarcalculator</string>
+</resources>

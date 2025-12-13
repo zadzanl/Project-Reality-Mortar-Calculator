@@ -1,11 +1,19 @@
 {
   "name": "project-reality-mortar-calculator",
-  "version": "0.0.1",
-  "description": "Project Reality Mortar Calculator - Unit tests for ballistics and coordinates",
+  "version": "1.0.0",
+  "description": "Project Reality Mortar Calculator - Offline Android app for calculating mortar firing solutions",
   "type": "module",
   "scripts": {
-    "test": "node calculator/tests/run-tests.js"
+    "test": "node calculator/tests/run-tests.js",
+    "android:sync": "cap sync android",
+    "android:build": "cap sync android && cd android && ./gradlew assembleDebug",
+    "android:run": "cap run android"
   },
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@capacitor/android": "^8.0.0",
+    "@capacitor/cli": "^7.4.4",
+    "@capacitor/core": "^8.0.0"
+  }
 }

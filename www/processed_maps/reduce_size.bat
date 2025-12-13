@@ -1,0 +1,2 @@
+:: filepath: c:\Projects\Project_Reality-Mortar-Calculator\processed_maps
+for /R "c:\Projects\Project_Reality-Mortar-Calculator\processed_maps" %%F in (*.png) do pngquant --quality=60-90 --speed=1 --strip --ext .png --force "%%~fF"

@@ -1,0 +1,16 @@
+{
+  "map_name": "merville",
+  "map_size": 4096,
+  "height_scale": 300,
+  "grid_scale": 315.0769230769231,
+  "heightmap_resolution": 513,
+  "processed_at": "2025-11-19T08:56:30.164849Z",
+  "format_version": "1.0",
+  "contourmap": {
+    "file": "contourmap.png",
+    "resolution": "2048x2048",
+    "generated_at": "2025-11-25T05:07:27.778238Z",
+    "thin_interval_m": 5,
+    "thick_interval_m": 15
+  }
+}
