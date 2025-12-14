@@ -12,6 +12,8 @@ on:
 jobs:
   build-android:
     name: Build Android APK
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
 
     steps:
