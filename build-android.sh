@@ -107,6 +107,16 @@ echo "Paths updated for offline operation!"
 
 # Sync with Capacitor
 echo "Syncing with Capacitor..."
+# Ensure Node dependencies are installed so cap CLI resolves locally
+echo "Installing Node dependencies (npm ci)..."
+npm ci --no-audit --no-fund
+
+# Check Android SDK presence
+if [ -z "$ANDROID_HOME" ] && [ ! -f "android/local.properties" ]; then
+  echo "WARNING: ANDROID_HOME not set and android/local.properties not found."
+  echo "Please set ANDROID_HOME or create android/local.properties with sdk.dir=/path/to/android/sdk"
+fi
+
 npx cap sync android
 
 # Build APK
