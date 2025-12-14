@@ -19,8 +19,10 @@ The Android app is a WebView wrapper that bundles the web-based mortar calculato
 ### For Building the APK
 
 1. **Java Development Kit (JDK) 21**
-   - Required by Capacitor 8.x
+   - Required by Capacitor 7.x
    - Download: [OpenJDK 21](https://adoptium.net/) or use system package manager
+   - Ensure `JAVA_HOME` environment variable is set and points to JDK 21
+   - Verify installation: `java -version` should show version 21
 
 2. **Android SDK**
    - Android Studio (recommended) OR
@@ -169,7 +171,10 @@ Key configuration files:
 
 **"Invalid source release: 21"**
 - Install JDK 21 (not JDK 17 or lower)
-- Update JAVA_HOME environment variable
+- Set JAVA_HOME environment variable to point to JDK 21 installation
+- On Linux/macOS: `export JAVA_HOME=/path/to/jdk-21`
+- On Windows: Set system environment variable `JAVA_HOME=C:\path\to\jdk-21`
+- Verify with: `java -version` and `echo $JAVA_HOME` (or `echo %JAVA_HOME%` on Windows)
 
 **"Duplicate class kotlin.xxx"**
 - Already fixed in build.gradle with dependency resolution
@@ -265,11 +270,11 @@ Project-Reality-Mortar-Calculator/
 
 ### Technologies Used
 
-- **Capacitor 8.0** - Native wrapper framework
+- **Capacitor 7.0** - Native wrapper framework
 - **Android WebView** - Web rendering engine
 - **Leaflet.js** - Map library (bundled locally)
 - **Gradle 8.11** - Build system
-- **Java 21** - Required by Capacitor 8
+- **Java 21** - Required by Capacitor 7
 
 ### Offline Operation
 

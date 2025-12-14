@@ -12,8 +12,8 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@capacitor/android": "^8.0.0",
-    "@capacitor/cli": "^7.4.4",
-    "@capacitor/core": "^8.0.0"
+    "@capacitor/android": "^7.0.0",
+    "@capacitor/cli": "^7.0.0",
+    "@capacitor/core": "^7.0.0"
   }
 }
