@@ -89,15 +89,17 @@ The calculator will open automatically at `http://localhost:8080` (if the port i
 **Build from source or use pre-built APK:**
 
 See detailed instructions in [ANDROID.md](ANDROID.md) for:
-- Building the Android APK
+- Building the Android APK locally or via GitHub Actions
 - Installing on your device
 - Requirements and troubleshooting
 
-Quick build:
+Quick local build:
 ```bash
 ./build-android.sh       # Linux/Mac
 build-android.bat        # Windows
 ```
+
+Or use GitHub Actions (in the Actions tab → Build Android APK workflow)
 
 The APK will be at: `android/app/build/outputs/apk/debug/app-debug.apk`
 

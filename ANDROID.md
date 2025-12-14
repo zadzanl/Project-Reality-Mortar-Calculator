@@ -65,6 +65,24 @@ These scripts will:
 3. Sync assets with Capacitor
 4. Build the debug APK
 
+### GitHub Actions (CI/CD)
+
+The repository includes a GitHub Actions workflow that automatically builds the APK:
+
+1. Go to the **Actions** tab in the GitHub repository
+2. Select **Build Android APK** workflow
+3. Click **Run workflow**
+4. Enter a version tag (e.g., `v1.0.0`)
+5. Click **Run workflow**
+
+The workflow will:
+- Build the APK with Java 21 and Node.js 20
+- Run verification checks
+- Upload the APK as an artifact
+- Create a GitHub Release with the APK attached
+
+**Workflow file:** `.github/workflows/build-android.yml`
+
 ### Manual Build Steps
 
 If you prefer to build manually or need to troubleshoot:
