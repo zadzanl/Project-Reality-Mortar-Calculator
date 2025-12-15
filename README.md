@@ -101,7 +101,7 @@ build-android.bat        # Windows
 
 Or use GitHub Actions (in the Actions tab → Build Android APK workflow)
 
-The APK will be at: `android/app/build/outputs/apk/debug/app-debug.apk`
+The APK will be at: `android/app/build/outputs/apk/debug/pr-mortar-calc-debug.apk`
 
 ## Usage
 

@@ -91,9 +91,9 @@ jobs:
 
       - name: Verify APK was created
         run: |
-          if [ -f android/app/build/outputs/apk/debug/app-debug.apk ]; then
+          if [ -f android/app/build/outputs/apk/debug/pr-mortar-calc-debug.apk ]; then
             echo "✓ APK created successfully"
-            ls -lh android/app/build/outputs/apk/debug/app-debug.apk
+            ls -lh android/app/build/outputs/apk/debug/pr-mortar-calc-debug.apk
           else
             echo "✗ APK not found!"
             exit 1
@@ -102,23 +102,29 @@ jobs:
       - name: Rename APK with version
         run: |
           cd android/app/build/outputs/apk/debug
-          mv app-debug.apk PR-Mortar-Calculator-Android-${{ inputs.version }}.apk
-          ls -lh PR-Mortar-Calculator-Android-${{ inputs.version }}.apk
+          VERSION="$VERSION_INPUT"
+          mv pr-mortar-calc-debug.apk "PR-Mortar-Calculator-Android-${VERSION}.apk"
+          ls -lh "PR-Mortar-Calculator-Android-${VERSION}.apk"
+        env:
+          VERSION_INPUT: ${{ inputs.version }}
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: PR-Mortar-Calculator-Android
-          path: android/app/build/outputs/apk/debug/PR-Mortar-Calculator-Android-${{ inputs.version }}.apk
+          path: android/app/build/outputs/apk/debug/PR-Mortar-Calculator-Android-*.apk
           retention-days: 90
           if-no-files-found: error
 
       - name: Calculate APK size
         id: apk-size
         run: |
-          APK_SIZE=$(du -h android/app/build/outputs/apk/debug/PR-Mortar-Calculator-Android-${{ inputs.version }}.apk | cut -f1)
+          VERSION="$VERSION_INPUT"
+          APK_SIZE=$(du -h "android/app/build/outputs/apk/debug/PR-Mortar-Calculator-Android-${VERSION}.apk" | cut -f1)
           echo "size=$APK_SIZE" >> $GITHUB_OUTPUT
           echo "APK Size: $APK_SIZE"
+        env:
+          VERSION_INPUT: ${{ inputs.version }}
 
   create-android-release:
     name: Create Android GitHub Release
@@ -149,7 +155,7 @@ jobs:
           draft: false
           prerelease: false
           generate_release_notes: true
-          files: release-artifacts/PR-Mortar-Calculator-Android-${{ inputs.version }}.apk
+          files: release-artifacts/PR-Mortar-Calculator-Android-*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

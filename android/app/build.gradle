@@ -28,6 +28,60 @@ android {
     }
 }
 
+// AGP 8+ does not officially support customizing the APK output name.
+// For reproducible builds and to keep scripts/CI stable, create a secondary
+// copy of the generated debug APK with the expected filename.
+afterEvaluate {
+    def apkOutputDir = file("${buildDir}/outputs/apk")
+    def debugApkDir = file("${buildDir}/outputs/apk/debug")
+    def targetDebugApk = file("${buildDir}/outputs/apk/debug/pr-mortar-calc-debug.apk")
+
+    tasks.register("renameDebugApk") {
+        group = "build"
+        description = "Create pr-mortar-calc-debug.apk next to the generated debug APK"
+
+        doLast {
+            if (!debugApkDir.exists()) {
+                logger.lifecycle("Debug APK directory not found: ${debugApkDir}")
+                return
+            }
+
+            // Prefer the conventional module output (app-debug.apk), but fall back to any *-debug.apk.
+            File sourceApk = new File(debugApkDir, "app-debug.apk")
+            if (!sourceApk.exists()) {
+                def candidates = debugApkDir.listFiles()?.findAll { f ->
+                    f.isFile() && f.name.endsWith("-debug.apk") && !f.name.contains("androidTest")
+                } ?: []
+                if (!candidates.isEmpty()) {
+                    sourceApk = candidates.sort { a, b -> a.name <=> b.name }.first()
+                }
+            }
+
+            if (!sourceApk.exists()) {
+                logger.lifecycle("No debug APK found under: ${apkOutputDir}")
+                return
+            }
+
+            if (targetDebugApk.exists()) {
+                targetDebugApk.delete()
+            }
+
+            copy {
+                from sourceApk
+                into debugApkDir
+                rename { "pr-mortar-calc-debug.apk" }
+            }
+
+            logger.lifecycle("Created: ${targetDebugApk}")
+        }
+    }
+
+    // Ensure the file is created when building debug.
+    tasks.matching { it.name == "assembleDebug" }.configureEach {
+        finalizedBy("renameDebugApk")
+    }
+}
+
 repositories {
     flatDir{
         dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'

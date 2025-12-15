@@ -16,6 +16,3 @@ www/
 .vscode/
 *.iml
 .DS_Store
-
-# Package-lock for npm
-package-lock.json

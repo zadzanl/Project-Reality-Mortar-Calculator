@@ -23,6 +23,9 @@ The Android app is a WebView wrapper that bundles the web-based mortar calculato
    - Download: [OpenJDK 21](https://adoptium.net/) or use system package manager
    - Ensure `JAVA_HOME` environment variable is set and points to JDK 21
    - Verify installation: `java -version` should show version 21
+   - If you have multiple JDKs installed (for example, Java 21 and Java 25), make sure the build uses **Java 21**.
+     - On Windows, `build-android.bat` will try to auto-detect an installed JDK 21 and use it.
+     - To suppress the Java version check message entirely, set `SKIP_JAVA_CHECK=1` before running the build script.
 
 2. **Android SDK**
    - Android Studio (recommended) OR
@@ -119,7 +122,7 @@ gradlew.bat assembleDebug  # Windows
 #### 5. Locate the APK
 The built APK will be at:
 ```
-android/app/build/outputs/apk/debug/app-debug.apk
+android/app/build/outputs/apk/debug/pr-mortar-calc-debug.apk
 ```
 
 ## Installing on Android Device
@@ -136,7 +139,7 @@ android/app/build/outputs/apk/debug/app-debug.apk
 
 3. **Install using ADB**:
    ```bash
-   adb install android/app/build/outputs/apk/debug/app-debug.apk
+   adb install android/app/build/outputs/apk/debug/pr-mortar-calc-debug.apk
    ```
 
 ### Method 2: Direct Transfer

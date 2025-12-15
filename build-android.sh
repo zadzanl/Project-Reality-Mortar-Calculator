@@ -82,26 +82,30 @@ echo "Web assets copied successfully!"
 # Fix paths for offline use (convert absolute paths to relative paths)
 echo "Fixing paths for offline use..."
 
-# Detect OS for sed compatibility
+# Detect OS for sed compatibility and define a function
 if [[ "$OSTYPE" == "darwin"* ]]; then
   # macOS requires empty string after -i
-  SED_INPLACE="sed -i ''"
+  sed_inplace() {
+    sed -i '' "$@"
+  }
 else
   # Linux/Unix
-  SED_INPLACE="sed -i"
+  sed_inplace() {
+    sed -i "$@"
+  }
 fi
 
 # Fix HTML file
-$SED_INPLACE 's|href="/static/|href="static/|g' www/index.html
-$SED_INPLACE 's|src="/static/|src="static/|g' www/index.html
-$SED_INPLACE 's|href="/favicon.ico"|href="favicon.ico"|g' www/index.html
+sed_inplace 's|href="/static/|href="static/|g' www/index.html
+sed_inplace 's|src="/static/|src="static/|g' www/index.html
+sed_inplace 's|href="/favicon.ico"|href="favicon.ico"|g' www/index.html
 
 # Fix JavaScript files
-$SED_INPLACE "s|'/maps/list'|'mapsList.json'|g" www/static/js/app.js
-$SED_INPLACE 's|`/maps/${|`processed_maps/${|g' www/static/js/app.js
-$SED_INPLACE "s|'/static/lib/images/|'static/lib/images/|g" www/static/js/app.js
-$SED_INPLACE 's|`/maps/${mapName}/|`processed_maps/${mapName}/|g' www/static/js/heightmap.js
-$SED_INPLACE 's|/maps/\[mapName\]/|processed_maps/\[mapName\]/|g' www/static/js/heightmap.js
+sed_inplace "s|'/maps/list'|'mapsList.json'|g" www/static/js/app.js
+sed_inplace 's|`/maps/${|`processed_maps/${|g' www/static/js/app.js
+sed_inplace "s|'/static/lib/images/|'static/lib/images/|g" www/static/js/app.js
+sed_inplace 's|`/maps/${mapName}/|`processed_maps/${mapName}/|g' www/static/js/heightmap.js
+sed_inplace 's|/maps/\[mapName\]/|processed_maps/\[mapName\]/|g' www/static/js/heightmap.js
 
 echo "Paths updated for offline operation!"
 
@@ -134,5 +138,5 @@ echo "APK Location:"
 find app/build/outputs/apk -name "*.apk" -exec ls -lh {} \;
 echo ""
 echo "To install on device:"
-echo "  adb install app/build/outputs/apk/debug/app-debug.apk"
+echo "  adb install app/build/outputs/apk/debug/pr-mortar-calc-debug.apk"
 echo ""
