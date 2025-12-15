@@ -69,7 +69,14 @@
     <main class="calculator__content">
       <!-- Left Panel: Inputs -->
       <aside class="calculator__panel calculator__panel--inputs">
-        <h2 class="calculator__panel-title">Coordinates</h2>
+        <div class="calculator__panel-header">
+          <h2 class="calculator__panel-title">Coordinates</h2>
+          <button class="calculator__panel-toggle" id="toggle-inputs" type="button" aria-label="Toggle Coordinates Panel" aria-expanded="true">
+            <span class="toggle-icon">−</span>
+          </button>
+        </div>
+
+        <div class="calculator__panel-content" id="inputs-panel-content">
         
         <!-- Mortar Position -->
         <section class="calculator__section">
@@ -213,20 +220,28 @@
         <button id="calculate-btn" class="calculator__button calculator__button--calculate" disabled>
           Calculate Firing Solution
         </button>
+
+        </div><!-- End inputs-panel-content -->
       </aside>
 
       <!-- Center Panel: Map -->
       <section class="calculator__panel calculator__panel--map">
         <div id="map" class="calculator__map"></div>
         <div id="map-loading" class="calculator__map-loading">
-          <p>Select a map and click "Load Map" to begin</p>
+          <p>Select a map to begin</p>
         </div>
       </section>
 
       <!-- Right Panel: Results -->
       <aside class="calculator__panel calculator__panel--results">
-        <h2 class="calculator__panel-title">Firing Solution</h2>
-        
+        <div class="calculator__panel-header">
+          <h2 class="calculator__panel-title">Firing Solution</h2>
+          <button class="calculator__panel-toggle" id="toggle-results" type="button" aria-label="Toggle Firing Solution Panel" aria-expanded="true">
+            <span class="toggle-icon">−</span>
+          </button>
+        </div>
+
+        <div class="calculator__panel-content" id="results-panel-content">
         <div id="results-content" class="calculator__results">
           <div class="calculator__result-item">
             <span class="calculator__result-label">Distance:</span>
@@ -306,6 +321,7 @@
             </label>
           </div>
         </div>
+        </div><!-- End results-panel-content -->
       </aside>
     </main>
   </div>

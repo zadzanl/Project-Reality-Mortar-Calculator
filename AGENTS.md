@@ -144,6 +144,13 @@ elevation_in_meters = (pixel_value / 65535.0) * height_scale
 **Step 4: Decide if you need a proposal**
 - Read the section below: "When to Write a Proposal"
 
+### Android Build: Edit the Right Files
+
+- Treat `calculator/templates/` and `calculator/static/` as the source of truth.
+- Do not treat `www/` as a source file.
+- `build-android.bat` deletes and regenerates `www/` from `calculator/`.
+- After changing UI/code, run `build-android.bat` (or run `npx cap sync android`) to copy `www/` into `android/app/src/main/assets/public/`.
+
 ### Map Processing Workflow (Maintainer Only)
 
 **Map processing has two phases:**

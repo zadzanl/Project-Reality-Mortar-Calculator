@@ -19,6 +19,7 @@ import { loadMapData } from './heightmap.js';
 const state = {
   currentMap: null,
   mapData: null,
+  mapLoadToken: 0,
   leafletMap: null,
   mortarMarker: null,
   targetMarker: null,
@@ -53,6 +54,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   
   // Set up event listeners
   setupEventListeners();
+
+  // If a map was restored from localStorage, load it immediately.
+  // (Setting dropdown.value does not trigger the change handler.)
+  const dropdown = document.getElementById('map-dropdown');
+  if (dropdown && dropdown.value) {
+    loadSelectedMap();
+  }
   
   console.log('Application ready');
 });
@@ -108,11 +116,19 @@ async function loadSelectedMap() {
   }
   
   try {
+    const myToken = ++state.mapLoadToken;
+
     // Show loading state
     document.getElementById('map-loading').innerHTML = '<p>Loading map data...</p>';
     
     // Load map data
-    state.mapData = await loadMapData(mapName);
+    const loadedMapData = await loadMapData(mapName);
+    if (myToken !== state.mapLoadToken) {
+      // A newer map load started; ignore this result.
+      return;
+    }
+
+    state.mapData = loadedMapData;
     state.currentMap = mapName;
     
     // Store original map size for override reset
@@ -998,13 +1014,31 @@ function displayResults(solution) {
 // ====================================
 
 function setupEventListeners() {
-  // Map selection
+  // Collapsible panels (mobile)
+  initializeMobilePanels();
+
+  const toggleInputsBtn = document.getElementById('toggle-inputs');
+  if (toggleInputsBtn) {
+    toggleInputsBtn.addEventListener('click', () => togglePanel('inputs'));
+  }
+
+  const toggleResultsBtn = document.getElementById('toggle-results');
+  if (toggleResultsBtn) {
+    toggleResultsBtn.addEventListener('click', () => togglePanel('results'));
+  }
+
+  // Map selection (auto-load on selection)
   document.getElementById('map-dropdown').addEventListener('change', () => {
     const selected = document.getElementById('map-dropdown').value;
     document.getElementById('load-map-btn').disabled = !selected;
     try { localStorage.setItem('pr_last_map', selected); } catch (e) { /* ignore */ }
+
+    if (selected) {
+      loadSelectedMap();
+    }
   });
-  
+
+  // Keep the button as a desktop fallback / manual reload.
   document.getElementById('load-map-btn').addEventListener('click', loadSelectedMap);
   
   // Coordinate inputs - update displays
@@ -1090,6 +1124,68 @@ function updateGridDisplays() {
   const targetKeypad = document.getElementById('target-keypad').value;
   document.getElementById('target-grid-display').textContent = 
     formatGridReference(targetColumn, targetRow, targetKeypad);
+}
+
+// ====================================
+// MOBILE UI HELPERS
+// ====================================
+
+function isMobileLayout() {
+  // Keep in sync with the CSS breakpoint in styles.css
+  return window.matchMedia && window.matchMedia('(max-width: 900px), (max-height: 500px)').matches;
+}
+
+function setPanelCollapsed(panelType, collapsed) {
+  const panel = document.querySelector(`.calculator__panel--${panelType}`);
+  const toggleBtn = document.getElementById(`toggle-${panelType}`);
+  const toggleIcon = toggleBtn ? toggleBtn.querySelector('.toggle-icon') : null;
+
+  if (!panel) return;
+
+  if (collapsed) {
+    panel.classList.add('collapsed');
+    if (toggleIcon) toggleIcon.textContent = '+';
+    if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'false');
+  } else {
+    panel.classList.remove('collapsed');
+    if (toggleIcon) toggleIcon.textContent = '−';
+    if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'true');
+  }
+}
+
+function initializeMobilePanels() {
+  // Start collapsed on mobile so the map has room.
+  if (isMobileLayout()) {
+    setPanelCollapsed('inputs', true);
+    setPanelCollapsed('results', true);
+  } else {
+    // Ensure expanded on desktop.
+    setPanelCollapsed('inputs', false);
+    setPanelCollapsed('results', false);
+  }
+
+  // Keep in sync on rotation / resize.
+  window.addEventListener('resize', () => {
+    if (!isMobileLayout()) {
+      setPanelCollapsed('inputs', false);
+      setPanelCollapsed('results', false);
+    }
+  });
+}
+
+function togglePanel(panelType) {
+  const panel = document.querySelector(`.calculator__panel--${panelType}`);
+  if (!panel) return;
+
+  const willExpand = panel.classList.contains('collapsed');
+
+  if (isMobileLayout() && willExpand) {
+    // Only one panel open at a time on mobile.
+    const other = panelType === 'inputs' ? 'results' : 'inputs';
+    setPanelCollapsed(other, true);
+  }
+
+  setPanelCollapsed(panelType, !willExpand);
 }
 
 // ====================================
