@@ -125,6 +125,20 @@ body.dark-mode {
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
+  /* Global app zoom (80%) - simple and widely supported in Chromium/WebView */
+  zoom: 0.8;
+}
+
+/* Fallback for browsers that do not support 'zoom' */
+@supports not (zoom: 1) {
+  .calculator {
+    /* Use transform fallback and compensate container sizing so layout stays consistent */
+    transform: scale(0.8);
+    transform-origin: 0 0;
+    width: calc(100% / 0.8);
+    height: calc(100vh / 0.8);
+    overflow: hidden;
+  }
 }
 
 .calculator__header {
@@ -161,6 +175,39 @@ body.dark-mode {
 .calculator__map-selector .calculator__button {
   width: auto;
   padding: 0.5rem 0.75rem;
+}
+
+/* Theme Toggle Styles */
+.theme-toggle {
+  display: flex;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 2px;
+  gap: 2px;
+  margin-left: 0.5rem;
+  flex-shrink: 0; /* Prevent shrinking */
+}
+
+.theme-toggle input {
+  display: none;
+}
+
+.theme-toggle label {
+  padding: 4px 12px;
+  border-radius: 16px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: all 0.2s;
+  line-height: 1;
+}
+
+.theme-toggle input:checked + label {
+  background-color: var(--btn-primary);
+  color: white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 
 .calculator__content {
@@ -294,6 +341,39 @@ body.dark-mode {
   outline: none;
   border-color: var(--border-focus);
   box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+/* ====================================
+   THEME TOGGLE CONTROL
+   ==================================== */
+
+.theme-toggle {
+  display: flex;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 2px;
+  gap: 2px;
+}
+
+.theme-toggle input {
+  display: none;
+}
+
+.theme-toggle label {
+  padding: 4px 12px;
+  border-radius: 16px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: all 0.2s;
+}
+
+.theme-toggle input:checked + label {
+  background-color: var(--btn-primary);
+  color: white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 
 .calculator__dropdown--small {
@@ -648,4 +728,146 @@ body.dark-mode .calculator__result-elevation {
 /* Range circle subtle stroke */
 .range-circle {
   stroke: var(--range-circle-stroke);
+}
+
+/* ====================================
+   LANDSCAPE MODE OPTIMIZATIONS
+   ==================================== */
+
+/* 
+   Specific override for mobile landscape (e.g., phones rotated sideways).
+   Targeting max-height: 600px covers most phones in landscape while excluding tablets/desktops.
+   Uses a 2-column grid: Map on left, Controls on right.
+*/
+@media (orientation: landscape) and (max-height: 600px) {
+  
+  /* Compact Header */
+  .calculator__header {
+    flex-direction: row !important;
+    padding: 0.25rem 0.5rem !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    gap: 0.5rem !important;
+    align-items: center !important;
+  }
+
+  .calculator__title {
+    display: none !important;
+  }
+
+  .calculator__map-selector {
+    flex-direction: row !important;
+    width: auto !important;
+    flex: 1;
+    gap: 0.5rem !important;
+    align-items: center !important;
+  }
+  
+  .calculator__map-selector label {
+    display: none !important;
+  }
+  
+  .calculator__map-selector .calculator__dropdown {
+    padding: 0.1rem 0.5rem !important;
+    height: 30px !important;
+    font-size: 0.85rem !important;
+    width: auto !important;
+    flex: 1;
+  }
+
+  /* Hide extra header controls if space is tight */
+  .calculator__map-size-override {
+    margin-left: 0.5rem !important;
+  }
+  
+  .theme-toggle {
+    margin-left: auto !important; /* Push to right */
+  }
+
+  /* 2-Column Grid Layout */
+  .calculator__content {
+    display: grid !important;
+    grid-template-columns: 1fr 280px !important; /* Map takes rest, Sidebar fixed */
+    /* Default: Inputs open (1fr), Results closed (auto) */
+    grid-template-rows: 1fr auto !important; 
+    grid-template-areas: 
+      "map inputs"
+      "map results" !important;
+    overflow: hidden !important;
+    flex-direction: row !important; /* Override flex-col from other media queries */
+  }
+
+  /* Dynamic row sizing based on collapsed state */
+  .calculator__content:has(.calculator__panel--inputs.collapsed) {
+    grid-template-rows: auto 1fr !important; /* Inputs closed (auto), Results open (1fr) */
+  }
+
+  /* Map Panel */
+  .calculator__panel--map {
+    grid-area: map;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    border-bottom: none !important;
+    border-right: 1px solid var(--border-color) !important;
+    order: unset !important;
+  }
+
+  /* Inputs Panel */
+  .calculator__panel--inputs {
+    grid-area: inputs;
+    width: 100% !important;
+    height: 100% !important;
+    overflow-y: auto !important;
+    padding: 0.5rem !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    border-right: none !important;
+    order: unset !important;
+  }
+
+  /* Results Panel */
+  .calculator__panel--results {
+    grid-area: results;
+    width: 100% !important;
+    height: 100% !important;
+    overflow-y: auto !important;
+    padding: 0.5rem !important;
+    border-left: none !important;
+    order: unset !important;
+  }
+
+  /* Compact internal elements */
+  .calculator__section {
+    margin-bottom: 0.5rem !important;
+  }
+  
+  .calculator__panel-header {
+    margin-bottom: 0.5rem !important;
+    padding-bottom: 0.25rem !important;
+    min-height: auto !important;
+  }
+  
+  .calculator__panel-title {
+    font-size: 1rem !important;
+  }
+
+  /* Show collapse toggles in landscape */
+  .calculator__panel-toggle {
+    display: block !important;
+  }
+  
+  /* Compact result items */
+  .calculator__result-elevation {
+    padding: 0.5rem !important;
+    margin: 0.5rem 0 !important;
+  }
+  
+  .calculator__result-elevation-mils {
+    font-size: 1.75rem !important;
+  }
+  
+  /* Hide the big calculate button in landscape inputs panel to save space (auto-calc works) */
+  .calculator__button--calculate {
+    display: none !important;
+  }
 }

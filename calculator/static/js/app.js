@@ -291,6 +291,15 @@ function initializeLeafletMap() {
     handleMapClick(e);
   });
   
+  // Ensure proper rendering after app scaling (e.g., CSS zoom). Small timeout lets layout settle.
+  setTimeout(() => {
+    try {
+      if (state.leafletMap) state.leafletMap.invalidateSize();
+    } catch (e) {
+      console.warn('Failed to invalidate Leaflet map size:', e);
+    }
+  }, 50);
+  
   console.log('Leaflet map initialized');
 }
 
@@ -1099,14 +1108,32 @@ function setupEventListeners() {
     toggleContourLayer(e.target.checked);
   });
   
-  // Dark mode toggle
-  document.getElementById('dark-mode-toggle').addEventListener('change', (e) => {
-    toggleTheme(e.target.checked);
+  // Theme toggle (Radio buttons)
+  const themeRadios = document.querySelectorAll('input[name="theme"]');
+  themeRadios.forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      if (e.target.checked) applyTheme(e.target.value);
+    });
   });
+
+  // Initialize theme on page load
+  const savedTheme = localStorage.getItem('pr_theme_mode') || 'dark';
+  const savedRadio = document.querySelector(`input[name="theme"][value="${savedTheme}"]`);
+  if (savedRadio) savedRadio.checked = true;
+  applyTheme(savedTheme);
   
   // Map size override
   document.getElementById('map-size-override').addEventListener('change', () => {
     applyMapSizeOverride();
+  });
+
+  // Ensure Leaflet map redraws when window size changes (helps with scaled views)
+  window.addEventListener('resize', () => {
+    if (state.leafletMap) {
+      try {
+        state.leafletMap.invalidateSize();
+      } catch (e) { /* ignore */ }
+    }
   });
 }
 
@@ -1132,7 +1159,7 @@ function updateGridDisplays() {
 
 function isMobileLayout() {
   // Keep in sync with the CSS breakpoint in styles.css
-  return window.matchMedia && window.matchMedia('(max-width: 900px), (max-height: 500px)').matches;
+  return window.matchMedia && window.matchMedia('(max-width: 900px), (max-height: 600px)').matches;
 }
 
 function setPanelCollapsed(panelType, collapsed) {
@@ -1193,23 +1220,23 @@ function togglePanel(panelType) {
 // ====================================
 
 /**
- * Toggle between light and dark themes
- * @param {boolean} enableDark - True for dark mode, false for light mode
+ * Apply theme based on mode: 'light' or 'dark'
+ * @param {string} mode - Theme mode ('light' or 'dark')
  */
-function toggleTheme(enableDark) {
+function applyTheme(mode) {
+  const isDark = mode === 'dark';
+  
+  if (isDark) {
+    document.documentElement.classList.add('dark-mode');
+    document.body.classList.add('dark-mode');
+  } else {
+    document.documentElement.classList.remove('dark-mode');
+    document.body.classList.remove('dark-mode');
+  }
+  
   try {
-    if (enableDark) {
-      // Set on both html and body so head initialization and runtime toggles align
-      document.documentElement.classList.add('dark-mode');
-      document.body.classList.add('dark-mode');
-      localStorage.setItem('pr_theme_mode', 'dark');
-      console.log('Theme: dark');
-    } else {
-      document.documentElement.classList.remove('dark-mode');
-      document.body.classList.remove('dark-mode');
-      localStorage.setItem('pr_theme_mode', 'light');
-      console.log('Theme: light');
-    }
+    localStorage.setItem('pr_theme_mode', mode);
+    console.log(`Theme: ${mode}`);
   } catch (e) {
     console.error('Failed to save theme preference:', e);
   }
