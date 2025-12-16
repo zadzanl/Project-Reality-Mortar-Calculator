@@ -170,13 +170,35 @@ body.dark-mode {
 
 /* Theme Toggle Styles */
 .theme-toggle {
+  display: flex;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 2px;
+  gap: 2px;
   margin-left: 0.5rem;
-  flex-shrink: 0;
+  flex-shrink: 0; /* Prevent shrinking */
 }
 
-/* Remove old radio-style toggle if present */
-.theme-toggle input[type="checkbox"] {
+.theme-toggle input {
+  display: none;
+}
+
+.theme-toggle label {
+  padding: 4px 12px;
+  border-radius: 16px;
   cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: all 0.2s;
+  line-height: 1;
+}
+
+.theme-toggle input:checked + label {
+  background-color: var(--btn-primary);
+  color: white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 
 .calculator__content {

@@ -104,11 +104,27 @@ export async function loadHeightmap(mapName) {
     if (resolvedUrl.endsWith('.gz') || resolvedUrl.endsWith('.gzip')) {
       // Decompress gzipped response
       const blob = await response.blob();
-      const ds = new DecompressionStream('gzip');
-      const decompressedStream = blob.stream().pipeThrough(ds);
-      const decompressedBlob = await new Response(decompressedStream).blob();
-      const text = await decompressedBlob.text();
-      heightmapData = JSON.parse(text);
+      
+      try {
+        if ('DecompressionStream' in window) {
+          const ds = new DecompressionStream('gzip');
+          const decompressedStream = blob.stream().pipeThrough(ds);
+          const decompressedBlob = await new Response(decompressedStream).blob();
+          const text = await decompressedBlob.text();
+          heightmapData = JSON.parse(text);
+        } else {
+          throw new Error('DecompressionStream not supported');
+        }
+      } catch (err) {
+        console.warn('DecompressionStream failed or not supported, falling back to pako:', err);
+        if (window.pako) {
+          const arrayBuffer = await blob.arrayBuffer();
+          const decompressed = window.pako.inflate(new Uint8Array(arrayBuffer), { to: 'string' });
+          heightmapData = JSON.parse(decompressed);
+        } else {
+          throw new Error('GZIP decompression failed: DecompressionStream not supported and pako not found');
+        }
+      }
     } else {
       // Plain JSON
       heightmapData = await response.json();
