@@ -59,10 +59,8 @@
           </select>
         </div>
         <div class="theme-toggle">
-          <label for="theme-checkbox" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.875rem; font-weight: 500;">
-            <input type="checkbox" id="theme-checkbox">
-            <span>Dark Mode</span>
-          </label>
+          <input type="checkbox" id="theme-checkbox">
+          <label for="theme-checkbox">Dark Mode</label>
         </div>
       </div>
     </header>
@@ -332,6 +330,8 @@
 
   <!-- Leaflet JS (bundled locally) -->
   <script src="/static/lib/leaflet.js"></script>
+  <!-- Pako for GZIP decompression (fallback) -->
+  <script src="/static/lib/pako.min.js"></script>
   
   <!-- Application JavaScript Modules -->
   <script type="module" src="/static/js/app.js"></script>
