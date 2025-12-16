@@ -17,6 +17,7 @@ body {
   line-height: 1.6;
   color: var(--text-primary);
   background-color: var(--bg-body);
+  overflow: hidden; /* Prevent scrollbars from scaled content */
 }
 
 /* ====================================
@@ -123,22 +124,12 @@ body.dark-mode {
 .calculator {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  /* Scale down to 80% */
+  height: 125vh; /* 100 / 0.8 */
+  width: 125vw;  /* 100 / 0.8 */
+  transform: scale(0.8);
+  transform-origin: 0 0;
   overflow: hidden;
-  /* Global app zoom (80%) - simple and widely supported in Chromium/WebView */
-  zoom: 0.8;
-}
-
-/* Fallback for browsers that do not support 'zoom' */
-@supports not (zoom: 1) {
-  .calculator {
-    /* Use transform fallback and compensate container sizing so layout stays consistent */
-    transform: scale(0.8);
-    transform-origin: 0 0;
-    width: calc(100% / 0.8);
-    height: calc(100vh / 0.8);
-    overflow: hidden;
-  }
 }
 
 .calculator__header {
@@ -179,35 +170,13 @@ body.dark-mode {
 
 /* Theme Toggle Styles */
 .theme-toggle {
-  display: flex;
-  background: var(--bg-input);
-  border: 1px solid var(--border-color);
-  border-radius: 20px;
-  padding: 2px;
-  gap: 2px;
   margin-left: 0.5rem;
-  flex-shrink: 0; /* Prevent shrinking */
+  flex-shrink: 0;
 }
 
-.theme-toggle input {
-  display: none;
-}
-
-.theme-toggle label {
-  padding: 4px 12px;
-  border-radius: 16px;
+/* Remove old radio-style toggle if present */
+.theme-toggle input[type="checkbox"] {
   cursor: pointer;
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: var(--text-secondary);
-  transition: all 0.2s;
-  line-height: 1;
-}
-
-.theme-toggle input:checked + label {
-  background-color: var(--btn-primary);
-  color: white;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 
 .calculator__content {

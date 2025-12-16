@@ -9,18 +9,18 @@
   <script>
     (function() {
       try {
-        const savedTheme = localStorage.getItem('pr_theme_mode');
-        const shouldDefaultDark = !savedTheme; // true when first-time user
-        const isDark = savedTheme === 'dark' || shouldDefaultDark;
-        if (isDark) {
+        const savedTheme = localStorage.getItem('pr_theme_mode') || 'dark';
+        
+        // Apply dark mode if theme is dark
+        if (savedTheme === 'dark') {
           // Add to documentElement so it applies before body exists
           document.documentElement.classList.add('dark-mode');
         }
 
         // When DOM loads: update the toggle state
         document.addEventListener('DOMContentLoaded', function() {
-          const checkbox = document.getElementById('dark-mode-toggle');
-          if (checkbox) checkbox.checked = isDark;
+          const checkbox = document.getElementById('theme-checkbox');
+          if (checkbox) checkbox.checked = (savedTheme === 'dark');
         });
       } catch (e) {
         console.error('Failed to load theme preference:', e);
@@ -58,9 +58,11 @@
             <option value="4096">4km (4096m)</option>
           </select>
         </div>
-        <div class="calculator__dark-mode-toggle" style="margin-left: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-          <input type="checkbox" id="dark-mode-toggle" style="cursor: pointer;">
-          <label for="dark-mode-toggle" style="font-size: 0.875rem; cursor: pointer;">Dark Mode</label>
+        <div class="theme-toggle">
+          <label for="theme-checkbox" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.875rem; font-weight: 500;">
+            <input type="checkbox" id="theme-checkbox">
+            <span>Dark Mode</span>
+          </label>
         </div>
       </div>
     </header>

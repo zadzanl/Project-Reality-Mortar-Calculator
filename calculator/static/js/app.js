@@ -291,15 +291,6 @@ function initializeLeafletMap() {
     handleMapClick(e);
   });
   
-  // Ensure proper rendering after app scaling (e.g., CSS zoom). Small timeout lets layout settle.
-  setTimeout(() => {
-    try {
-      if (state.leafletMap) state.leafletMap.invalidateSize();
-    } catch (e) {
-      console.warn('Failed to invalidate Leaflet map size:', e);
-    }
-  }, 50);
-  
   console.log('Leaflet map initialized');
 }
 
@@ -1108,32 +1099,22 @@ function setupEventListeners() {
     toggleContourLayer(e.target.checked);
   });
   
-  // Theme toggle (Radio buttons)
-  const themeRadios = document.querySelectorAll('input[name="theme"]');
-  themeRadios.forEach(radio => {
-    radio.addEventListener('change', (e) => {
-      if (e.target.checked) applyTheme(e.target.value);
+  // Theme toggle (Checkbox)
+  const themeCheckbox = document.getElementById('theme-checkbox');
+  if (themeCheckbox) {
+    themeCheckbox.addEventListener('change', (e) => {
+      applyTheme(e.target.checked ? 'dark' : 'light');
     });
-  });
+  }
 
   // Initialize theme on page load
   const savedTheme = localStorage.getItem('pr_theme_mode') || 'dark';
-  const savedRadio = document.querySelector(`input[name="theme"][value="${savedTheme}"]`);
-  if (savedRadio) savedRadio.checked = true;
+  if (themeCheckbox) themeCheckbox.checked = (savedTheme === 'dark');
   applyTheme(savedTheme);
   
   // Map size override
   document.getElementById('map-size-override').addEventListener('change', () => {
     applyMapSizeOverride();
-  });
-
-  // Ensure Leaflet map redraws when window size changes (helps with scaled views)
-  window.addEventListener('resize', () => {
-    if (state.leafletMap) {
-      try {
-        state.leafletMap.invalidateSize();
-      } catch (e) { /* ignore */ }
-    }
   });
 }
 
