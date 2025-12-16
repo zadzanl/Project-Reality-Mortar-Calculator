@@ -121,8 +121,6 @@ elevation_in_meters = (pixel_value / 65535.0) * height_scale
 - Multiple mortars or targets (only one of each in V1)
 - Save/load buttons (add placeholder buttons, but they do nothing)
 - 3D trajectory visualization (only 2D map in V1)
-- Real-time calculation while dragging (only calculate when button is clicked)
-- Mobile phone support (only desktop computers in V1)
 
 ### Before You Write Code
 

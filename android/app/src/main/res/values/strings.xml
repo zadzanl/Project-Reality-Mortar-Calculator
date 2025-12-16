@@ -4,4 +4,5 @@
     <string name="title_activity_main">PR Mortar Calculator</string>
     <string name="package_name">com.projectreality.mortarcalculator</string>
     <string name="custom_url_scheme">com.projectreality.mortarcalculator</string>
+    <string name="no_webview_text">This app requires Android System WebView (or Chrome) to run. Your emulator image may not include a WebView provider. Use a Google Play system image or install/enable Chrome/WebView, then relaunch.</string>
 </resources>

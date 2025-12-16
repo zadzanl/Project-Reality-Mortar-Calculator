@@ -54,6 +54,13 @@ jobs:
           cp calculator/templates/index.html www/
           cp -r processed_maps www/
           cp mapsList.json www/
+
+          # Android aapt strips the `.gz` extension from packaged assets.
+          # To keep heightmaps compressed in the APK, rename *.gz -> *.gzip in www/.
+          echo "Renaming compressed heightmaps for Android packaging..."
+          find www/processed_maps -type f -name '*.gz' -print0 | while IFS= read -r -d '' f; do
+            mv "$f" "${f%.gz}.gzip"
+          done
           
           echo "Web assets prepared successfully!"
 

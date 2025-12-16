@@ -79,6 +79,13 @@ cp mapsList.json www/
 
 echo "Web assets copied successfully!"
 
+# Android aapt strips the `.gz` extension from packaged assets.
+# To keep heightmaps compressed in the APK, rename *.gz -> *.gzip in www/.
+echo "Renaming compressed heightmaps for Android packaging..."
+find www/processed_maps -type f -name '*.gz' -print0 | while IFS= read -r -d '' f; do
+  mv "$f" "${f%.gz}.gzip"
+done
+
 # Fix paths for offline use (convert absolute paths to relative paths)
 echo "Fixing paths for offline use..."
 

@@ -61,21 +61,58 @@ export async function loadHeightmap(mapName) {
   }
   
   try {
-    // Load compressed heightmap (only .gz format is distributed)
-    const url = `/maps/${mapName}/heightmap.json.gz`;
-    const response = await fetch(url);
-    
-    if (!response.ok) {
-      throw new Error(`Failed to load heightmap: ${response.status} ${response.statusText}`);
+    // Android APK packaging (aapt) strips `.gz` and can inflate pre-gzipped assets,
+    // so we try multiple filename variants for maximum portability.
+    //
+    // Desktop/Flask:  /maps/<map>/heightmap.json.gz
+    // Android-safe:   /maps/<map>/heightmap.json.gzip  (rename .gz -> .gzip during Android build)
+    // Fallback:       /maps/<map>/heightmap.json       (when aapt strips .gz to .json)
+    const baseUrl = `/maps/${mapName}/heightmap.json`;
+    const candidates = [
+      `${baseUrl}.gz`,
+      `${baseUrl}.gzip`,
+      baseUrl
+    ];
+
+    let response = null;
+    let resolvedUrl = null;
+    let lastStatus = null;
+    let lastStatusText = null;
+
+    for (const url of candidates) {
+      // eslint-disable-next-line no-await-in-loop
+      const r = await fetch(url);
+      if (r.ok) {
+        response = r;
+        resolvedUrl = url;
+        break;
+      }
+      lastStatus = r.status;
+      lastStatusText = r.statusText;
+
+      // Only fall back on "not found"; other failures should surface.
+      if (r.status !== 404) {
+        throw new Error(`Failed to load heightmap: ${r.status} ${r.statusText}`);
+      }
     }
-    
-    // Decompress gzipped response
-    const blob = await response.blob();
-    const ds = new DecompressionStream('gzip');
-    const decompressedStream = blob.stream().pipeThrough(ds);
-    const decompressedBlob = await new Response(decompressedStream).blob();
-    const text = await decompressedBlob.text();
-    const heightmapData = JSON.parse(text);
+
+    if (!response || !resolvedUrl) {
+      throw new Error(`Failed to load heightmap: ${lastStatus ?? 404} ${lastStatusText ?? 'Not Found'}`);
+    }
+
+    let heightmapData;
+    if (resolvedUrl.endsWith('.gz') || resolvedUrl.endsWith('.gzip')) {
+      // Decompress gzipped response
+      const blob = await response.blob();
+      const ds = new DecompressionStream('gzip');
+      const decompressedStream = blob.stream().pipeThrough(ds);
+      const decompressedBlob = await new Response(decompressedStream).blob();
+      const text = await decompressedBlob.text();
+      heightmapData = JSON.parse(text);
+    } else {
+      // Plain JSON
+      heightmapData = await response.json();
+    }
     
     // Validate data structure
     if (!heightmapData.resolution || !heightmapData.data || !Array.isArray(heightmapData.data)) {

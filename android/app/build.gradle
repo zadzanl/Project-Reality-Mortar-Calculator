@@ -11,9 +11,12 @@ android {
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
-             // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
-             // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61
-            ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+            // IMPORTANT: keep pre-compressed heightmap assets as-is.
+            // Capacitor serves these from APK assets; if aapt recompresses *.gz,
+            // large fetches can fail (seen as "404 OK" when loading heightmaps).
+            // Also avoid using the literal `.gz` extension for assets on Android (aapt strips it),
+            // so the build scripts rename `*.gz` -> `*.gzip` for Android packaging.
+            noCompress 'gz', 'gzip'
         }
     }
     buildTypes {
@@ -98,6 +101,7 @@ dependencies {
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
     implementation project(':capacitor-cordova-android-plugins')
+    implementation "androidx.webkit:webkit:$androidxWebkitVersion"
     
     // Fix Kotlin stdlib version conflicts
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.0")

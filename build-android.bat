@@ -22,6 +22,13 @@ copy /Y calculator\templates\index.html www\
 xcopy /E /I /Y processed_maps www\processed_maps
 copy /Y mapsList.json www\
 
+REM Android aapt strips the .gz extension from packaged assets.
+REM To keep heightmaps compressed in the APK, rename *.gz -> *.gzip in www/.
+echo Renaming compressed heightmaps for Android packaging...
+for /r www\processed_maps %%F in (*.gz) do (
+	ren "%%F" "%%~nF.gzip"
+)
+
 echo Web assets copied successfully!
 
 REM Fix paths for offline use (convert absolute paths to relative paths)
