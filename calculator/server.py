@@ -59,14 +59,8 @@ def index():
 
 @app.route('/favicon.ico')
 def favicon():
-        # Return a minimal SVG favicon to avoid 404s when the browser requests /favicon.ico
-        svg = """
-<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'>
-    <rect width='100%' height='100%' fill='#2c3e50'/>
-    <text x='50%' y='50%' font-size='10' text-anchor='middle' fill='#ffffff' dy='.35em'>PR</text>
-</svg>
-"""
-        return Response(svg, mimetype='image/svg+xml')
+    """Serve the favicon from the static directory."""
+    return send_from_directory(static_folder, 'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 
 @app.route('/static/<path:filename>')
