@@ -1,8 +1,7 @@
 ---
 description: Research context and return findings to parent agent
 argument-hint: Research goal or problem statement
-tools: ['search', 'usages', 'problems', 'changes', 'testFailure', 'fetch', 'githubRepo']
-model: Claude Sonnet 4.5 (copilot)
+tools: ['vscode/getProjectSetupInfo', 'vscode/newWorkspace', 'vscode/runCommand', 'execute/getTerminalOutput', 'execute/createAndRunTask', 'execute/runNotebookCell', 'execute/runInTerminal', 'read', 'search/changes', 'search/fileSearch', 'search/listDirectory', 'search/searchResults', 'search/textSearch', 'search/usages', 'web', 'exa/get_code_context_exa', 'mcp-omnisearch/exa_process', 'mcp-omnisearch/web_search', 'sequentialthinking/*', 'tavily/tavily-extract', 'agent', 'todo']
 ---
 You are a PLANNING SUBAGENT called by a parent CONDUCTOR agent.
 
