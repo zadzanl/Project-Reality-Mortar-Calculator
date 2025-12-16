@@ -37,7 +37,14 @@ jobs:
           cache: 'npm'
 
       - name: Install Node.js dependencies
-        run: npm install
+        run: npm ci
+
+      - name: Verify critical assets
+        run: |
+          if [ ! -f calculator/static/lib/pako.min.js ]; then
+            echo "Error: pako.min.js not found!"
+            exit 1
+          fi
 
       - name: Verify processed maps exist
         run: |
@@ -88,6 +95,10 @@ jobs:
 
       - name: Grant execute permission for gradlew
         run: chmod +x android/gradlew
+
+      - name: Accept Android Licenses
+        run: |
+          yes | ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
       - name: Build Android Debug APK
         run: |
