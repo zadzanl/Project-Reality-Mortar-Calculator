@@ -1,0 +1,128 @@
+apply plugin: 'com.android.application'
+
+android {
+    namespace "com.projectreality.mortarcalculator"
+    compileSdk rootProject.ext.compileSdkVersion
+    defaultConfig {
+        applicationId "com.projectreality.mortarcalculator"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        aaptOptions {
+            // IMPORTANT: keep pre-compressed heightmap assets as-is.
+            // Capacitor serves these from APK assets; if aapt recompresses *.gz,
+            // large fetches can fail (seen as "404 OK" when loading heightmaps).
+            // Also avoid using the literal `.gz` extension for assets on Android (aapt strips it),
+            // so the build scripts rename `*.gz` -> `*.gzip` for Android packaging.
+            noCompress 'gz', 'gzip'
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
+    }
+}
+
+// AGP 8+ does not officially support customizing the APK output name.
+// For reproducible builds and to keep scripts/CI stable, create a secondary
+// copy of the generated debug APK with the expected filename.
+afterEvaluate {
+    def apkOutputDir = file("${buildDir}/outputs/apk")
+    def debugApkDir = file("${buildDir}/outputs/apk/debug")
+    def targetDebugApk = file("${buildDir}/outputs/apk/debug/pr-mortar-calc-debug.apk")
+
+    tasks.register("renameDebugApk") {
+        group = "build"
+        description = "Create pr-mortar-calc-debug.apk next to the generated debug APK"
+
+        doLast {
+            if (!debugApkDir.exists()) {
+                logger.lifecycle("Debug APK directory not found: ${debugApkDir}")
+                return
+            }
+
+            // Prefer the conventional module output (app-debug.apk), but fall back to any *-debug.apk.
+            File sourceApk = new File(debugApkDir, "app-debug.apk")
+            if (!sourceApk.exists()) {
+                def candidates = debugApkDir.listFiles()?.findAll { f ->
+                    f.isFile() && f.name.endsWith("-debug.apk") && !f.name.contains("androidTest")
+                } ?: []
+                if (!candidates.isEmpty()) {
+                    sourceApk = candidates.sort { a, b -> a.name <=> b.name }.first()
+                }
+            }
+
+            if (!sourceApk.exists()) {
+                logger.lifecycle("No debug APK found under: ${apkOutputDir}")
+                return
+            }
+
+            if (targetDebugApk.exists()) {
+                targetDebugApk.delete()
+            }
+
+            copy {
+                from sourceApk
+                into debugApkDir
+                rename { "pr-mortar-calc-debug.apk" }
+            }
+
+            logger.lifecycle("Created: ${targetDebugApk}")
+        }
+    }
+
+    // Ensure the file is created when building debug.
+    tasks.matching { it.name == "assembleDebug" }.configureEach {
+        finalizedBy("renameDebugApk")
+    }
+}
+
+repositories {
+    flatDir{
+        dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
+    implementation "androidx.coordinatorlayout:coordinatorlayout:$androidxCoordinatorLayoutVersion"
+    implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion"
+    implementation project(':capacitor-android')
+    testImplementation "junit:junit:$junitVersion"
+    androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
+    implementation project(':capacitor-cordova-android-plugins')
+    implementation "androidx.webkit:webkit:$androidxWebkitVersion"
+    
+    // Fix Kotlin stdlib version conflicts
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.0")
+}
+
+configurations.all {
+    resolutionStrategy {
+        // Force all Kotlin stdlib dependencies to use the same version
+        force 'org.jetbrains.kotlin:kotlin-stdlib:1.9.0'
+        force 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.0'
+        force 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.0'
+    }
+}
+
+apply from: 'capacitor.build.gradle'
+
+try {
+    def servicesJSON = file('google-services.json')
+    if (servicesJSON.text) {
+        apply plugin: 'com.google.gms.google-services'
+    }
+} catch(Exception e) {
+    logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
+}

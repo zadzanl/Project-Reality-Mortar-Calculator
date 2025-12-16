@@ -94,7 +94,7 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=None,  # Add icon path here if you create one: 'calculator/static/icon.ico'
+    icon='calculator/static/icon.ico',
 )
 
 coll = COLLECT(

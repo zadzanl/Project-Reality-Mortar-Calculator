@@ -1,0 +1,13 @@
+{
+  "appId": "com.projectreality.mortarcalculator",
+  "appName": "PR Mortar Calculator",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": false,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": false
+  }
+}

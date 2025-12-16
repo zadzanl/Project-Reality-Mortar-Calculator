@@ -1,0 +1,18 @@
+# Node modules
+node_modules/
+
+# Android build outputs
+android/app/build/
+android/.gradle/
+android/build/
+android/local.properties
+android/capacitor-cordova-android-plugins/build/
+
+# www directory (generated from calculator files)
+www/
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+.DS_Store

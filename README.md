@@ -2,6 +2,8 @@
 
 Calculate accurate firing solutions for mortars in Project Reality: BF2. Takes into account height deltas automatically. Support 1.8.1.2 (November 2025)
 
+**Now available for Android!** See [ANDROID.md](ANDROID.md) for building the mobile app.
+
 ![preview.png](calculator/preview.png)
 
 ## Features
@@ -11,6 +13,13 @@ Calculate accurate firing solutions for mortars in Project Reality: BF2. Takes i
 - Firing solutions in Mils and Degrees
 - Support for all 84 Project Reality maps (as of 20/11/2025)
 - Completely offline operation
+- **Android app** - Use on mobile devices without internet
+
+## Platform Support
+
+- **Desktop/Web**: Windows, Linux, macOS (via Python + Flask)
+- **Android**: Version 6.0+ (API 23+) - See [ANDROID.md](ANDROID.md)
+- **iOS**: Not yet supported
 
 ## Requirements
 
@@ -74,6 +83,25 @@ run.bat         # Windows
 ```
 
 The calculator will open automatically at `http://localhost:8080` (if the port is unused).
+
+### Option 3: Android App
+
+**Build from source or use pre-built APK:**
+
+See detailed instructions in [ANDROID.md](ANDROID.md) for:
+- Building the Android APK locally or via GitHub Actions
+- Installing on your device
+- Requirements and troubleshooting
+
+Quick local build:
+```bash
+./build-android.sh       # Linux/Mac
+build-android.bat        # Windows
+```
+
+Or use GitHub Actions (in the Actions tab → Build Android APK workflow)
+
+The APK will be at: `android/app/build/outputs/apk/debug/pr-mortar-calc-debug.apk`
 
 ## Usage
 
