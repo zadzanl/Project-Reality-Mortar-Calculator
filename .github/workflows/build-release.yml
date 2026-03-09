@@ -140,6 +140,12 @@ jobs:
           node-version: '22'
           cache: 'npm'
 
+      - name: Verify Node.js version
+        run: |
+          echo "Node.js: $(node --version)"
+          echo "npm: $(npm --version)"
+          echo "npx: $(npx --version)"
+
       - name: Install Node.js dependencies
         run: npm ci
 
