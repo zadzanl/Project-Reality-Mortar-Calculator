@@ -408,6 +408,21 @@ body.dark-mode {
   background-color: var(--btn-calculate-hover);
 }
 
+.calculator__shortcut-hint {
+  margin-top: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  border-left: 2px solid var(--border-focus);
+  background-color: var(--bg-info);
+  border-radius: 0 4px 4px 0;
+}
+
+.calculator__shortcut-hint strong {
+  color: var(--text-primary);
+}
+
 /* ====================================
    INFO DISPLAYS
    ==================================== */

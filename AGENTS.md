@@ -173,6 +173,9 @@ DO NOT:
 - Mix collection code with conversion code
 - Make Phase 2 depend on Phase 1 directly
 
+**EXCLUDED MAP - Do NOT process without special instructions:**
+- `the_falklands` is intentionally excluded from the processing pipeline. Its primary game area is 8km × 8km, but airfields and helicopter carrier extend far beyond this boundary, making it non-standard. Do NOT attempt to process this map through the normal pipeline.
+
 ### When to Write a Proposal (vs. Just Fix It)
 
 **WRITE A PROPOSAL FIRST if you are:**

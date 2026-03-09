@@ -638,6 +638,9 @@ function handleMapClick(e) {
   if (state.mortarMarker) {
     updateRangeCircle(state.mortarMarker.getLatLng());
   }
+
+  // Auto-calculate firing solution after click placement
+  autoCalculateFiringSolution();
 }
 
 // ====================================

@@ -11,6 +11,9 @@ android/capacitor-cordova-android-plugins/build/
 # www directory (generated from calculator files)
 www/
 
+# Zipped map files
+raw_map_data/*
+
 # IDE files
 .idea/
 .vscode/

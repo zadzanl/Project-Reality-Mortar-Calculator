@@ -1,0 +1,16 @@
+{
+  "map_name": "talbisah",
+  "map_size": 2048,
+  "height_scale": 300,
+  "grid_scale": 157.53846153846155,
+  "heightmap_resolution": 1025,
+  "processed_at": "2026-03-08T23:15:20.610658Z",
+  "format_version": "1.0",
+  "contourmap": {
+    "file": "contourmap.png",
+    "resolution": "2048x2048",
+    "generated_at": "2026-03-08T23:21:27.877468Z",
+    "thin_interval_m": 5,
+    "thick_interval_m": 15
+  }
+}
