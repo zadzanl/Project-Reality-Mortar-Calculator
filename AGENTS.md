@@ -1,21 +1,3 @@
-<!-- OPENSPEC:START -->
-# OpenSpec Instructions
-
-These instructions are for AI assistants working in this project.
-
-Always open `@/openspec/AGENTS.md` when the user says:
-- Words like: "proposal", "spec", "change", "plan"
-- "Add a new feature" or "Change how something works"
-- The request is unclear and you need to check the rules before writing code
-
-Use `@/openspec/AGENTS.md` to learn:
-- How to create and apply change proposals
-- Spec format and conventions
-- Project structure and guidelines
-
-Keep this managed block so 'openspec update' can refresh the instructions.
-
-<!-- OPENSPEC:END -->
 
 ---
 
@@ -190,6 +172,9 @@ DO NOT:
 - Change files in `/raw_map_data/` folder (these are originals)
 - Mix collection code with conversion code
 - Make Phase 2 depend on Phase 1 directly
+
+**EXCLUDED MAP - Do NOT process without special instructions:**
+- `the_falklands` is intentionally excluded from the processing pipeline. Its primary game area is 8km × 8km, but airfields and helicopter carrier extend far beyond this boundary, making it non-standard. Do NOT attempt to process this map through the normal pipeline.
 
 ### When to Write a Proposal (vs. Just Fix It)
 

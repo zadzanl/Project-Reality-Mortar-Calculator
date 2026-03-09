@@ -58,3 +58,8 @@ These files are pre-processed and included in the repository. The web calculator
 ## Do Not Modify Manually
 
 This directory is managed by `process_maps.ipynb`. The notebook automatically commits and pushes processed maps to GitHub.
+
+## Excluded Maps
+
+### the_falklands
+This map is intentionally excluded from processing. The primary game area is 8km × 8km, but airfields and a helicopter carrier extend beyond this boundary, making the total map area significantly larger than standard maps. The processing pipeline's default size inference would produce incorrect results for this non-standard layout. The raw data exists in `raw_map_data/the_falklands/` but requires special handling in a dedicated change.

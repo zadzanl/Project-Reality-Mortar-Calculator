@@ -1,6 +1,6 @@
 # Project Reality Mortar Calculator
 
-Calculate accurate firing solutions for mortars in Project Reality: BF2. Takes into account height deltas automatically. Support 1.8.1.2 (November 2025)
+Calculate accurate firing solutions for mortars in Project Reality: BF2. Takes into account height deltas automatically. Support Project Reality: BF2 v1.9 (March 2026)
 
 **Now available for Android!** See [ANDROID.md](ANDROID.md) for building the mobile app.
 
@@ -158,7 +158,7 @@ MIT License - See [LICENSE](LICENSE) file
   - [Other Project Reality mortar calculators on GitHub](https://github.com/search?q=project%20reality%20mortar&type=repositories)
 
 - Community:
-  - PRID and the Project Reality community for the motivation (how inaccurate we play the mortar), feedback, and testing
+  - PRID and the Project Reality community for the motivation (how inaccurately we shoot the mortar), feedback, and tests
   - All community members and developers who discussed and answered mortar mechanics and physics
 
 - Development
