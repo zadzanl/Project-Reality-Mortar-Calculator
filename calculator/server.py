@@ -11,6 +11,7 @@ import webbrowser
 import time
 from pathlib import Path
 from flask import Flask, send_from_directory, render_template, abort, Response
+from werkzeug.utils import secure_filename
 
 __version__ = "1.0.0"
 
@@ -84,30 +85,47 @@ def serve_map_data(map_name, filename):
     
     Note: Only .gz compressed heightmaps are distributed to reduce size.
     """
-    map_dir = PROCESSED_MAPS_DIR / map_name
-    
-    # Security check: ensure map directory exists
-    if not map_dir.is_dir():
-        abort(404, description=f"Map '{map_name}' not found")
-    
-    # Security check: prevent directory traversal
-    file_path = map_dir / filename
-    if not file_path.is_file():
-        abort(404, description=f"File '{filename}' not found in map '{map_name}'")
-    
+    # Sanitize user-controlled path segments to prevent path traversal
+    # (CodeQL py/path-injection — CWE-22, CWE-23, CWE-36, CWE-73)
+    safe_map_name = secure_filename(map_name)
+    safe_filename = secure_filename(filename)
+
+    if not safe_map_name or not safe_filename:
+        abort(404, description="Invalid map or file name")
+
+    map_dir = PROCESSED_MAPS_DIR / safe_map_name
+
+    # Resolve to absolute path and verify it stays within PROCESSED_MAPS_DIR
+    resolved_map_dir = map_dir.resolve()
+    if not resolved_map_dir.is_relative_to(PROCESSED_MAPS_DIR.resolve()):
+        abort(403, description="Access denied")
+
+    if not resolved_map_dir.is_dir():
+        abort(404, description=f"Map '{safe_map_name}' not found")
+
+    file_path = resolved_map_dir / safe_filename
+
+    # Resolve full file path and verify containment again
+    resolved_file = file_path.resolve()
+    if not resolved_file.is_relative_to(resolved_map_dir):
+        abort(403, description="Access denied")
+
+    if not resolved_file.is_file():
+        abort(404, description=f"File '{safe_filename}' not found in map '{safe_map_name}'")
+
     # Serve with correct MIME type and encoding
-    if filename.endswith('.json.gz'):
+    if safe_filename.endswith('.json.gz'):
         # Serve gzipped JSON with proper headers
         return send_from_directory(
-            map_dir, 
-            filename, 
+            resolved_map_dir,
+            safe_filename,
             mimetype='application/json',
             as_attachment=False
         )
-    elif filename.endswith('.json'):
-        return send_from_directory(map_dir, filename, mimetype='application/json')
+    elif safe_filename.endswith('.json'):
+        return send_from_directory(resolved_map_dir, safe_filename, mimetype='application/json')
     else:
-        return send_from_directory(map_dir, filename)
+        return send_from_directory(resolved_map_dir, safe_filename)
 
 
 @app.route('/processed_maps/<map_name>/<filename>')

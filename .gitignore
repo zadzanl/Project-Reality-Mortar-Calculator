@@ -19,3 +19,4 @@ raw_map_data/*
 .vscode/
 *.iml
 .DS_Store
+__pycache__
