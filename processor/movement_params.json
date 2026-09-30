@@ -1,0 +1,114 @@
+{
+  "format_version": "1.0",
+  "fields": {
+    "infantry_sprint_ms": {
+      "value": 5.0,
+      "provenance": "historical baseline, unverified for v1.9"
+    },
+    "infantry_walk_ms": {
+      "value": 2.5,
+      "provenance": "historical baseline, unverified for v1.9"
+    },
+    "sprint_duration_s": {
+      "value": 30,
+      "provenance": "historical baseline, unverified for v1.9"
+    },
+    "stamina_regen_s": {
+      "value": 90,
+      "provenance": "historical baseline, unverified for v1.9"
+    }
+  },
+  "candidates": [
+    {
+      "parameter": "soldier speed factor",
+      "raw_value": "1.0",
+      "source_file": "objects_common_server.zip:soldiers/common/common.con:11",
+      "interpretation": "Global soldier speed multiplier; no absolute m/s unit is declared.",
+      "why_not_used": "Does not identify sprint or walk speed in m/s."
+    },
+    {
+      "parameter": "soldier acceleration",
+      "raw_value": "0.075",
+      "source_file": "objects_common_server.zip:soldiers/common/common.con:18",
+      "interpretation": "Physics acceleration factor or tuning value.",
+      "why_not_used": "Not a movement speed and has no matching requested unit."
+    },
+    {
+      "parameter": "soldier deceleration",
+      "raw_value": "0.15",
+      "source_file": "objects_common_server.zip:soldiers/common/common.con:19",
+      "interpretation": "Physics deceleration factor or tuning value.",
+      "why_not_used": "Not a movement speed and has no matching requested unit."
+    },
+    {
+      "parameter": "sprint recharge delay after jump",
+      "raw_value": "3.0",
+      "source_file": "objects_common_server.zip:soldiers/common/common.con:39",
+      "interpretation": "Delay before the sprint meter starts recharging after jumping.",
+      "why_not_used": "Jump-specific delay, not general stamina regeneration time."
+    },
+    {
+      "parameter": "SprintRecoverTime",
+      "raw_value": "30",
+      "source_file": "objects_common_server.zip:soldiers/common/bodyarmor.tweak:12",
+      "interpretation": "Armor template sprint recovery timer; likely seconds from the parameter name and baseline match.",
+      "why_not_used": "Armor-specific engine timer; context does not prove it is player sprint duration or general stamina regeneration."
+    },
+    {
+      "parameter": "SprintDissipationTime",
+      "raw_value": "30",
+      "source_file": "objects_common_server.zip:soldiers/common/bodyarmor.tweak:13",
+      "interpretation": "Armor template sprint dissipation timer.",
+      "why_not_used": "Does not prove sprint duration semantics; it is not an absolute movement speed or general regeneration value."
+    },
+    {
+      "parameter": "SprintDissipationTime",
+      "raw_value": "35",
+      "source_file": "objects_common_server.zip:soldiers/common/no_bodyarmor.tweak:13",
+      "interpretation": "No-armor template sprint dissipation timer.",
+      "why_not_used": "Conflicting template value and unproven semantics for the requested default."
+    },
+    {
+      "parameter": "SprintDissipationTime",
+      "raw_value": "35",
+      "source_file": "objects_common_server.zip:soldiers/common/poor_bodyarmor.tweak:13",
+      "interpretation": "Poor-armor template sprint dissipation timer.",
+      "why_not_used": "Armor-specific timer, not proven to be the requested sprint duration or regeneration time."
+    },
+    {
+      "parameter": "SprintLimit",
+      "raw_value": "0.5",
+      "source_file": "objects_common_server.zip:soldiers/common/bodyarmor.tweak:14",
+      "interpretation": "Sprint limit tuning value in the armor template.",
+      "why_not_used": "No documented unit or direct mapping to any requested field."
+    },
+    {
+      "parameter": "SprintLossAtJump",
+      "raw_value": "0.25",
+      "source_file": "objects_common_server.zip:soldiers/common/bodyarmor.tweak:15",
+      "interpretation": "Sprint resource loss associated with jumping.",
+      "why_not_used": "A jump loss fraction, not a requested speed or time."
+    },
+    {
+      "parameter": "Sprint animation value holder",
+      "raw_value": "5 6.3 100",
+      "source_file": "objects_common_server.zip:soldiers/common/animations/valueholders.inc:40",
+      "interpretation": "Three animation value-holder parameters for 3p sprint.",
+      "why_not_used": "Animation parameters are not proven physical m/s values."
+    },
+    {
+      "parameter": "Stand run animation value holder",
+      "raw_value": "0.1 3.9 5.8",
+      "source_file": "objects_common_server.zip:soldiers/common/animations/valueholders.inc:42",
+      "interpretation": "Three animation value-holder parameters for standing run.",
+      "why_not_used": "Animation parameters are not proven physical m/s values."
+    },
+    {
+      "parameter": "Stand walk animation value holder",
+      "raw_value": "0.1 1.5 2.0",
+      "source_file": "objects_common_server.zip:soldiers/common/animations/valueholders.inc:51",
+      "interpretation": "Three animation value-holder parameters for standing walk.",
+      "why_not_used": "Animation parameters are not proven physical m/s values."
+    }
+  ]
+}
