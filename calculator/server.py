@@ -5,7 +5,10 @@ Serves HTML, CSS, JavaScript, and JSON map data files to browser.
 All calculations happen in the browser - this server only serves files.
 """
 
-import os
+# Resolved-path containment protects against symlink/traversal escape only within
+# what the OS/filesystem reports; no symlink-following test is added.
+
+import re
 import sys
 import webbrowser
 import time
@@ -73,7 +76,7 @@ def serve_static(filename):
     return send_from_directory(static_folder, filename)
 
 
-@app.route('/maps/<map_name>/<filename>')
+@app.route('/maps/<map_name>/<path:filename>')
 def serve_map_data(map_name, filename):
     """
     Serve processed map data from /processed_maps/ directory.
@@ -82,16 +85,29 @@ def serve_map_data(map_name, filename):
     - /maps/muttrah_city_2/heightmap.json.gz (gzip compressed heightmap)
     - /maps/muttrah_city_2/metadata.json
     - /maps/muttrah_city_2/minimap.png
+    - /maps/asad_khal/flow/gpm_cq_64/team1/infantry.bin
     
     Note: Only .gz compressed heightmaps are distributed to reduce size.
     """
     # Sanitize user-controlled path segments to prevent path traversal
-    # (CodeQL py/path-injection — CWE-22, CWE-23, CWE-36, CWE-73)
+    # (CodeQL py/path-injection - CWE-22, CWE-23, CWE-36, CWE-73)
+    # Sanitized renames inside the map directory are accepted by design:
+    # secure_filename may transform unusual segment names; they then simply
+    # 404 if no file with the sanitized name exists.
     safe_map_name = secure_filename(map_name)
-    safe_filename = secure_filename(filename)
+    filename_segments = re.split(r'[/\\]', filename)
+    safe_filename_segments = [secure_filename(segment) for segment in filename_segments]
 
-    if not safe_map_name or not safe_filename:
+    if (not safe_map_name or
+            any(not segment for segment in safe_filename_segments) or
+            # Empty segments are rejected above; this catches explicit . and ..
+            # segments before secure_filename can rename them.
+            any(segment in ('.', '..') for segment in filename_segments)):
         abort(404, description="Invalid map or file name")
+
+    # Do not use os.path.join: send_from_directory expects POSIX-style relative
+    # paths regardless of OS, and this keeps containment checks path-shaped.
+    safe_filename = '/'.join(safe_filename_segments)
 
     map_dir = PROCESSED_MAPS_DIR / safe_map_name
 
@@ -128,7 +144,7 @@ def serve_map_data(map_name, filename):
         return send_from_directory(resolved_map_dir, safe_filename)
 
 
-@app.route('/processed_maps/<map_name>/<filename>')
+@app.route('/processed_maps/<map_name>/<path:filename>')
 def serve_processed_map_data(map_name, filename):
     """
     Backwards compatibility: serve files from /processed_maps/<map_name>/
