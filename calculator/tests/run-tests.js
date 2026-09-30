@@ -2,6 +2,7 @@ import { runBallisticsTests } from './test_ballistics.js';
 import { runCoordinatesTests } from './test_coordinates.js';
 import { runHeightmapTests } from './test_heightmap.js';
 import { runIntegrationTests } from './test_integration.js';
+import { runFlowOverlayTests } from './test_flow_overlay.js';
 
 async function runAll() {
   try {
@@ -21,7 +22,11 @@ async function runAll() {
     await runIntegrationTests();
     console.log('Integration tests passed.\n');
 
-    console.log('All tests passed! 🎉');
+    console.log('Flow overlay tests...');
+    await runFlowOverlayTests();
+    console.log('Flow overlay tests passed.\n');
+
+    console.log('All tests passed!');
     process.exit(0);
   } catch (err) {
     console.error('Test failure:', err);

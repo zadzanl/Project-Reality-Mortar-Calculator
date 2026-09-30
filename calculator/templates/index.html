@@ -326,6 +326,42 @@
               <span id="contour-layer-label" style="font-size: 0.875rem;">Contour Map</span>
             </label>
           </div>
+          
+          <div class="calculator__layer-toggles" id="flow-controls" style="margin-top: 0.75rem; display: none;">
+            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+              <input type="checkbox" id="flow-layer-toggle" style="cursor: pointer;">
+              <span style="font-size: 0.875rem;">Opening Flow</span>
+            </label>
+            <div id="flow-options" style="display: none; margin-top: 0.5rem; font-size: 0.875rem;">
+              <label style="display: block; margin-bottom: 0.25rem;">Layer
+                <select id="flow-layer-select" class="calculator__dropdown" style="width: 100%;"></select>
+              </label>
+              <label style="display: block; margin-bottom: 0.25rem;">Team
+                <select id="flow-team-select" class="calculator__dropdown" style="width: 100%;">
+                  <option value="both">Both</option>
+                  <option value="1">Team 1</option>
+                  <option value="2">Team 2</option>
+                </select>
+              </label>
+              <label style="display: block; margin-bottom: 0.25rem;">Class
+                <select id="flow-class-select" class="calculator__dropdown" style="width: 100%;">
+                  <option value="infantry">Infantry</option>
+                  <option value="vehicles">Vehicles</option>
+                </select>
+              </label>
+              <label style="display: block; margin-bottom: 0.25rem;">Time <span id="flow-time-label">5:00</span>
+                <input type="range" id="flow-time-slider" min="0" max="300" step="5" value="300" style="width: 100%;" aria-label="Flow time in seconds">
+              </label>
+              <div id="flow-scope-label" style="margin-top: 0.25rem;"><small>From initial deployment</small></div>
+              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; margin-top: 0.25rem;">
+                <input type="checkbox" id="flow-particles-toggle" style="cursor: pointer;">
+                <span style="font-size: 0.875rem;">Flow particles (visual)</span>
+              </label>
+              <div id="flow-notice" style="display: none; margin-top: 0.25rem;"><small></small></div>
+              <div style="margin-top: 0.5rem;"><small><strong>Flag race times</strong> (earliest arrival):</small></div>
+              <div id="flow-race-readout"></div>
+            </div>
+          </div>
         </div>
         </div><!-- End results-panel-content -->
       </aside>

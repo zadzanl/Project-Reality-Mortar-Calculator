@@ -11,6 +11,7 @@
 import { calculateFiringSolution, PR_PHYSICS } from './ballistics.js';
 import { gridToXY, formatGridReference, xyToGrid, gridRefToXY, calculateGridScale, getRowLabelCenterX } from './coordinates.js';
 import { loadMapData } from './heightmap.js';
+import { createFlowController, initFlowControls } from './flow/flow_overlay.js';
 
 // ====================================
 // APPLICATION STATE
@@ -38,6 +39,8 @@ const state = {
 state.gridGroup = null;
 state.gridLabelGroup = null;
 state.rangeCircle = null;
+// Flow overlay controller (see js/flow/flow_overlay.js)
+state.flow = createFlowController();
 
 // ====================================
 // INITIALIZATION
@@ -179,6 +182,10 @@ function initializeLeafletMap() {
   
   // Remove existing map if any
   if (state.leafletMap) {
+    // Detach the flow overlay before the map it is bound to is destroyed
+    if (state.flow) {
+      state.flow.detach();
+    }
     state.leafletMap.remove();
     // Clear all marker and layer references
     state.mortarMarker = null;
@@ -290,7 +297,12 @@ function initializeLeafletMap() {
   state.leafletMap.on('click', (e) => {
     handleMapClick(e);
   });
-  
+
+  // Attach the flow overlay to the fresh map (probes availability itself)
+  if (state.flow) {
+    state.flow.attachMap(state.leafletMap, state.currentMap, mapSize);
+  }
+
   console.log('Leaflet map initialized');
 }
 
@@ -1101,6 +1113,11 @@ function setupEventListeners() {
   document.getElementById('contour-layer-toggle').addEventListener('change', (e) => {
     toggleContourLayer(e.target.checked);
   });
+  
+  // Flow overlay controls (no-op if the flow block is absent)
+  if (state.flow) {
+    initFlowControls(state.flow);
+  }
   
   // Theme toggle (Checkbox)
   const themeCheckbox = document.getElementById('theme-checkbox');
