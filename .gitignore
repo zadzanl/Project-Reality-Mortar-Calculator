@@ -1,6 +1,9 @@
 # Node modules
 node_modules/
 
+# Chat history
+chat/
+
 # Android build outputs
 android/app/build/
 android/.gradle/
@@ -13,6 +16,13 @@ www/
 
 # Zipped map files
 raw_map_data/*
+artifacts/
+*.zip
+
+# Generated terrain cost grids (regenerable: python processor/build_terrain_cost.py)
+# `processed_maps` EXCLUSION IS A GENERALIZATION
+# WILL NEED TO BE REVERTED AND NARROWRED FOR WEB BUILD AND ANDROID
+processed_maps/
 
 # IDE files
 .idea/
