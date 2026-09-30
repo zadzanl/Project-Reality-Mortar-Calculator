@@ -1,7 +1,7 @@
 {
   "map_name": "fallujah_west",
-  "map_size": 4096,
-  "height_scale": 300,
+  "map_size": 1024,
+  "height_scale": 163.8375,
   "grid_scale": 315.0769230769231,
   "heightmap_resolution": 513,
   "processed_at": "2025-11-19T08:56:06.686527Z",
@@ -12,5 +12,7 @@
     "generated_at": "2025-11-25T05:04:34.902686Z",
     "thin_interval_m": 5,
     "thick_interval_m": 15
-  }
+  },
+  "sea_level_m": 22.5,
+  "heightmap_size_source": "heightdata.con setHeightmapSize / setScale"
 }

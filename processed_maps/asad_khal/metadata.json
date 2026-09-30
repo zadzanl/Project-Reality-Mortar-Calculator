@@ -1,7 +1,7 @@
 {
   "map_name": "asad_khal",
-  "map_size": 4096,
-  "height_scale": 300,
+  "map_size": 1024,
+  "height_scale": 163.8375,
   "grid_scale": 315.0769230769231,
   "heightmap_resolution": 513,
   "processed_at": "2025-11-19T08:55:34.681519Z",
@@ -12,5 +12,7 @@
     "generated_at": "2025-11-25T05:01:01.560314Z",
     "thin_interval_m": 5,
     "thick_interval_m": 15
-  }
+  },
+  "sea_level_m": 49.0,
+  "heightmap_size_source": "heightdata.con setHeightmapSize / setScale"
 }

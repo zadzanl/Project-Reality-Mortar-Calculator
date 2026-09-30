@@ -1,7 +1,7 @@
 {
   "map_name": "kafar_halab",
   "map_size": 2048,
-  "height_scale": 300,
+  "height_scale": 69.9992442,
   "grid_scale": 157.53846153846155,
   "heightmap_resolution": 1025,
   "processed_at": "2025-11-19T08:56:16.852117Z",
@@ -12,5 +12,7 @@
     "generated_at": "2025-11-25T05:05:51.084524Z",
     "thin_interval_m": 5,
     "thick_interval_m": 15
-  }
+  },
+  "sea_level_m": -20.0,
+  "heightmap_size_source": "heightdata.con setHeightmapSize / setScale"
 }

@@ -1,7 +1,7 @@
 {
   "map_name": "deagle5",
-  "map_size": 4096,
-  "height_scale": 300,
+  "map_size": 512,
+  "height_scale": 161.99727719999998,
   "grid_scale": 315.0769230769231,
   "heightmap_resolution": 257,
   "processed_at": "2025-11-19T08:56:00.928291Z",
@@ -12,5 +12,7 @@
     "generated_at": "2025-11-25T05:03:44.703580Z",
     "thin_interval_m": 5,
     "thick_interval_m": 15
-  }
+  },
+  "sea_level_m": -10000.0,
+  "heightmap_size_source": "heightdata.con setHeightmapSize / setScale"
 }
