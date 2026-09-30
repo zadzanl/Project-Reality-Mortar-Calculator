@@ -1,0 +1,2287 @@
+{
+  "format_version": "1.0",
+  "description": "Terrain traversability configuration. Every value is a pipeline input with provenance; none are verified Project Reality v1.9 facts unless the provenance says so.",
+  "grid": {
+    "cell_size_m": {
+      "value": 4.0,
+      "provenance": "design target simulation resolution (flow design D6)"
+    },
+    "roughness_window_m": {
+      "value": 8.0,
+      "provenance": "feature-scale default, about road width; design D3 rejects map-width-relative windows"
+    },
+    "roughness_multiplier_enabled": {
+      "value": 0,
+      "provenance": "design D3: roughness is recorded first; a cost multiplier applies only after QA policy approves"
+    },
+    "roughness_ref_m": {
+      "value": 0.25,
+      "provenance": "uncalibrated default, no verified v1.9 value; roughness at this level reaches roughness_max multiplier"
+    },
+    "smooth_slope_deg": {
+      "value": 6.0,
+      "provenance": "uncalibrated default, no verified v1.9 value; diagnostic class threshold only"
+    },
+    "smooth_roughness_m": {
+      "value": 0.1,
+      "provenance": "uncalibrated default, no verified v1.9 value; diagnostic class threshold only"
+    }
+  },
+  "water": {
+    "flat_epsilon_deg": {
+      "value": 0.5,
+      "provenance": "uncalibrated default; candidate inland water flatness test (design D6)"
+    },
+    "candidate_min_area_m2": {
+      "value": 2000.0,
+      "provenance": "uncalibrated default; candidate inland water minimum region area (design D6)"
+    },
+    "basin_margin_m": {
+      "value": 0.3,
+      "provenance": "uncalibrated default; candidate region must sit this far below its border ring mean, so noise-flat plains are not flagged"
+    }
+  },
+  "footprints_m": {
+    "building": {
+      "value": 6.0,
+      "provenance": "uncalibrated default; fixed-radius proxy, no collision meshes (known ceiling)"
+    },
+    "wall": {
+      "value": 3.0,
+      "provenance": "uncalibrated default; fixed-radius proxy, no collision meshes (known ceiling)"
+    },
+    "fence": {
+      "value": 2.0,
+      "provenance": "uncalibrated default; fixed-radius proxy, no collision meshes (known ceiling)"
+    },
+    "container": {
+      "value": 3.0,
+      "provenance": "uncalibrated default; fixed-radius proxy, no collision meshes (known ceiling)"
+    }
+  },
+  "vegetation": {
+    "density_radius_m": {
+      "value": 12.0,
+      "provenance": "uncalibrated default; plants are counted within this radius per cell (flow design D2 density proxy)"
+    },
+    "dense_count": {
+      "value": 5,
+      "provenance": "uncalibrated default; cells at or above this count within density_radius_m are the slow forest tier"
+    }
+  },
+  "profiles": {
+    "infantry": {
+      "max_slope_deg": {
+        "value": 50.0,
+        "provenance": "uncalibrated default, no verified v1.9 value; only default hard-block condition (D5/D7)"
+      },
+      "slope_full_penalty_deg": {
+        "value": 30.0,
+        "provenance": "uncalibrated default, no verified v1.9 value"
+      },
+      "step_max_m": {
+        "value": 0.5,
+        "provenance": "uncalibrated default, no verified v1.9 value; blurred at 2-4 m source resolution"
+      }
+    },
+    "wheeled_vehicle": {
+      "max_slope_deg": {
+        "value": 30.0,
+        "provenance": "uncalibrated default, no verified v1.9 value; only default hard-block condition (D5/D7)"
+      },
+      "slope_full_penalty_deg": {
+        "value": 15.0,
+        "provenance": "uncalibrated default, no verified v1.9 value"
+      },
+      "step_max_m": {
+        "value": 0.4,
+        "provenance": "uncalibrated default, no verified v1.9 value; blurred at 2-4 m source resolution"
+      }
+    }
+  },
+  "multipliers": {
+    "water": {
+      "value": 8.0,
+      "provenance": "uncalibrated default; heavy cost, never impassable (flow design D7)"
+    },
+    "water_candidate": {
+      "value": 1.0,
+      "provenance": "design D6: candidate inland water is diagnostic-only by default; raise only after QA review approves (flat basins are not always water)"
+    },
+    "building": {
+      "value": 6.0,
+      "provenance": "uncalibrated default; heavy cost, never impassable (flow design D7)"
+    },
+    "vegetation_dense": {
+      "value": 2.5,
+      "provenance": "uncalibrated default; density proxy per flow design D2"
+    },
+    "road": {
+      "value": 1.0,
+      "provenance": "uniform-surface default per flow design D3 (forum claim unverified); road bonus stays off until verified"
+    },
+    "roughness_max": {
+      "value": 2.0,
+      "provenance": "uncalibrated default; inert while grid.roughness_multiplier_enabled is 0"
+    },
+    "slope_max": {
+      "value": 4.0,
+      "provenance": "uncalibrated default, no verified v1.9 value; slope cost ramps to this at slope_full_penalty_deg"
+    }
+  },
+  "materials": {
+    "provenance": "extracted from v1.9 files, speed effect unverified",
+    "entries": [
+      {
+        "id": 0,
+        "name": "Default",
+        "friction": 0.75,
+        "elasticity": 0.0,
+        "resistance": 0.02
+      },
+      {
+        "id": 1,
+        "name": "Water_deep",
+        "friction": 1.1,
+        "elasticity": 0.0,
+        "resistance": 0.02,
+        "has_water_physics": true
+      },
+      {
+        "id": 2,
+        "name": "Sand",
+        "friction": 0.9,
+        "elasticity": 0.0,
+        "resistance": 0.09
+      },
+      {
+        "id": 3,
+        "name": "Gravel",
+        "friction": 0.8,
+        "elasticity": 0.0,
+        "resistance": 0.08
+      },
+      {
+        "id": 4,
+        "name": "Tarmac",
+        "friction": 1.2,
+        "elasticity": 0.0,
+        "resistance": 0.04
+      },
+      {
+        "id": 5,
+        "name": "Grass",
+        "friction": 0.8,
+        "elasticity": 0.0,
+        "resistance": 0.06
+      },
+      {
+        "id": 6,
+        "name": "Grass_tall",
+        "friction": 0.8,
+        "elasticity": 0.0,
+        "resistance": 0.1
+      },
+      {
+        "id": 7,
+        "name": "Reserved",
+        "friction": 0.8,
+        "elasticity": 0.0,
+        "resistance": 0.08
+      },
+      {
+        "id": 8,
+        "name": "Dirt",
+        "friction": 0.9,
+        "elasticity": 0.0,
+        "resistance": 0.1
+      },
+      {
+        "id": 9,
+        "name": "Water_puddle",
+        "friction": 0.8,
+        "elasticity": 0.0,
+        "resistance": 0.05
+      },
+      {
+        "id": 10,
+        "name": "Cloth_carpet",
+        "friction": 0.8,
+        "elasticity": 0.0,
+        "resistance": 0.05
+      },
+      {
+        "id": 11,
+        "name": "Plastic",
+        "friction": 0.8,
+        "elasticity": 0.0,
+        "resistance": 0.04
+      },
+      {
+        "id": 12,
+        "name": "rock",
+        "friction": 0.8,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 13,
+        "name": "Trash_light_objects",
+        "friction": 0.8,
+        "elasticity": 0.0,
+        "resistance": 0.1
+      },
+      {
+        "id": 14,
+        "name": "Wood_thin",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.02
+      },
+      {
+        "id": 15,
+        "name": "Wood_solid",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 16,
+        "name": "Bushes_leaves",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 17,
+        "name": "Glass_common",
+        "friction": 1.1,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 18,
+        "name": "Glass_vehicle",
+        "friction": 1.1,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 19,
+        "name": "Glass_bulletproof",
+        "friction": 1.1,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 20,
+        "name": "Metal_plate_thin",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 21,
+        "name": "Metal_solid",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.012
+      },
+      {
+        "id": 22,
+        "name": "Rubber",
+        "friction": 0.6,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 23,
+        "name": "Human_bodyarmour",
+        "friction": 1.2,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 24,
+        "name": "Human_body",
+        "friction": 1.2,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 25,
+        "name": "Human_head",
+        "friction": 1.2,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 26,
+        "name": "Armor_1_metal_plating",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 27,
+        "name": "Armor_2_light_armored_vehicles",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 28,
+        "name": "Armor_3_tank_rear_top",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 29,
+        "name": "Armor_4_tank_sides",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 30,
+        "name": "Armor_5_tank_front",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 31,
+        "name": "Armor_6_helicopter",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 32,
+        "name": "Airplane",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 33,
+        "name": "Chicken_Wire_Thin",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 34,
+        "name": "Stairs_concrete",
+        "friction": 5.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 35,
+        "name": "Stairs_wood",
+        "friction": 5.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 36,
+        "name": "Stairs_metal",
+        "friction": 5.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 37,
+        "name": "webMat_lcac",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 38,
+        "name": "Bullet_small_arms",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 39,
+        "name": "Bullet_50caliber",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 40,
+        "name": "Bullet_minigun",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 41,
+        "name": "Bullet_shotgun",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 42,
+        "name": "Shell_25mm",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 43,
+        "name": "Shell_tank",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 44,
+        "name": "Shell_artillery",
+        "friction": 1.5,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 45,
+        "name": "Grenade_rifle",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 46,
+        "name": "Grenade_hand",
+        "friction": 0.25,
+        "elasticity": 0.5,
+        "resistance": 0.01
+      },
+      {
+        "id": 47,
+        "name": "Flare",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 48,
+        "name": "Knife",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 49,
+        "name": "Mine_antitank",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 50,
+        "name": "Detonation_claymore",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 51,
+        "name": "Armor_7_stationary_object_metal",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 52,
+        "name": "Missile_antitank",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 53,
+        "name": "Missile_antiair_light",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 54,
+        "name": "webMat_lcac_rear",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 55,
+        "name": "Missile_airtoground_light",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 56,
+        "name": "Missile_airtoground_heavy",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 57,
+        "name": "Shell_20mm_AAA",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 58,
+        "name": "Mud_wet",
+        "friction": 0.7,
+        "elasticity": 0.0,
+        "resistance": 0.1
+      },
+      {
+        "id": 59,
+        "name": "wood_destructible",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 60,
+        "name": "wreck",
+        "friction": 1.2,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 61,
+        "name": "webMat_Tracked",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 62,
+        "name": "adeMat_HeliDraft",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 63,
+        "name": "EmptyShell_small_arms",
+        "friction": 1.0,
+        "elasticity": 0.5,
+        "resistance": 0.01
+      },
+      {
+        "id": 64,
+        "name": "Cardboard_box",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 65,
+        "name": "EmptyShell_50cal",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 66,
+        "name": "gebMat_groundEffect",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 67,
+        "name": "webMat_wheelBig",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 68,
+        "name": "Soldier_weapon",
+        "friction": 1.1,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 69,
+        "name": "Detonation_grenade",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 70,
+        "name": "Explosion_blastwave",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 71,
+        "name": "Blast_sensitivity_softobject",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 72,
+        "name": "Blast_sensitivity_hardobject",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 73,
+        "name": "Soldier_healing",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 74,
+        "name": "Medikit",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 75,
+        "name": "Ammokit",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 76,
+        "name": "Deployable_Sandbags",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 77,
+        "name": "Human_limbs",
+        "friction": 0.85,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 78,
+        "name": "concrete",
+        "friction": 0.7,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 79,
+        "name": "Soldier_weapon_light",
+        "friction": 1.1,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 80,
+        "name": "Mortar_Shell_Blastwave",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 81,
+        "name": "C4_pack",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 82,
+        "name": "Ceramic_tiles",
+        "friction": 0.8,
+        "elasticity": 0.0,
+        "resistance": 0.08
+      },
+      {
+        "id": 83,
+        "name": "obj_impact_large",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 84,
+        "name": "Engineer_repair",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 85,
+        "name": "Mud_Grass_tall",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 86,
+        "name": "Tank_tracks",
+        "friction": 0.95,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 87,
+        "name": "Shell_20mm",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 88,
+        "name": "Shell_25mm_AAA",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 89,
+        "name": "Soldier_resurrection",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 90,
+        "name": "Mine_object",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 91,
+        "name": "Ammo_replenish",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 92,
+        "name": "Vehicle_explosion_blastwave",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 93,
+        "name": "Tree_trunk",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 94,
+        "name": "Water_deep_muddy",
+        "friction": 1.1,
+        "elasticity": 0.0,
+        "resistance": 0.02
+      },
+      {
+        "id": 95,
+        "name": "Dry_leaves_on_ground",
+        "friction": 0.7,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 96,
+        "name": "Barbed_Wire",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 97,
+        "name": "Destroyable_obj_small",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 98,
+        "name": "Destroyable_obj_large",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 99,
+        "name": "Vehicle_exp_large",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 100,
+        "name": "Vehicle_exp_medium",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 101,
+        "name": "Vehicle_exp_small",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 102,
+        "name": "Rubber_heavy",
+        "friction": 0.6475,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 103,
+        "name": "adeMat_jetDraft",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 104,
+        "name": "EmptyShell_shotgun",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 105,
+        "name": "Helicopter_rotorblades",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 106,
+        "name": "Helicopter_landing_rails",
+        "friction": 2.75,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 107,
+        "name": "webMat_TrackedSmoke",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 108,
+        "name": "webMat_wheelBigSmoke",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 109,
+        "name": "Explosion_AA_blastwave",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 110,
+        "name": "Blast_sensitivity_light_vehicle",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.02
+      },
+      {
+        "id": 111,
+        "name": "Armor_0_thin_metal",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 112,
+        "name": "Destroyable_object_huge",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 113,
+        "name": "Shell",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 114,
+        "name": "PR_GLASS_ATTACKHELIS",
+        "friction": 1.1,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 115,
+        "name": "Deployable_Barrier",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 116,
+        "name": "Deployable_Radio",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 117,
+        "name": "PR_JDAM_DETONATION",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 118,
+        "name": "Fist",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 119,
+        "name": "Deployable_Foxhole",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 120,
+        "name": "Armor_2_50_vulnerable",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 121,
+        "name": "Destroyable_object_csb",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 122,
+        "name": "EoD_C4",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 123,
+        "name": "PR_ArtyIED_DETONATION",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 124,
+        "name": "PR_SHELL_40mm_grenade",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 125,
+        "name": "Penetrable_Wood_Dest",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 126,
+        "name": "bomb_tank_damager",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 127,
+        "name": "PG7_rocket",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 128,
+        "name": "EmptyShell_9mm",
+        "friction": 1.0,
+        "elasticity": 0.5,
+        "resistance": 0.01
+      },
+      {
+        "id": 129,
+        "name": "EmptyShell_20mm",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 130,
+        "name": "Empty_AT_Tube",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 131,
+        "name": "mg_links",
+        "friction": 1.0,
+        "elasticity": 0.5,
+        "resistance": 0.01
+      },
+      {
+        "id": 132,
+        "name": "EmptyShell_762",
+        "friction": 1.0,
+        "elasticity": 0.5,
+        "resistance": 0.01
+      },
+      {
+        "id": 133,
+        "name": "Buttstock",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 134,
+        "name": "Car_1_metal_plating",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 135,
+        "name": "gebMat_MuzzleGroundEffect",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 136,
+        "name": "afghan_mud_wall",
+        "friction": 0.7,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 137,
+        "name": "Penetrable_Plastic",
+        "friction": 0.8,
+        "elasticity": 0.0,
+        "resistance": 0.04
+      },
+      {
+        "id": 138,
+        "name": "Food_Generic",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 139,
+        "name": "Breachable_Door_Wood_Penetrable",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 140,
+        "name": "Breachable_Door_Wood_Flimsy_Penetrable",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 141,
+        "name": "Breachable_Door_Metal_Pentrable",
+        "friction": 0.2,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 142,
+        "name": "Breachable_Gate_Wood_Penetrable",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 143,
+        "name": "HEAT_tank",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 144,
+        "name": "Breachable_Gate_Metal_Pentrable",
+        "friction": 0.2,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 145,
+        "name": "Rubber_Jet",
+        "friction": 0.6,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 146,
+        "name": "Ship_Large_Dest",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 147,
+        "name": "Missile_Anti-Ship",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 148,
+        "name": "wreck_parts",
+        "friction": 0.8,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 149,
+        "name": "PR_FOB1",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 150,
+        "name": "PR_C4_NEW",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 151,
+        "name": "Deployable_Forward_Outpost",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 152,
+        "name": "Missile_ATP_ERYX",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 153,
+        "name": "PR_RKG3_NEW",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 154,
+        "name": "PR_BMP1_MISSILE",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 155,
+        "name": "PR_AT_MINES",
+        "friction": 3.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 156,
+        "name": "PR_wood_supplycrate",
+        "friction": 3.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 157,
+        "name": "PR_Supply_Crate_Metal",
+        "friction": 3.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 158,
+        "name": "PR_BOAT_PBR",
+        "friction": 0.1,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 159,
+        "name": "PR_BOAT_SAMPAN_ARMOR",
+        "friction": 0.1,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 160,
+        "name": "PR_MISSILE_HEDP",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 161,
+        "name": "PR_Arty_Offmap",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 162,
+        "name": "PR_MISSILE_HEAA",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 163,
+        "name": "Armor_Glass_Tanks",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.02
+      },
+      {
+        "id": 164,
+        "name": "40mm_AA_ground",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 165,
+        "name": "PR_SHOVEL_K4",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 166,
+        "name": "PR_HE_Trap_Object",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 167,
+        "name": "PR_BOOBY_TRAPS",
+        "friction": 1.2,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 168,
+        "name": "PR_IED_water",
+        "friction": 1.2,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 169,
+        "name": "PR_STONE_MARKER",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 170,
+        "name": "PR_MISSILE_PARS_SPLASH",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 171,
+        "name": "PR_CSB_Metal_object",
+        "friction": 0.9,
+        "elasticity": 0.0,
+        "resistance": 0.1
+      },
+      {
+        "id": 172,
+        "name": "Blast_sensitivity_tankobject",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 173,
+        "name": "PR_CSB_Damage_object",
+        "friction": 0.9,
+        "elasticity": 0.0,
+        "resistance": 0.1
+      },
+      {
+        "id": 174,
+        "name": "PR_mi24_hull_armor_object",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 175,
+        "name": "Armor_Puma_Front-Side",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 176,
+        "name": "PR_23mm_z9wa_projectile",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 177,
+        "name": "PR_C4_NEW_Small_explosion",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 178,
+        "name": "PR_23mm_zw9a_explosion",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 179,
+        "name": "PR_HYDRA_AIRTOGROUND",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 180,
+        "name": "PR_MISSILE_HELLFIRE",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 181,
+        "name": "Armor_Glass_APCs",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.02
+      },
+      {
+        "id": 182,
+        "name": "PR_MBT_tracks",
+        "friction": 0.985,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 183,
+        "name": "PR_bridge_concrete",
+        "friction": 0.7,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 184,
+        "name": "PR_Airplane_Attacker",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 185,
+        "name": "PR_Armor_Helicopter_Heavy",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 186,
+        "name": "PR_HEAT_SPG_DETONATION",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 187,
+        "name": "PR_snow_ground",
+        "friction": 0.65,
+        "elasticity": 0.1,
+        "resistance": 0.05
+      },
+      {
+        "id": 188,
+        "name": "PR_ice_ground",
+        "friction": 0.075,
+        "elasticity": 0.0,
+        "resistance": 0.2
+      },
+      {
+        "id": 189,
+        "name": "Flight_Deck",
+        "friction": 1.2,
+        "elasticity": 0.0,
+        "resistance": 0.04
+      },
+      {
+        "id": 190,
+        "name": "PR_SHELL_TANKWeakAP",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 191,
+        "name": "PR_SHELL_TANKWeakHE",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 192,
+        "name": "Ship_Medium_Dest",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 193,
+        "name": "PR_C4_CACHE",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 194,
+        "name": "Deployable_Sandbags_Weak",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 195,
+        "name": "laser_projectile",
+        "friction": 10.0,
+        "elasticity": 0.1,
+        "resistance": 0.01
+      },
+      {
+        "id": 196,
+        "name": "Rotor_Death_Material",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 197,
+        "name": "PR_Supply_Crate_Physic",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 198,
+        "name": "PR_Supply_Crate_Physic",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 666,
+        "name": "Death_material",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 762,
+        "name": "Bullet_7.62",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 900,
+        "name": "Bullet_9mm",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 999,
+        "name": "cat",
+        "friction": 1.2,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 1000,
+        "name": "Pentrable_Metal_thin",
+        "friction": 0.2,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 1001,
+        "name": "Penetrable_plaster_wall",
+        "friction": 0.6,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 1002,
+        "name": "Penetrable_Cloth",
+        "friction": 0.8,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 1003,
+        "name": "Penetrable_Wood",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 1004,
+        "name": "Penetrable_Glass_common",
+        "friction": 1.1,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 1005,
+        "name": "Penetrable_Glass_vehicle",
+        "friction": 1.1,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 1006,
+        "name": "Penetrable_Glass_bulletproof",
+        "friction": 1.1,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 1007,
+        "name": "Penetrable_Bushes_leaves",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 1008,
+        "name": "Penetrable_Grass",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.06
+      },
+      {
+        "id": 1009,
+        "name": "Penetrable_Grass_tall",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.1
+      },
+      {
+        "id": 1010,
+        "name": "Penetrable_Helmet",
+        "friction": 1.1,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 1011,
+        "name": "Penetrable_Cardboardbox",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.06
+      },
+      {
+        "id": 1012,
+        "name": "Concrete_slippery",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 1013,
+        "name": "Pentrable_Metal_plating",
+        "friction": 0.2,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 1014,
+        "name": "Armor_Pentrable_Metal_plating",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 1015,
+        "name": "Armor_Penetrable_Cardboardbox",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.06
+      },
+      {
+        "id": 1016,
+        "name": "Armor_Penetrable_Cloth",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 1017,
+        "name": "Armor_Penetrable_Wood",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 1018,
+        "name": "Armor_Penetrable_Glass_vehicle",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 1019,
+        "name": "Armor_Pentrable_Metal_thin",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 1020,
+        "name": "breachable_lock",
+        "friction": 0.2,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 1021,
+        "name": "Supply_Sticky",
+        "friction": 5.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 1022,
+        "name": "Rubber_heavy_damage",
+        "friction": 0.6475,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 2000,
+        "name": "Air",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 3001,
+        "name": "PR_BULLET_SHOCKWAVE",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 3003,
+        "name": "PR_RALLYPOINT",
+        "friction": 0.8,
+        "elasticity": 0.0,
+        "resistance": 0.05
+      },
+      {
+        "id": 3012,
+        "name": "PR_BULLET_SHOTGUNBUCK",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 3013,
+        "name": "PR_BULLET_SHOTGUNSLUG",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 3031,
+        "name": "PR_ARMOR_HELO_LIGHT",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 3032,
+        "name": "Armor_stryker",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 3048,
+        "name": "PR_STONE",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 3050,
+        "name": "PR_BULLET_50cal",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 3069,
+        "name": "PR_DETONATION_RIFLE_GRENADE",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 3070,
+        "name": "PR_MOLOTOV",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 3071,
+        "name": "PR_DETONATION_INCENDIARY_GRENADE",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 3080,
+        "name": "PR_C4_SLAM",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 3169,
+        "name": "PR_CLUSTERBOMBLET",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 3184,
+        "name": "PR_REPAIR_CREWMAN",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 3190,
+        "name": "PR_REPAIR_SHOVEL",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 3556,
+        "name": "PR_BULLET_556",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 3560,
+        "name": "PR_OBJ_AMMO_WOODTHIN",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.02
+      },
+      {
+        "id": 3561,
+        "name": "PR_OBJ_AMMO_METALSOLID",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 3562,
+        "name": "PR_OBJ_AMMO_STAIRSWOOD",
+        "friction": 5.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 3701,
+        "name": "PR_MISSILE_LIGHTAT",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 3702,
+        "name": "PR_SHELL_20mm",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 3703,
+        "name": "PR_BODYARMOR_POOR",
+        "friction": 1.1,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 3704,
+        "name": "PR_SHELL_25-30mmAP",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 3705,
+        "name": "PR_SHELL_25-30mmHE",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 3706,
+        "name": "PR_MISSILE_HEAVYAT",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 3707,
+        "name": "PR_ROCKET_AIRTOGROUND",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 3708,
+        "name": "PR_SHELL_20mmAA",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 3709,
+        "name": "PR_SHELL_30mmA2G",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 3710,
+        "name": "PR_SHELL_14.5mm",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 3720,
+        "name": "PR_SHELL_TANK120mmAP",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 3721,
+        "name": "PR_SHELL_TANK120mmHE",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 3762,
+        "name": "PR_BULLET_762",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 3763,
+        "name": "PR_BULLET_MINIGUNS",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 3801,
+        "name": "PR_DESTROYABLE_SMALL",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 3802,
+        "name": "PR_DESTROYABLE_WOOD",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 3900,
+        "name": "PR_BULLET_9mm",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 4000,
+        "name": "PR_APC_ARMOR_0",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 4001,
+        "name": "PR_APC_ARMOR_1",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 4002,
+        "name": "PR_APC_ARMOR_2",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 4003,
+        "name": "PR_APC_ARMOR_3",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 4004,
+        "name": "PR_APC_ARMOR_4",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 4005,
+        "name": "PR_APC_ARMOR_5",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 4006,
+        "name": "PR_APC_ARMOR_6",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 4010,
+        "name": "Penetrable_RPG_Cage",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.0
+      },
+      {
+        "id": 5000,
+        "name": "Metal_NoDmg",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.012
+      },
+      {
+        "id": 5001,
+        "name": "Rubber_NoDmg",
+        "friction": 0.6,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 5002,
+        "name": "Concrete_NoDmg",
+        "friction": 0.7,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 5003,
+        "name": "Penetrable_Plastic_NoDmg",
+        "friction": 0.8,
+        "elasticity": 0.0,
+        "resistance": 0.04
+      },
+      {
+        "id": 5004,
+        "name": "Food_NoDmg",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 5005,
+        "name": "Penetrable_Metal_NoDmg",
+        "friction": 0.2,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 5006,
+        "name": "Penetrable_cloth_NoDmg",
+        "friction": 0.8,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 5007,
+        "name": "Penetrable_Wood_NoDmg",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 5008,
+        "name": "Penetrable_Glass_NoDmg",
+        "friction": 1.1,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 5009,
+        "name": "Penetrable_plaster_wall_NoDmg",
+        "friction": 0.6,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 5500,
+        "name": "Soldier_FootSteps",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 5501,
+        "name": "Bullet_Flyby",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 5502,
+        "name": "flesh",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.02
+      },
+      {
+        "id": 6600,
+        "name": "ladder_front",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 6601,
+        "name": "ladder_backside",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 7000,
+        "name": "Hard_Collision_vs_Water",
+        "friction": 0.1,
+        "elasticity": 0.0,
+        "resistance": 0.0
+      },
+      {
+        "id": 7001,
+        "name": "Slippery_For_Soldier",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.0
+      },
+      {
+        "id": 8000,
+        "name": "M4A3_Armor_Rear",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 8001,
+        "name": "M4A3_Armor_Side",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 8002,
+        "name": "M4A3_Armor_Front",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 8010,
+        "name": "M10_Armor_Rear",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 8011,
+        "name": "M10_Armor_Side",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 8012,
+        "name": "M10_Armor_Front",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 8020,
+        "name": "Stug_Armor_Rear",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 8021,
+        "name": "Stug_Armor_Side",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 8022,
+        "name": "Stug_Armor_Front",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 8030,
+        "name": "Panzer3_Armor_Rear",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 8031,
+        "name": "Panzer3_Armor_Side",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 8032,
+        "name": "Panzer3_Armor_Front",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 8040,
+        "name": "Panzer4_Armor_Rear",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 8041,
+        "name": "Panzer4_Armor_Side",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 8042,
+        "name": "Panzer4_Armor_Front",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 9000,
+        "name": "Mine_Dummy",
+        "friction": 0.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 9001,
+        "name": "Mine_HGR",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 9002,
+        "name": "Mine_Clymore",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      },
+      {
+        "id": 9003,
+        "name": "Mine_IED",
+        "friction": 1.0,
+        "elasticity": 0.0,
+        "resistance": 0.01
+      }
+    ]
+  }
+}
