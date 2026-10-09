@@ -1,0 +1,61 @@
+{
+ "baseline": "openspec\\changes\\reduce-map-data-footprint\\artifacts\\baseline-pre-change.json",
+ "exceedance_count": 0,
+ "exceedances": [],
+ "files_informational": {
+  "adak": {
+   "added": 0,
+   "changed": 0,
+   "missing": 0
+  },
+  "albasrah_2": {
+   "added": 0,
+   "changed": 0,
+   "missing": 0
+  },
+  "ascheberg": {
+   "added": 0,
+   "changed": 0,
+   "missing": 0
+  },
+  "fields_of_kassel": {
+   "added": 0,
+   "changed": 0,
+   "missing": 0
+  },
+  "korbach_offensive": {
+   "added": 0,
+   "changed": 0,
+   "missing": 0
+  },
+  "muttrah_city_2": {
+   "added": 0,
+   "changed": 0,
+   "missing": 0
+  },
+  "road_to_damascus": {
+   "added": 0,
+   "changed": 0,
+   "missing": 0
+  },
+  "shijiavalley": {
+   "added": 0,
+   "changed": 0,
+   "missing": 0
+  }
+ },
+ "maps_compared": [
+  "adak",
+  "albasrah_2",
+  "ascheberg",
+  "fields_of_kassel",
+  "korbach_offensive",
+  "muttrah_city_2",
+  "road_to_damascus",
+  "shijiavalley"
+ ],
+ "max_flow_flips": 0,
+ "notes": [],
+ "result": "pass",
+ "root": "C:\\Projects\\Project_Reality-Mortar-Calculator\\processed_maps"
+}
