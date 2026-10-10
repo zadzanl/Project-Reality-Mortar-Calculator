@@ -248,3 +248,161 @@ def test_output_inside_processed_maps_is_refused(root, tmp_path):
     assert baseline.main(["capture", "--out", str(bad),
                           "--root", str(root), "--maps", MAP]) == 2
     assert not bad.exists()
+
+
+# ---------------------------------------------------------------------------
+# Negative tripwires added in review-001 revision (impl-002a)
+# ---------------------------------------------------------------------------
+
+def _load(path):
+    return json.loads(Path(path).read_text(encoding="utf-8"))
+
+
+def _dump(path, doc):
+    Path(path).write_text(json.dumps(doc, indent=1, sort_keys=True) + "\n",
+                          encoding="utf-8")
+
+
+def test_compare_rejects_report_json_as_baseline(root, tmp_path):
+    """C-01: a compare report is not a baseline; must exit 2, not pass/0."""
+    fake = tmp_path / "report.json"
+    _write_json(fake, {"result": "pass", "maps_compared": [],
+                       "exceedances": []})
+    assert compare(root, fake) == 2
+
+
+def test_compare_rejects_empty_or_wrong_format_baseline(root, tmp_path):
+    empty = tmp_path / "empty.json"
+    _write_json(empty, {"format": baseline.BASELINE_FORMAT, "maps": {}})
+    assert compare(root, empty) == 2
+    wrong = tmp_path / "wrong.json"
+    _write_json(wrong, {"format": "9.9", "maps": {MAP: {}}})
+    assert compare(root, wrong) == 2
+
+
+def test_compare_rejects_corrupt_baseline(root, tmp_path):
+    bad = tmp_path / "corrupt.json"
+    bad.write_text("{not json", encoding="utf-8")
+    assert compare(root, bad) == 2
+
+
+def test_compare_rejects_unknown_map_names(root, tmp_path):
+    """C-02: unknown requested maps must exit 2, not warn + pass/0."""
+    out = tmp_path / "baseline.json"
+    assert capture(root, out) == 0
+    assert compare(root, out, extra=["--maps", "not_a_map"]) == 2
+    assert compare(root, out, extra=["--maps", "%s,not_a_map" % MAP]) == 2
+
+
+def test_compare_rejects_sampling_seed_count_mismatch(root, tmp_path):
+    """C-03: stored sampling seed/count must match this harness."""
+    out = tmp_path / "baseline.json"
+    assert capture(root, out) == 0
+    tampered = _load(out)
+    tampered["sampling"]["seed"] += 1
+    seed_path = tmp_path / "seed.json"
+    _dump(seed_path, tampered)
+    assert compare(root, seed_path) == 2
+    tampered = _load(out)
+    tampered["sampling"]["count"] += 1
+    count_path = tmp_path / "count.json"
+    _dump(count_path, tampered)
+    assert compare(root, count_path) == 2
+
+
+def test_compare_rejects_shortened_sample_arrays(root, tmp_path):
+    """C-03: zip truncation attack - dropping the last index+value from the
+    baseline must fail, not silently compare one cell fewer."""
+    out = tmp_path / "baseline.json"
+    assert capture(root, out) == 0
+    doc = _load(out)
+    grid = doc["maps"][MAP]["terrain"]["grids"]["road_mask.bin"]
+    grid["indices"] = grid["indices"][:-1]
+    grid["values"] = grid["values"][:-1]
+    _dump(out, doc)
+    assert compare(root, out) == 1
+
+
+def test_compare_rejects_reordered_flow_sample_indices(root, tmp_path):
+    """C-03: changed index order with unchanged values passes value-wise under
+    zip, so it must be caught by the sampling-integrity check."""
+    out = tmp_path / "baseline.json"
+    assert capture(root, out) == 0
+    doc = _load(out)
+    grid = doc["maps"][MAP]["flow"]["grids"]["gpm_cq_64/v1/team1/infantry"]
+    grid["indices"] = list(reversed(grid["indices"]))
+    _dump(out, doc)
+    assert compare(root, out) == 1
+
+
+def _set_cost_sentinel_at_sampled_cell(root):
+    """Put a blocked sentinel (-1.0) at the first sampled cost cell."""
+    cost_path = root / MAP / "terrain" / "infantry" / "cost.bin"
+    arr = np.fromfile(cost_path, dtype="<f4")
+    cell = baseline.sample_indices(arr.size)[0]
+    arr[cell] = -1.0
+    arr.tofile(cost_path)
+    return cell
+
+
+def _quantize_cost(root, dtype, offset, scale):
+    """Rewrite infantry/cost.bin as a fake format-1.2 quantized grid."""
+    terrain = root / MAP / "terrain"
+    cost_path = terrain / "infantry" / "cost.bin"
+    values = np.fromfile(cost_path, dtype="<f4").astype(np.float64)
+    raw = np.rint((values - offset) / scale).astype(dtype)
+    cost_path.write_bytes(raw.tobytes())
+    sidecar_path = terrain / "sidecar.json"
+    sidecar = _load(sidecar_path)
+    sidecar["format_version"] = "1.2"
+    _write_json(sidecar_path, sidecar)
+    profile_path = terrain / "infantry" / "sidecar.json"
+    profile = _load(profile_path)
+    profile["quantization"] = {"cost.bin": {"dtype": np.dtype(dtype).str,
+                                            "offset": offset,
+                                            "scale": scale}}
+    _write_json(profile_path, profile)
+
+
+def test_quantized_blocked_sentinel_drift_within_half_scale_fails(root, tmp_path):
+    """B-03/C-05: sentinel -1.0 quantizes to raw -3 at scale 0.3, decoding to
+    -0.9: drift 0.1 <= scale/2 = 0.15, so only exact-sentinel enforcement
+    can catch it. The 1.2 spec requires sentinel cells to decode exactly."""
+    out = tmp_path / "baseline.json"
+    report = tmp_path / "report.json"
+    cell = _set_cost_sentinel_at_sampled_cell(root)
+    assert capture(root, out) == 0
+    _quantize_cost(root, "<i2", 0.0, 0.3)
+    assert compare(root, out, report) == 1
+    data = _load(report)
+    hits = [e for e in data["exceedances"]
+            if e["artifact"] == "terrain/infantry/cost.bin"
+            and e["rule"] == "blocked_sentinel_exact"
+            and e["cell_index"] == cell]
+    assert len(hits) == 1
+    assert hits[0]["baseline"] == -1.0
+    assert hits[0]["new"] == pytest.approx(-0.9)
+
+
+def test_quantized_blocked_sentinel_exact_passes(root, tmp_path):
+    """offset = sentinel: raw 0 decodes to exactly -1.0 and integer costs stay
+    exact, so the quantized grid (including non-sentinel cells within
+    scale/2) must pass unchanged."""
+    out = tmp_path / "baseline.json"
+    _set_cost_sentinel_at_sampled_cell(root)
+    assert capture(root, out) == 0
+    _quantize_cost(root, "<u2", -1.0, 0.5)
+    assert compare(root, out) == 0
+
+
+def test_firing_skip_note_visible_without_report(root, tmp_path, monkeypatch,
+                                                 capsys):
+    """C-06: unavailable firing fixture stays a note (exit 0) but must be
+    printed even without --report."""
+    monkeypatch.setattr(baseline, "FIRING_MAPS", (MAP,))
+    monkeypatch.setattr(baseline, "FIRING_SCRIPT", tmp_path / "missing.mjs")
+    out = tmp_path / "baseline.json"
+    assert capture(root, out) == 0
+    capsys.readouterr()  # drop capture output
+    assert compare(root, out) == 0
+    assert "firing fixture unavailable" in capsys.readouterr().out

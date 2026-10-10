@@ -2629,13 +2629,13 @@
      {
       "azimuth": 116.565051,
       "distance": 704.533418,
-      "elevationDegrees": 75.985469,
-      "elevationMils": 1350.852789,
-      "heightDelta": -23.663663,
+      "elevationDegrees": 76.118568,
+      "elevationMils": 1353.218993,
+      "heightDelta": -49.24078,
       "mortar": "C4-5",
       "status": "OK",
       "target": "E5-5",
-      "timeOfFlight": 19.572631,
+      "timeOfFlight": 19.75656,
       "valid": true
      },
      {
@@ -2653,13 +2653,13 @@
      {
       "azimuth": 296.565051,
       "distance": 704.533418,
-      "elevationDegrees": 75.769169,
-      "elevationMils": 1347.007456,
-      "heightDelta": 15.807106,
+      "elevationDegrees": 76.057696,
+      "elevationMils": 1352.136815,
+      "heightDelta": -37.417467,
       "mortar": "F11-5",
       "status": "OK",
       "target": "D10-5",
-      "timeOfFlight": 19.281143,
+      "timeOfFlight": 19.672,
       "valid": true
      }
     ],
@@ -15718,6 +15718,7 @@
     "status": "ok"
    },
    "terrain": {
+    "blocked_sentinel": -1.0,
     "format_version": "1.0",
     "grids": {
      "edge_grade_max.bin": {
@@ -31413,6 +31414,7 @@
     "status": "ok"
    },
    "terrain": {
+    "blocked_sentinel": -1.0,
     "format_version": "1.1",
     "grids": {
      "bridge_mask.bin": {
@@ -46396,6 +46398,7 @@
     "status": "ok"
    },
    "terrain": {
+    "blocked_sentinel": -1.0,
     "format_version": "1.0",
     "grids": {
      "edge_grade_max.bin": {
@@ -61080,6 +61083,7 @@
     "status": "ok"
    },
    "terrain": {
+    "blocked_sentinel": -1.0,
     "format_version": "1.0",
     "grids": {
      "edge_grade_max.bin": {
@@ -77557,6 +77561,7 @@
     "status": "ok"
    },
    "terrain": {
+    "blocked_sentinel": -1.0,
     "format_version": "1.0",
     "grids": {
      "edge_grade_max.bin": {
@@ -80212,37 +80217,37 @@
      {
       "azimuth": 116.565051,
       "distance": 352.266709,
-      "elevationDegrees": 83.218526,
-      "elevationMils": 1479.440464,
-      "heightDelta": -30.5176,
+      "elevationDegrees": 83.18082,
+      "elevationMils": 1478.770128,
+      "heightDelta": -14.200146,
       "mortar": "C4-5",
       "status": "OK",
       "target": "E5-5",
-      "timeOfFlight": 20.070071,
+      "timeOfFlight": 19.959615,
       "valid": true
      },
      {
       "azimuth": 135,
       "distance": 445.586058,
-      "elevationDegrees": 81.280368,
-      "elevationMils": 1444.984313,
-      "heightDelta": 0,
+      "elevationDegrees": 81.183655,
+      "elevationMils": 1443.264976,
+      "heightDelta": 30.529807,
       "mortar": "H7-5",
       "status": "OK",
       "target": "J9-5",
-      "timeOfFlight": 19.774161,
+      "timeOfFlight": 19.558931,
       "valid": true
      },
      {
       "azimuth": 296.565051,
       "distance": 352.266709,
-      "elevationDegrees": 83.124552,
-      "elevationMils": 1477.769821,
-      "heightDelta": 9.483787,
+      "elevationDegrees": 83.147308,
+      "elevationMils": 1478.174367,
+      "heightDelta": 0,
       "mortar": "F11-5",
       "status": "OK",
       "target": "D10-5",
-      "timeOfFlight": 19.797044,
+      "timeOfFlight": 19.862469,
       "valid": true
      }
     ],
@@ -88679,6 +88684,7 @@
     "status": "ok"
    },
    "terrain": {
+    "blocked_sentinel": -1.0,
     "format_version": "1.0",
     "grids": {
      "edge_grade_max.bin": {
@@ -109909,6 +109915,7 @@
     "status": "ok"
    },
    "terrain": {
+    "blocked_sentinel": -1.0,
     "format_version": "1.0",
     "grids": {
      "edge_grade_max.bin": {
@@ -129487,6 +129494,7 @@
     "status": "ok"
    },
    "terrain": {
+    "blocked_sentinel": -1.0,
     "format_version": "1.1",
     "grids": {
      "bridge_mask.bin": {

@@ -48,6 +48,22 @@ Known ceilings (deliberate, documented):
       change them, so they are reported but never fail a comparison.
     - The baseline document contains no timestamp, so two captures over
       unchanged data are byte-identical.
+
+Compare integrity (fail-closed; review-001 repairs):
+    - The baseline document must carry format == BASELINE_FORMAT, a non-empty
+      "maps" object, and the same sampling seed/count as this harness;
+      anything else (including a compare REPORT mistaken for a baseline)
+      exits 2 before any map data is read.
+    - Every requested --maps name must exist in the baseline; unknown names
+      exit 2. Zero-coverage compares are therefore impossible.
+    - Per grid, stored sample indices must equal the deterministic rule for
+      the grid shape and len(values) must equal len(indices); a mismatch is an
+      exceedance, never silently zip-truncated.
+    - Blocked cost cells: when the terrain sidecar records blocked_sentinel,
+      a sampled cost cell equal to the sentinel on either side must be exactly
+      equal on the other side; scale/2 never applies to sentinels. This
+      matches the terrain-traversability 1.2 spec: "blocked/unreachable
+      sentinel cells decode to the exact documented sentinel".
 """
 
 import argparse
@@ -221,7 +237,7 @@ def capture_files(map_dir):
 def capture_terrain(map_dir):
     terrain_dir = map_dir / "terrain"
     if not terrain_dir.is_dir():
-        return {"format_version": None, "grids": {}}
+        return {"format_version": None, "blocked_sentinel": None, "grids": {}}
     sidecar = _read_json(terrain_dir / "sidecar.json")
     grid = sidecar["grid"]
     rows, cols = int(grid["rows"]), int(grid["cols"])
@@ -261,7 +277,9 @@ def capture_terrain(map_dir):
             add(rel, _entry_with_quant(default_dtype, pquant.get(fname),
                                        top_quant.get(rel)))
 
-    return {"format_version": sidecar.get("format_version"), "grids": grids}
+    return {"format_version": sidecar.get("format_version"),
+            "blocked_sentinel": sidecar.get("blocked_sentinel"),
+            "grids": grids}
 
 
 def _flow_grid_fixture(bin_path, sidecar):
@@ -474,7 +492,45 @@ def _exceed(exceedances, map_name, artifact, rule, message,
     exceedances.append(entry)
 
 
+def _sampling_ok(map_name, artifact, fix, side, exceedances):
+    """Fail-closed check: stored indices/values must match the recorded rule.
+
+    Guards against zip pairing mismatched or truncated samples when a
+    baseline was captured with different sampling constants or hand-edited.
+    """
+    rows, cols = fix.get("shape", (0, 0))
+    expected = sample_indices(int(rows) * int(cols))
+    indices = fix.get("indices")
+    values = fix.get("values")
+    if indices != expected:
+        _exceed(exceedances, map_name, artifact, "sampling_integrity",
+                "%s fixture indices do not match the recorded sampling rule "
+                "for shape %s" % (side, fix.get("shape")))
+        return False
+    if not isinstance(values, list) or len(values) != len(indices):
+        _exceed(exceedances, map_name, artifact, "sampling_integrity",
+                "%s fixture values length (%s) != indices length (%d)"
+                % (side,
+                   len(values) if isinstance(values, list)
+                   else type(values).__name__,
+                   len(indices)))
+        return False
+    return True
+
+
 def _compare_terrain(map_name, baseline, current, exceedances, notes):
+    bsent = baseline.get("blocked_sentinel")
+    csent = current.get("blocked_sentinel")
+    if bsent is not None and csent is not None and float(bsent) != float(csent):
+        _exceed(exceedances, map_name, "terrain", "blocked_sentinel",
+                "blocked sentinel changed", baseline=bsent, new=csent,
+                tolerance=0)
+    sentinel = bsent if bsent is not None else csent
+    if sentinel is None:
+        notes.append("%s: no blocked_sentinel recorded on either side; "
+                     "sentinel exactness not enforced" % map_name)
+    else:
+        sentinel = float(sentinel)
     bgrids = baseline.get("grids", {})
     cgrids = current.get("grids", {})
     for rel, bfix in sorted(bgrids.items()):
@@ -488,6 +544,10 @@ def _compare_terrain(map_name, baseline, current, exceedances, notes):
             _exceed(exceedances, map_name, artifact, "shape",
                     "shape changed: %s -> %s" % (bfix["shape"], cfix["shape"]),
                     baseline=bfix["shape"], new=cfix["shape"])
+            continue
+        if not (_sampling_ok(map_name, artifact, bfix, "baseline", exceedances)
+                and _sampling_ok(map_name, artifact, cfix, "current",
+                                 exceedances)):
             continue
         if bfix["kind"] == "mask":
             if cfix["kind"] != "mask":
@@ -504,8 +564,21 @@ def _compare_terrain(map_name, baseline, current, exceedances, notes):
             scale = cfix.get("scale")
             tol = None if scale is None else abs(float(scale)) / 2.0
             rule = "continuous_exact" if tol is None else "continuous_quantized"
+            is_cost = rel.endswith("cost.bin")
             for idx, bval, cval in zip(bfix["indices"], bfix["values"],
                                        cfix["values"]):
+                if sentinel is not None and is_cost \
+                        and (bval == sentinel or cval == sentinel):
+                    # Sentinels must match exactly on both sides; scale/2
+                    # never applies (1.2 spec: sentinel cells decode to the
+                    # exact documented sentinel).
+                    if bval != cval:
+                        _exceed(exceedances, map_name, artifact,
+                                "blocked_sentinel_exact",
+                                "blocked sentinel cell changed",
+                                cell_index=idx, baseline=bval, new=cval,
+                                tolerance=0.0)
+                    continue
                 if tol is None:
                     ok = bval == cval  # exact on 6-decimal rounded values
                 else:
@@ -533,6 +606,10 @@ def _compare_flow(map_name, baseline, current, max_flow_flips, exceedances, note
             _exceed(exceedances, map_name, artifact, "shape",
                     "shape changed: %s -> %s" % (bfix["shape"], cfix["shape"]),
                     baseline=bfix["shape"], new=cfix["shape"])
+            continue
+        if not (_sampling_ok(map_name, artifact, bfix, "baseline", exceedances)
+                and _sampling_ok(map_name, artifact, cfix, "current",
+                                 exceedances)):
             continue
         if bfix["unreachable_count"] != cfix["unreachable_count"]:
             _exceed(exceedances, map_name, artifact, "unreachable_count",
@@ -714,16 +791,33 @@ def _cmd_compare(args):
         print("error: baseline not found: %s" % baseline_path, file=sys.stderr)
         return 2
     baseline_doc = _read_json(baseline_path)
-    baseline_maps = baseline_doc.get("maps", {})
-    maps = _parse_maps(args.maps) if args.maps else sorted(baseline_maps)
-    current_maps = {}
-    selected = {name: baseline_maps[name] for name in maps if name in baseline_maps}
-    for name in sorted(set(maps) - set(baseline_maps)):
-        print("warning: %s not present in baseline; skipped" % name,
+    if not isinstance(baseline_doc, dict) \
+            or baseline_doc.get("format") != BASELINE_FORMAT:
+        print("error: %s is not a format-%s baseline document "
+              "(a compare report is not a baseline)"
+              % (baseline_path, BASELINE_FORMAT), file=sys.stderr)
+        return 2
+    baseline_maps = baseline_doc.get("maps")
+    if not isinstance(baseline_maps, dict) or not baseline_maps:
+        print("error: baseline document has no maps: %s" % baseline_path,
               file=sys.stderr)
+        return 2
+    sampling = baseline_doc.get("sampling")
+    if not isinstance(sampling, dict) or sampling.get("seed") != SAMPLE_SEED \
+            or sampling.get("count") != SAMPLE_COUNT:
+        print("error: baseline sampling seed/count does not match this harness "
+              "(expected seed=%d count=%d); recapture the baseline"
+              % (SAMPLE_SEED, SAMPLE_COUNT), file=sys.stderr)
+        return 2
+    maps = _parse_maps(args.maps) if args.maps else sorted(baseline_maps)
+    unknown = sorted(set(maps) - set(baseline_maps))
+    if unknown:
+        print("error: requested map(s) not in baseline: %s"
+              % ", ".join(unknown), file=sys.stderr)
+        return 2
+    current_maps = {}
+    selected = {name: baseline_maps[name] for name in maps}
     for index, name in enumerate(maps, 1):
-        if name not in baseline_maps:
-            continue
         map_dir = root / name
         if not map_dir.is_dir():
             current_maps[name] = None
@@ -751,6 +845,8 @@ def _cmd_compare(args):
         print("FAIL %(map)s %(artifact)s [%(rule)s] %(message)s" % exc)
     if len(exceedances) > 50:
         print("... and %d more (see --report)" % (len(exceedances) - 50))
+    for note in notes:
+        print("NOTE %s" % note)
     print("compare: %s (%d exceedance%s)"
           % (report["result"], len(exceedances), "" if len(exceedances) == 1 else "s"))
     return 1 if exceedances else 0
