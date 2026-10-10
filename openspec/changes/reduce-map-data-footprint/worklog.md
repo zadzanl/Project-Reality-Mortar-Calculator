@@ -66,3 +66,28 @@ Reduce generated repository footprint without changing physics constants or heig
 
 ### Next gate
 - Track the corrected task record and verification reports, then request a new review with the committed artifact and task state. The safe broad suite is still not green (4 failed, 110 passed, 8 errors; exit 1).
+
+## Revision 5 - 2026-10-10
+
+### Review findings
+- `artifacts/review-003.md`: **NEEDS_REVISION; execution COMPLETE**. Behavioral and Changeability specialists returned usable reports on retry. They found two blocking CLI safety defects: delimiter-only `--maps` selects zero maps and returns pass; `--report` equal to `--baseline` overwrites the safety artifact.
+- Additional proof gaps: subset compare needs visible coverage, truncation output must not imply an unrequested report, and ignored OpenSpec evidence needs an explicit tracking policy. These are bounded operator-safety/documentation fixes; no generated data is involved.
+
+### Bounded handoff
+- Worker C: repair `processor/baseline.py` and `processor/tests/test_baseline.py`; reject empty capture/compare selections, reject same resolved baseline/report paths, print compared/total coverage, make truncation guidance accurate, add negative tests. Report to `artifacts/impl-003.md`. No map data, firing fixture, tasks, or unrelated dirty files.
+
+### Verification pending
+- Run old-code tripwires first, then focused Python and Node tests, comma/repeated-comma/whitespace probes, same-path preservation probe, subset/full coverage output, committed-baseline compare, and broad safe suite with its true failing status. Resolve ignored evidence references before the next review.
+
+## Revision 6 - 2026-10-10
+
+### Evidence
+- Worker C returned `artifacts/impl-003.md`. Old-code tripwires reproduced both review-003 defects: delimiter-only maps passed with zero coverage; same-path report shrank a copied baseline from 2,448,239 bytes to 404 bytes. The worker then added fail-closed guards, coverage output, accurate truncation guidance, and tests.
+- Independent verification: `python -m pytest processor/tests/test_baseline.py -q -p no:cacheprovider` -> 30 passed, exit 0; `node --test processor/tests/test_baseline_firing.mjs` -> 6 passed, exit 0; scoped `git diff --check` passed. Real baseline probes: same-path report exit 2 with bytes preserved; comma-only maps exit 2; valid `adak` subset exit 0 with `1/8` coverage.
+
+### Evidence tracking decision
+- `.gitignore` previously ignored every `artifacts/` directory, which hid OpenSpec evidence. It now preserves the generated-data ignore rule while unignoring Markdown OpenSpec artifacts and worklogs. The corrected baseline JSON remains explicitly tracked; generated map data remains ignored and untouched.
+- Research-004/005 and worker/review records will be committed as small source evidence. Future non-Markdown or large generated artifacts still require an explicit force-add decision.
+
+### Verification pending
+- Commit Worker C plus its durable report/evidence policy, rerun full unchanged compare, then request review-004. Do not start obstruction or terrain writer work until review-004 approves.
