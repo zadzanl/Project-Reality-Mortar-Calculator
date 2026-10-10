@@ -37,16 +37,3 @@ processed_maps/
 *.iml
 .DS_Store
 __pycache__
-
-# Templates
-*template.md
-worklog.md
-handoff/
-
-# Minimap annotation
-debug/
-minimap_1k/
-annotations/
-candidates/
-prompts/
-packets/
