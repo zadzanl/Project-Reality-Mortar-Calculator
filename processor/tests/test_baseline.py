@@ -406,3 +406,77 @@ def test_firing_skip_note_visible_without_report(root, tmp_path, monkeypatch,
     capsys.readouterr()  # drop capture output
     assert compare(root, out) == 0
     assert "firing fixture unavailable" in capsys.readouterr().out
+
+
+# ---------------------------------------------------------------------------
+# Negative tripwires added in review-003 revision (impl-003)
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize("bad", [",", ",,", "   "])
+def test_capture_rejects_delimiter_only_maps(root, tmp_path, bad):
+    """R-003-B01: an explicit --maps that parses to zero names must exit 2
+    and write nothing, not capture an empty baseline."""
+    out = tmp_path / "baseline.json"
+    assert baseline.main(["capture", "--out", str(out), "--root", str(root),
+                          "--maps", bad]) == 2
+    assert not out.exists()
+
+
+@pytest.mark.parametrize("bad", [",", ",,", "   "])
+def test_compare_rejects_delimiter_only_maps(root, tmp_path, bad):
+    """R-003-B01: delimiter/whitespace-only --maps must exit 2, not pass
+    with zero maps compared."""
+    out = tmp_path / "baseline.json"
+    assert capture(root, out) == 0
+    assert compare(root, out, extra=["--maps", bad]) == 2
+
+
+def test_compare_rejects_report_path_equal_to_baseline(root, tmp_path):
+    """R-003-B02: --report resolving to the --baseline path must exit 2
+    before any read/write and leave the baseline byte-identical."""
+    out = tmp_path / "baseline.json"
+    assert capture(root, out) == 0
+    before = out.read_bytes()
+    assert compare(root, out, report=out) == 2
+    assert out.read_bytes() == before
+
+
+def test_compare_distinct_report_path_still_valid(root, tmp_path):
+    """R-003-B02: a distinct --report path remains a valid compare."""
+    out = tmp_path / "baseline.json"
+    report = tmp_path / "report.json"
+    assert capture(root, out) == 0
+    assert compare(root, out, report) == 0
+    assert report.is_file()
+
+
+def test_compare_prints_subset_and_full_coverage(root, tmp_path, capsys):
+    """R-003-C02: console output must state compared/total map coverage so a
+    subset run can never be mistaken for the full gate."""
+    other = "fake_map_2"
+    make_map(root, name=other)
+    out = tmp_path / "baseline.json"
+    assert baseline.main(["capture", "--out", str(out), "--root", str(root),
+                          "--maps", "%s,%s" % (MAP, other)]) == 0
+    capsys.readouterr()  # drop capture output
+    assert compare(root, out, extra=["--maps", MAP]) == 0
+    assert "compare: pass (0 exceedances; 1/2 maps)" in capsys.readouterr().out
+    assert compare(root, out) == 0
+    assert "compare: pass (0 exceedances; 2/2 maps)" in capsys.readouterr().out
+
+
+def test_truncation_hint_matches_report_request(root, tmp_path, capsys):
+    """R-003-C03: the >50-exceedance truncation hint must not point at a
+    report that was never requested."""
+    out = tmp_path / "baseline.json"
+    assert capture(root, out) == 0
+    mask_path = root / MAP / "terrain" / "road_mask.bin"
+    arr = np.fromfile(mask_path, dtype=np.uint8)
+    for cell in baseline.sample_indices(arr.size):
+        arr[cell] ^= 1  # 64 sampled mask flips > 50 printed cap
+    arr.tofile(mask_path)
+    assert compare(root, out) == 1
+    assert "rerun with --report for full details" in capsys.readouterr().out
+    report = tmp_path / "report.json"
+    assert compare(root, out, report) == 1
+    assert "(see --report)" in capsys.readouterr().out

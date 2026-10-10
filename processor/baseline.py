@@ -64,6 +64,20 @@ Compare integrity (fail-closed; review-001 repairs):
       equal on the other side; scale/2 never applies to sentinels. This
       matches the terrain-traversability 1.2 spec: "blocked/unreachable
       sentinel cells decode to the exact documented sentinel".
+
+Operator safety (fail-closed; review-003 repairs):
+    - An explicit --maps argument that parses to zero names (",", ",,",
+      whitespace) exits 2 for both capture and compare; only an omitted
+      --maps selects the default set.
+    - compare rejects a --report path that resolves to the --baseline path
+      before reading or writing anything, so a path mistake cannot destroy
+      the gate artifact.
+    - The final console line always prints compared/total map coverage
+      (e.g. "compare: pass (0 exceedances; 1/8 maps)") so a subset run can
+      never be mistaken for the full gate.
+    - The >50-exceedance truncation hint says "see --report" only when a
+      report was actually requested; otherwise it tells the operator to
+      rerun with --report.
 """
 
 import argparse
@@ -750,9 +764,14 @@ def compare_maps(baseline_maps, current_maps, max_flow_flips):
 # ---------------------------------------------------------------------------
 
 def _parse_maps(value):
-    if not value:
+    if value is None:
         return list(DEFAULT_MAPS)
-    return [part.strip() for part in value.split(",") if part.strip()]
+    maps = [part.strip() for part in value.split(",") if part.strip()]
+    if not maps:
+        raise ValueError("--maps %r selects zero maps; pass comma-separated "
+                         "map names or omit --maps for the default set"
+                         % value)
+    return maps
 
 
 def _guard_output_path(path, root):
@@ -787,6 +806,11 @@ def _cmd_compare(args):
     if args.report:
         _guard_output_path(args.report, root)
     baseline_path = Path(args.baseline)
+    if args.report and Path(args.report).resolve() == baseline_path.resolve():
+        print("error: --report path resolves to the --baseline path (%s); "
+              "refusing to overwrite the baseline" % baseline_path,
+              file=sys.stderr)
+        return 2
     if not baseline_path.is_file():
         print("error: baseline not found: %s" % baseline_path, file=sys.stderr)
         return 2
@@ -809,7 +833,8 @@ def _cmd_compare(args):
               "(expected seed=%d count=%d); recapture the baseline"
               % (SAMPLE_SEED, SAMPLE_COUNT), file=sys.stderr)
         return 2
-    maps = _parse_maps(args.maps) if args.maps else sorted(baseline_maps)
+    maps = (_parse_maps(args.maps) if args.maps is not None
+            else sorted(baseline_maps))
     unknown = sorted(set(maps) - set(baseline_maps))
     if unknown:
         print("error: requested map(s) not in baseline: %s"
@@ -844,11 +869,17 @@ def _cmd_compare(args):
     for exc in exceedances[:50]:
         print("FAIL %(map)s %(artifact)s [%(rule)s] %(message)s" % exc)
     if len(exceedances) > 50:
-        print("... and %d more (see --report)" % (len(exceedances) - 50))
+        if args.report:
+            print("... and %d more (see --report)" % (len(exceedances) - 50))
+        else:
+            print("... and %d more (rerun with --report for full details)"
+                  % (len(exceedances) - 50))
     for note in notes:
         print("NOTE %s" % note)
-    print("compare: %s (%d exceedance%s)"
-          % (report["result"], len(exceedances), "" if len(exceedances) == 1 else "s"))
+    print("compare: %s (%d exceedance%s; %d/%d maps)"
+          % (report["result"], len(exceedances),
+             "" if len(exceedances) == 1 else "s",
+             len(selected), len(baseline_maps)))
     return 1 if exceedances else 0
 
 
