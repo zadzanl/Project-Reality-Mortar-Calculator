@@ -17,6 +17,13 @@ www/
 # Zipped map files
 raw_map_data/*
 artifacts/
+# OpenSpec plans and evidence are source records, not generated artifacts.
+!openspec/
+!openspec/changes/
+!openspec/changes/**/
+!openspec/changes/**/artifacts/
+!openspec/changes/**/artifacts/*.md
+!openspec/changes/**/worklog.md
 *.zip
 
 # Generated terrain cost grids (regenerable: python processor/build_terrain_cost.py)
@@ -30,3 +37,16 @@ processed_maps/
 *.iml
 .DS_Store
 __pycache__
+
+# Templates
+*template.md
+worklog.md
+handoff/
+
+# Minimap annotation
+debug/
+minimap_1k/
+annotations/
+candidates/
+prompts/
+packets/
