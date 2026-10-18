@@ -1,27 +1,17 @@
 #!/usr/bin/env node
 /**
- * Firing-solution fixture for processor/baseline.py (OpenSpec change
- * reduce-map-data-footprint, task 1.2). Headless Node ESM script: loads the
- * pure calculator modules (no browser APIs), reads a map's
- * heightmap.json.gz + metadata.json, and computes firing solutions for three
- * fixed mortar/target grid-reference pairs spread across the map.
+ * Headless firing solution regression fixture for processor/baseline.py.
  *
- * Usage: node processor/baseline_firing.mjs <map_dir>
- * Prints one JSON document to stdout: {"map": <name>, "pairs": [...]}.
- * Exit 0 on success; non-zero with the error on stderr otherwise (baseline.py
- * then records the fixture as "unavailable" and continues -- documented
- * known ceiling, not a hard failure).
+ * ROLE: Maintainer-only Node ESM regression fixture.
+ * INPUTS: <map_dir> containing heightmap.json.gz and metadata.json.
+ * OUTPUTS: JSON document on stdout with computed mortar/target firing solutions.
+ * HOW TO RUN:
+ *   node processor/baseline_firing.mjs processed_maps/asad_khal
+ * DID IT WORK CHECK:
+ *   Prints {"map": "asad_khal", "pairs": [...]} with exit code 0.
  *
- * Elevation comes from the PRODUCTION path
- * (calculator/static/js/heightmap.js::getElevation), which flips Y because
- * heightmap storage row 0 is south while world Y=0 is north. Never
- * reimplement the interpolation here (review-001 finding B-01: the previous
- * local copy skipped the Y flip and produced non-production solutions).
- * Elevation formula (never change the 65535):
- *   elevation_m = (pixel_value / 65535.0) * height_scale
- *
- * Regression coverage: processor/tests/test_baseline_firing.mjs
- * (node --test processor/tests/test_baseline_firing.mjs).
+ * Elevation comes from the PRODUCTION path (calculator/static/js/heightmap.js::getElevation),
+ * which flips Y because heightmap storage row 0 is south while world Y=0 is north.
  */
 
 import { readFile } from 'node:fs/promises';

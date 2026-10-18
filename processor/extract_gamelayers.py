@@ -1,12 +1,17 @@
 #!/usr/bin/env python3
-"""
-Extract game-layer data (control points, spawn points, vehicle spawners)
-from raw_map_data/<map>/server.zip into processed_maps/<map>/gamelayers.json.
+"""Extract control points, spawn points, and vehicle spawners from server archives.
 
-Also extracts heightmapcluster.setSeaWaterLevel from heightdata.con into
-processed_maps/<map>/metadata.json as "sea_level_m" (additive field).
-
-Maintainer-side only. Never modifies raw_map_data/. the_falklands excluded.
+ROLE: Maintainer-only CLI tool. End users never run this script.
+INPUTS:
+    - raw_map_data/<map>/server.zip (gamemodes/gpm_cq gameplayobjects.con)
+OUTPUTS:
+    - processed_maps/<map>/gamelayers.json (control points, spawn points, combat areas)
+    - Updates processed_maps/<map>/metadata.json with 'sea_level_m' if present
+HOW TO RUN:
+    python processor/extract_gamelayers.py              # Process all maps
+    python processor/extract_gamelayers.py asad_khal    # Process one map
+DID IT WORK CHECK:
+    Prints 'layers=... CPs=... spawns=...' and creates gamelayers.json.
 
 CONFIRMED COORDINATE TRANSFORM (spike 1.1, see artifacts/spike_asad_khal_zoom.png):
   BF2 gameplayobjects.con absolutePosition is "X/Y/Z" where
@@ -19,11 +24,6 @@ CONFIRMED COORDINATE TRANSFORM (spike 1.1, see artifacts/spike_asad_khal_zoom.pn
   Verified by plotting named control points (northobjective vs southobjective)
   over the processed minimap, and by aligning sea-level water masks with the
   minimap coastline on adak and fools_road (artifacts/spike_water_*.png).
-
-Usage:
-  python processor/extract_gamelayers.py              # full extraction, all maps
-  python processor/extract_gamelayers.py --plot asad_khal [--layer gpm_cq/32]
-                                                      # spike: render debug overlay
 """
 import argparse
 import gzip
@@ -76,7 +76,9 @@ def parse_gameplayobjects(content):
     """Parse one gameplayobjects.con file.
 
     Returns dict with keys:
-      control_points:   [{name, id, team, unable_to_change_team, x, y, z, layer}]
+        control_points:   [{name, id, team, unable_to_change_team,
+                      unable_to_change_team_raw, team_ownership,
+                      main_base_rule_version, x, y, z, layer}]
       spawn_points:     [{name, group, control_point_id, x, y, z, layer}]
       vehicle_spawners: [{name, team, team_on_vehicle, templates, control_point_id,
                           x, y, z, layer}]
@@ -136,12 +138,21 @@ def parse_gameplayobjects(content):
                 layer = None
 
         if tpl['class'] == 'ControlPoint':
+            team = _int_prop(props, 'team')
+            unable_to_change_team_raw = _int_prop(props, 'unableToChangeTeam')
             cp = {
                 'name': name,
                 'id': _int_prop(props, 'controlPointId'),
-                'team': _int_prop(props, 'team'),
-                'unable_to_change_team': _int_prop(props, 'unableToChangeTeam') == 1,
+                'team': team,
+                'unable_to_change_team': unable_to_change_team_raw == 1,
+                'unable_to_change_team_raw': unable_to_change_team_raw,
+                'team_ownership': {
+                    'team': team,
+                    'source': 'ObjectTemplate.team',
+                },
+                'main_base_rule_version': 'main_base_v1',
             }
+            cp['main_base'] = bool(cp['unable_to_change_team'] and cp['team'] in (1, 2))
             if pos:
                 cp['x'], cp['y'], cp['z'] = pos
             if layer is not None:

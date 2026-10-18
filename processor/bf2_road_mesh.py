@@ -1,9 +1,8 @@
-"""Decode the locally observed Battlefield 2 compiled road mesh format.
+"""Decode the Battlefield 2 compiled road mesh binary format (.road files).
 
-This reader intentionally supports the road mesh layout observed in the
-Project Reality v1.9 Asad Khal fixture.  It is not a general Battlefield 2
-mesh or navigation-mesh reader.  A future format version needs a new fixture
-and an explicit decoder branch rather than a speculative fallback.
+ROLE: Internal Library. Imported by extract_obstructions.py and test suites; not run directly.
+INPUTS: Compiled binary .road mesh buffers from client.zip archives.
+OUTPUTS: Decoded RoadMesh objects (world-space vertices, triangles, and origins).
 """
 
 from __future__ import annotations

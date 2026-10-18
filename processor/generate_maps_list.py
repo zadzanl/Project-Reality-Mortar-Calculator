@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
-"""
-Auto-generate mapsList.json from processed_maps directory contents.
+"""Generate repository-root mapsList.json from processed_maps directory.
 
-This script scans the processed_maps/ directory for subdirectories
-containing metadata.json files, then generates a JSON file listing
-all available maps in the correct format for the Flask /maps/list endpoint.
+ROLE: Maintainer-only utility for Android/offline releases.
+INPUTS:
+    - processed_maps/<map>/metadata.json
+OUTPUTS:
+    - mapsList.json (repository root manifest for mobile app)
+HOW TO RUN:
+    python processor/generate_maps_list.py
+DID IT WORK CHECK:
+    Prints 'Generated mapsList.json with <count> maps'.
 """
 import json
 from pathlib import Path

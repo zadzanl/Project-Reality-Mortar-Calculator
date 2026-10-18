@@ -1,5 +1,19 @@
 #!/usr/bin/env python3
-"""Extract road triangles, static obstructions, and vegetation placements."""
+"""Extract road meshes, static building/wall footprints, and vegetation placements.
+
+ROLE: Maintainer-only CLI tool. End users never run this script.
+INPUTS:
+    - raw_map_data/<map>/server.zip (gameplay objects and terrain configs)
+    - raw_map_data/<map>/client.zip (compiled road mesh binaries)
+    - raw_game_data/objects_statics_server.zip (static template sizes)
+OUTPUTS:
+    - processed_maps/<map>/obstructions.json (road triangles, static footprints, veg)
+HOW TO RUN:
+    python processor/extract_obstructions.py              # Process all maps
+    python processor/extract_obstructions.py asad_khal    # Process one map
+DID IT WORK CHECK:
+    Prints 'roads=... statics=... classified=... vegetation=...' and updates obstructions.json.
+"""
 import json
 import math
 import re
@@ -7,11 +21,14 @@ import sys
 import zipfile
 from pathlib import Path
 
-from bf2_road_mesh import decode_compiled_road_mesh, road_vertices_world
+from bf2_road_mesh import decode_compiled_road_mesh, normalize_mesh_reference, road_vertices_world
 
 ROOT = Path(__file__).resolve().parent.parent
 RAW = ROOT / "raw_map_data"
 OUT = ROOT / "processed_maps"
+STATIC_OBJECTS_ARCHIVE = ROOT / "raw_game_data" / "objects_statics_server.zip"
+MAX_STATIC_TEMPLATE_BYTES = 64 * 1024
+MAX_STATIC_TEMPLATE_EXPANSION = 200
 EXCLUDED = {"the_falklands"}
 CLASS_RULES = (
     ("building", ("house", "building", "shed", "hut", "bunker", "tower", "mosque")),
@@ -36,17 +53,19 @@ def parse_slash(value):
 def parse_object_blocks(text):
     blocks = []
     current = None
-    for line in text.splitlines():
+    for line_number, line in enumerate(text.splitlines(), 1):
         match = CREATE_RE.match(line)
         if match:
             if current is not None:
                 blocks.append(current)
-            current = {"template": match.group(1), "props": {}}
+            current = {"template": match.group(1), "props": {}, "lines": {}}
             continue
         if current is not None:
             match = PROP_RE.match(line)
             if match and match.group(1).lower() != "create":
-                current["props"].setdefault(match.group(1).lower(), []).append(match.group(2).strip())
+                key = match.group(1).lower()
+                current["props"].setdefault(key, []).append(match.group(2).strip())
+                current["lines"].setdefault(key, line_number)
     if current is not None:
         blocks.append(current)
     return blocks
@@ -101,14 +120,28 @@ def parse_vegetation(text, map_size):
     return result
 
 
-def parse_roads(text, client, map_name, map_size, log):
-    roads = []
+def scan_road_references(text, map_name, log):
+    references = []
     for block in parse_object_blocks(text):
         reference = block["props"].get("geometry.loadmesh", [""])[0]
         if not reference:
             continue
-        archive_name = "roads/" + reference.replace("\\", "/").rsplit("/", 1)[-1].lower()
-        member = next((name for name in client.namelist() if name.replace("\\", "/").lower() == archive_name), None)
+        try:
+            archive_name = normalize_mesh_reference(reference, map_name)
+        except ValueError as error:
+            log(f"  mesh error {reference}: {error}")
+            continue
+        references.append((block, reference, archive_name))
+    return references
+
+
+def parse_roads(text, client, map_name, map_size, log, references=None):
+    roads = []
+    members = {name.replace("\\", "/").lower(): name for name in client.namelist()} if client else {}
+    if references is None:
+        references = scan_road_references(text, map_name, log)
+    for block, reference, archive_name in references:
+        member = members.get(archive_name)
         if member is None:
             log(f"  missing mesh: {reference}")
             continue
@@ -116,6 +149,8 @@ def parse_roads(text, client, map_name, map_size, log):
             mesh = decode_compiled_road_mesh(client.read(member), member)
             position = parse_slash(block["props"].get("absoluteposition", [""])[0])
             vertices = road_vertices_world(mesh, position)
+            if position is None or not np_is_finite(vertices):
+                raise ValueError("decoded road geometry is not finite")
             triangles = []
             for indices in mesh.triangles:
                 triangle = []
@@ -127,6 +162,11 @@ def parse_roads(text, client, map_name, map_size, log):
         except (ValueError, OSError, zipfile.BadZipFile) as error:
             log(f"  mesh error {reference}: {error}")
     return roads
+
+
+def np_is_finite(values):
+    """Keep finite-geometry validation independent of a numpy import."""
+    return all(math.isfinite(float(value)) for row in values for value in row)
 
 
 def read_member(archive, suffix):

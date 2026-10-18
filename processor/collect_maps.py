@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
-"""
-Project Reality Mortar Calculator - Map Collection Script
-Extracts server.zip files from PR:BF2 installation and prepares them for GitHub upload.
+"""Phase 1: Local map archive collector from Project Reality: BF2 installation.
 
-This script is  of the map processing workflow:
-- Scans PR:BF2 installPhase 1ation for map files
-- Validates and copies server.zip files
-- Generates manifest with MD5 checksums
-- Configures Git LFS if needed
-
-Usage:
-    python collect_maps.py                    # Auto-detect installation
-    python collect_maps.py --path "D:\\Games\\PR"  # Custom path
+ROLE: Maintainer-only CLI tool. End users never run this script.
+PREREQUISITES: Project Reality: BF2 installed locally on Windows.
+INPUTS:
+    - PR:BF2 levels directory: <install_dir>/mods/pr/levels/<map_name>/
+OUTPUTS:
+    - raw_map_data/<map_name>/server.zip (heightmaps & configs)
+    - raw_map_data/<map_name>/client.zip (minimap DDS textures)
+    - raw_map_data/manifest.json (inventory of collected maps with MD5 checksums)
+HOW TO RUN:
+    python processor/collect_maps.py                    # Auto-detect installation
+    python processor/collect_maps.py --path "D:\\Games\\PR"  # Custom path
+DID IT WORK CHECK:
+    Prints 'Collection completed successfully!' and updates raw_map_data/manifest.json.
 """
 
 import os

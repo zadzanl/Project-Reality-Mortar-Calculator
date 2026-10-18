@@ -1,9 +1,8 @@
-"""Read authoritative world dimensions from a BF2 server.zip.
+"""Read authoritative world dimensions and scales from a BF2 server.zip.
 
-The primary heightmap uses one sample at each world edge, so its horizontal
-spacing is ``map_size / (resolution - 1)``. The primary Y scale is meters per
-16-bit height unit; multiplying it by 65535 gives the maximum elevation used
-by the repository height sampler.
+ROLE: Internal Library. Imported by test suites and maintenance tools; not run directly.
+INPUTS: server.zip (reads heightdata.con).
+OUTPUTS: Dict containing map_size, height_scale, heightmap_resolution, and sea_level_m.
 """
 import re
 import zipfile

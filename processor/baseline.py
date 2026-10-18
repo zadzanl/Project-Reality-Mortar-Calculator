@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
-"""Baseline capture/compare harness for generated map artifacts.
+"""Baseline capture/compare regression safety harness for generated map artifacts.
 
-OpenSpec change: reduce-map-data-footprint (tasks 1.2, 1.3).
-Spec: openspec/changes/reduce-map-data-footprint/specs/map-artifact-regression/spec.md
-
-Usage:
-    python processor/baseline.py capture --out <path> [--maps a,b,c] [--root <processed_maps dir>]
-    python processor/baseline.py compare --baseline <path> [--report <path>]
-                                         [--maps a,b,c] [--root <processed_maps dir>]
-                                         [--max-flow-flips N]
-
-Exit codes: 0 = pass / capture written, 1 = any tolerance exceedance, 2 = usage or I/O error.
+ROLE: Maintainer-only Regression Safety Gate. Ensures zero silent data corruption across 84 maps.
+INPUTS:
+    - processed_maps/ (read-only verification of terrain, flow, heightmap, metadata)
+OUTPUTS:
+    - Baseline JSON snapshots or comparison regression reports.
+HOW TO RUN:
+    python processor/baseline.py capture --out baseline.json
+    python processor/baseline.py compare --baseline baseline.json
+DID IT WORK CHECK:
+    Exits with code 0 on pass / capture written; non-zero on regression tolerance exceedance.
 
 Dependencies: Python stdlib + NumPy only. The harness is READ-ONLY against
 processed_maps/ and raw_map_data/ and refuses to write output files inside them.
