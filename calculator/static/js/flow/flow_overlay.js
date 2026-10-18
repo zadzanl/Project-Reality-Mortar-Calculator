@@ -34,18 +34,20 @@
 
 import {
   buildRaceReadout,
+  formatDuration,
   formatRaceTime,
   loadLayerFields,
+  objectiveMarkers,
   probeFlow,
-  renderBands
+  renderBands,
+  FLOW_CLASSES
 } from './flow_core.js';
 
 const DEFAULT_LAYER = 'gpm_cq_64';
-const MAX_TIME_SECONDS = 300;
-const BAND_SECONDS = 60;
+const MAX_TIME_SECONDS = 600;
 const CONTESTED_DELTA_SECONDS = 30;
 const TEAM_VALUES = ['both', '1', '2'];
-const CLASS_VALUES = ['infantry', 'vehicles'];
+const CLASS_VALUES = FLOW_CLASSES;
 const PARTICLE_COUNT = 150;
 const PARTICLE_SPEED_MS = 60; // cosmetic data-space speed, not a game value
 const TRAIL_FADE_ALPHA = 0.08;
@@ -117,6 +119,8 @@ export function createFlowController() {
     gamelayers: null,
     available: false,
     visible: false,
+    active: false,
+    sizeCompatible: true,
     layerId: null,
     teamSel: 'both',
     classSel: 'infantry',
@@ -126,43 +130,56 @@ export function createFlowController() {
     particlesOn: false,
     particleSys: null,
     loadToken: 0,
+    probeToken: 0,
     canvas: null,
     ctx: null,
     imageData: null,
     overlayLayer: null,
-    renderScheduled: false,
+    objectiveGroup: null,
+    renderId: 0,
+    motionQuery: null,
+    lifecycleHandler: null,
     cache: new Map()
   };
 
   return {
-    attachMap: (map, mapName, mapSize) => attachMap(ctrl, map, mapName, mapSize),
+    attachMap: (map, mapName, mapSize, originalSize = mapSize) => attachMap(ctrl, map, mapName, mapSize, originalSize),
     detach: () => detach(ctrl),
+    setActive: (active) => {
+      ctrl.active = Boolean(active);
+      reconcileVisibility(ctrl);
+    },
     setVisible: (visible) => setVisible(ctrl, visible),
     setLayer: (layerId) => {
       if (ctrl.layerId !== layerId) {
         ctrl.layerId = layerId;
+        refreshObjectives(ctrl);
+        clearNotice();
+        clearReadout();
         reload(ctrl);
       }
     },
     setTeam: (sel) => {
       if (TEAM_VALUES.includes(sel) && ctrl.teamSel !== sel) {
         ctrl.teamSel = sel;
+        stopParticles(ctrl);
         updateReadout(ctrl);
+        updateProvenance(ctrl);
         scheduleRender(ctrl);
-        if (ctrl.particleSys) {
-          spawnParticles(ctrl, ctrl.particleSys);
-        }
+        startParticles(ctrl);
       }
     },
     setClass: (cls) => {
       if (CLASS_VALUES.includes(cls) && ctrl.classSel !== cls) {
         ctrl.classSel = cls;
+        stopParticles(ctrl);
+        ctrl.loadToken += 1;
+        ctrl.data = null;
+        removeOverlay(ctrl);
+        clearReadout();
         updateOptionStates(ctrl);
         updateProvenance(ctrl);
-        scheduleRender(ctrl);
-        if (ctrl.particleSys) {
-          spawnParticles(ctrl, ctrl.particleSys);
-        }
+        reload(ctrl);
       }
     },
     setTime: (seconds) => {
@@ -171,6 +188,7 @@ export function createFlowController() {
     },
     setParticles: (enabled) => {
       ctrl.particlesOn = Boolean(enabled);
+      updateMotionStatus(ctrl);
       if (ctrl.particlesOn) {
         startParticles(ctrl);
       } else {
@@ -217,46 +235,62 @@ export function initFlowControls(flow) {
   }
 }
 
-async function attachMap(ctrl, map, mapName, mapSize) {
+async function attachMap(ctrl, map, mapName, mapSize, originalSize) {
   detach(ctrl);
   ctrl.leafletMap = map;
   ctrl.mapSize = mapSize;
+  ctrl.sizeCompatible = mapSize === originalSize;
+  ctrl.motionQuery = window.matchMedia?.('(prefers-reduced-motion: reduce)') || null;
+  ctrl.lifecycleHandler = () => {
+    stopParticles(ctrl);
+    startParticles(ctrl);
+    updateMotionStatus(ctrl);
+  };
+  ctrl.motionQuery?.addEventListener?.('change', ctrl.lifecycleHandler);
+  document.addEventListener('visibilitychange', ctrl.lifecycleHandler);
+  updateMotionStatus(ctrl);
   if (ctrl.mapName !== mapName) {
     ctrl.cache.clear();
     ctrl.emptyLayers.clear();
     ctrl.gamelayers = null;
   }
   ctrl.mapName = mapName;
-  const token = ++ctrl.loadToken;
+  const token = ++ctrl.probeToken;
   let gamelayers = null;
   try {
     gamelayers = await probeFlow(mapName, fetch);
   } catch (error) {
-    if (token !== ctrl.loadToken) {
+    if (token !== ctrl.probeToken) {
       return;
     }
     console.error('Flow availability probe failed:', error);
   }
-  if (token !== ctrl.loadToken) {
+  if (token !== ctrl.probeToken) {
     return;
   }
   ctrl.gamelayers = gamelayers;
   ctrl.available = Boolean(
     gamelayers && Array.isArray(gamelayers.layers) && gamelayers.layers.length > 0);
-  // A fresh map starts with the overlay off, matching the contour layer.
-  ctrl.visible = false;
   ctrl.data = null;
-  ctrl.layerId = pickDefaultLayer(ctrl);
+  const ids = gamelayers?.layers?.map((layer) => `${layer.mode}_${layer.size}`) || [];
+  if (!ids.includes(ctrl.layerId)) ctrl.layerId = pickDefaultLayer(ctrl);
   syncControls(ctrl);
+  reconcileVisibility(ctrl);
 }
 
 function detach(ctrl) {
   ctrl.loadToken += 1;
-  ctrl.renderScheduled = false;
+  ctrl.probeToken += 1;
+  cancelRender(ctrl);
+  ctrl.motionQuery?.removeEventListener?.('change', ctrl.lifecycleHandler);
+  document.removeEventListener('visibilitychange', ctrl.lifecycleHandler);
   stopParticles(ctrl);
   removeOverlay(ctrl);
+  removeObjectives(ctrl);
   ctrl.leafletMap = null;
   ctrl.data = null;
+  ctrl.available = false;
+  clearReadout();
 }
 
 function pickDefaultLayer(ctrl) {
@@ -268,47 +302,73 @@ function pickDefaultLayer(ctrl) {
 }
 
 function setVisible(ctrl, visible) {
-  ctrl.visible = visible;
+  ctrl.visible = Boolean(visible);
   const options = el('flow-options');
   if (options) {
     options.style.display = visible ? '' : 'none';
   }
-  if (!visible) {
+  reconcileVisibility(ctrl);
+}
+
+function isShowing(ctrl) {
+  return ctrl.active && ctrl.visible && ctrl.available && ctrl.sizeCompatible && ctrl.leafletMap;
+}
+
+function reconcileVisibility(ctrl) {
+  refreshObjectives(ctrl);
+  if (!isShowing(ctrl)) {
     ctrl.loadToken += 1;
+    cancelRender(ctrl);
     stopParticles(ctrl);
     removeOverlay(ctrl);
+    clearReadout();
+    removeObjectives(ctrl);
+    if (!ctrl.sizeCompatible) showNotice('Flow is disabled: restore Auto map size to match artifact coordinates.');
     return;
   }
-  reload(ctrl);
+  if (ctrl.data) {
+    scheduleRender(ctrl);
+    startParticles(ctrl);
+  } else reload(ctrl);
 }
 
 async function reload(ctrl) {
-  if (!ctrl.visible || !ctrl.available || !ctrl.layerId || !ctrl.leafletMap) {
-    return;
-  }
   const token = ++ctrl.loadToken;
-  const key = `${ctrl.mapName}/${ctrl.layerId}`;
+  ctrl.data = null;
+  cancelRender(ctrl);
+  removeOverlay(ctrl);
+  stopParticles(ctrl);
+  clearReadout();
+  if (!isShowing(ctrl) || !ctrl.layerId) return;
+  const key = `${ctrl.mapName}/${ctrl.layerId}/${ctrl.classSel}`;
   if (!ctrl.cache.has(key)) {
     ctrl.cache.set(key, loadLayerFields(ctrl.mapName, ctrl.layerId, fetch));
   }
   try {
     const data = await ctrl.cache.get(key);
-    if (token !== ctrl.loadToken) {
+    if (token !== ctrl.loadToken || !isShowing(ctrl)) {
+      return;
+    }
+    const fields = Object.values(data.fields).flatMap((classes) => Object.values(classes)).filter(Boolean);
+    if (fields.some((field) => !Number.isFinite(field.cellSizeM)
+      || Math.abs(field.cols * field.cellSizeM - ctrl.mapSize) > 0.01
+      || Math.abs(field.rows * field.cellSizeM - ctrl.mapSize) > 0.01)) {
+      ctrl.sizeCompatible = false;
+      reconcileVisibility(ctrl);
       return;
     }
     ctrl.data = data;
-    const hasAnyField = [1, 2].some(
-      (team) => CLASS_VALUES.some((cls) => data.fields[team][cls]));
+    updateOptionStates(ctrl);
+    const hasAnyField = [1, 2].some((team) => data.fields[team][ctrl.classSel]);
     if (!hasAnyField) {
       ctrl.emptyLayers.add(ctrl.layerId);
-      disableLayerOption(ctrl.layerId);
       removeOverlay(ctrl);
-      showNotice('Flow is not computed for this layer.');
+      clearReadout();
+      showNotice(emptyStateMessage(ctrl));
       updateReadout(ctrl);
       return;
     }
     clearNotice();
-    updateOptionStates(ctrl);
     updateProvenance(ctrl);
     updateReadout(ctrl);
     scheduleRender(ctrl);
@@ -330,25 +390,40 @@ async function reload(ctrl) {
 }
 
 function scheduleRender(ctrl) {
-  if (ctrl.renderScheduled) {
+  if (ctrl.renderId || !isShowing(ctrl)) {
     return;
   }
-  ctrl.renderScheduled = true;
-  requestAnimationFrame(() => {
-    ctrl.renderScheduled = false;
+  const token = ctrl.loadToken;
+  ctrl.renderId = requestAnimationFrame(() => {
+    ctrl.renderId = 0;
+    if (token !== ctrl.loadToken) return;
     renderNow(ctrl);
   });
 }
 
+function cancelRender(ctrl) {
+  cancelAnimationFrame(ctrl.renderId);
+  ctrl.renderId = 0;
+}
+
+function clearReadout() {
+  const box = el('flow-race-readout');
+  if (box) box.textContent = '';
+  const label = el('flow-scope-label');
+  if (label) label.title = '';
+  const provenance = el('flow-provenance');
+  if (provenance) provenance.textContent = '';
+}
+
 function renderNow(ctrl) {
-  if (!ctrl.visible || !ctrl.leafletMap || !ctrl.data) {
+  if (!isShowing(ctrl) || !ctrl.data) {
     return;
   }
   const f1 = ctrl.teamSel === '2' ? null : ctrl.data.fields[1][ctrl.classSel];
   const f2 = ctrl.teamSel === '1' ? null : ctrl.data.fields[2][ctrl.classSel];
   if (!f1 && !f2) {
     removeOverlay(ctrl);
-    showNotice('No field for this team and class in this layer.');
+    showNotice(emptyStateMessage(ctrl));
     return;
   }
   clearNotice();
@@ -357,12 +432,60 @@ function renderNow(ctrl) {
   renderBands(f1, f2, {
     tSeconds: ctrl.tSeconds,
     deltaSeconds: CONTESTED_DELTA_SECONDS,
-    bandSeconds: BAND_SECONDS,
     team1Visible: Boolean(f1),
     team2Visible: Boolean(f2)
   }, ctrl.imageData.data);
   ctrl.ctx.putImageData(ctrl.imageData, 0, 0);
   ensureOverlay(ctrl, field);
+}
+
+function selectedGameLayer(ctrl) {
+  return ctrl.gamelayers?.layers?.find((layer) => `${layer.mode}_${layer.size}` === ctrl.layerId) || null;
+}
+
+function refreshObjectives(ctrl) {
+  removeObjectives(ctrl);
+  if (!isShowing(ctrl) || !ctrl.layerId) return;
+  const records = objectiveMarkers(selectedGameLayer(ctrl), ctrl.mapSize);
+  if (!records.length) return;
+  ctrl.objectiveGroup = L.layerGroup();
+  records.forEach((record) => {
+    const teamClass = record.team === 1 ? 'team1' : record.team === 2 ? 'team2' : record.team === 0 ? 'neutral' : 'unknown';
+    const label = escapeHtml(shortCpName(record.name, ctrl.mapName));
+    const icon = L.divIcon({
+      className: `flow-objective flow-objective--${teamClass}`,
+      html: `<span aria-hidden="true">${record.team || '?'}</span>`,
+      iconSize: [24, 24],
+      iconAnchor: [12, 12]
+    });
+    const marker = L.marker(record.leaflet, {
+      icon,
+      bubblingMouseEvents: false,
+      keyboard: true,
+      title: `${shortCpName(record.name, ctrl.mapName)} (control point ${record.cpId})`,
+      alt: `${shortCpName(record.name, ctrl.mapName)} (control point ${record.cpId})`
+    });
+    marker.bindTooltip(label, { direction: 'top', offset: [0, -10] });
+    // Keep exact coordinates; a popup and persistent list expose every overlap.
+    const coincident = records.filter((other) => other.x === record.x && other.y === record.y);
+    marker.bindPopup(coincident.map((other) => `${escapeHtml(shortCpName(other.name, ctrl.mapName))} (CP ${escapeHtml(other.cpId)})`).join('<br>'));
+    marker.on('click', (event) => {
+      if (event.originalEvent) L.DomEvent.stopPropagation(event.originalEvent);
+    });
+    marker.addTo(ctrl.objectiveGroup);
+  });
+  ctrl.objectiveGroup.addTo(ctrl.leafletMap);
+  const list = el('flow-objectives');
+  if (list) list.innerHTML = records.map((record) => `<li>${escapeHtml(shortCpName(record.name, ctrl.mapName))} (CP ${escapeHtml(record.cpId)}, ${record.team === null ? 'unknown team' : record.team === 0 ? 'neutral' : `team ${record.team}`})</li>`).join('');
+}
+
+function removeObjectives(ctrl) {
+  if (ctrl.objectiveGroup && ctrl.leafletMap) {
+    ctrl.leafletMap.removeLayer(ctrl.objectiveGroup);
+  }
+  ctrl.objectiveGroup = null;
+  const list = el('flow-objectives');
+  if (list) list.textContent = '';
 }
 
 function ensureCanvas(ctrl, rows, cols) {
@@ -417,7 +540,7 @@ function syncControls(ctrl) {
   }
   const options = el('flow-options');
   if (options) {
-    options.style.display = 'none';
+    options.style.display = ctrl.visible ? '' : 'none';
   }
   const layerSelect = el('flow-layer-select');
   if (layerSelect) {
@@ -427,7 +550,6 @@ function syncControls(ctrl) {
       const option = document.createElement('option');
       option.value = id;
       option.textContent = `${layer.mode} ${layer.size}`;
-      option.disabled = ctrl.emptyLayers.has(id);
       layerSelect.appendChild(option);
     }
     layerSelect.value = ctrl.layerId;
@@ -435,33 +557,30 @@ function syncControls(ctrl) {
   const teamSelect = el('flow-team-select');
   if (teamSelect) {
     enableAllOptions(teamSelect);
-    teamSelect.value = 'both';
+    teamSelect.value = ctrl.teamSel;
   }
-  ctrl.teamSel = 'both';
   const classSelect = el('flow-class-select');
   if (classSelect) {
     enableAllOptions(classSelect);
-    classSelect.value = 'infantry';
+    classSelect.value = ctrl.classSel;
   }
-  ctrl.classSel = 'infantry';
   const slider = el('flow-time-slider');
   if (slider) {
-    slider.value = String(MAX_TIME_SECONDS);
+    slider.value = String(ctrl.tSeconds);
   }
-  ctrl.tSeconds = MAX_TIME_SECONDS;
   const timeLabel = el('flow-time-label');
   if (timeLabel) {
-    timeLabel.textContent = formatRaceTime(MAX_TIME_SECONDS);
+    timeLabel.textContent = formatRaceTime(ctrl.tSeconds);
   }
   const scopeLabel = el('flow-scope-label');
   if (scopeLabel) {
     scopeLabel.title = '';
   }
-  ctrl.particlesOn = false;
   const particlesToggle = el('flow-particles-toggle');
   if (particlesToggle) {
-    particlesToggle.checked = false;
+    particlesToggle.checked = ctrl.particlesOn;
   }
+  updateMotionStatus(ctrl);
   clearNotice();
   const readout = el('flow-race-readout');
   if (readout) {
@@ -475,29 +594,58 @@ function updateOptionStates(ctrl) {
   }
   const has = (team, cls) => Boolean(ctrl.data.fields[team] && ctrl.data.fields[team][cls]);
   const classSelect = el('flow-class-select');
+  const reasonLine = el('flow-class-reason');
+  const statusText = {
+    available: 'Available',
+    no_source: 'No selected source',
+    unsupported_data: 'Unsupported source data',
+    unsupported_model: 'Unsupported vehicle model',
+    not_computed: 'Not computed for this layer',
+    unreachable: 'No reachable route for this class',
+    no_confirmed_water: 'No confirmed water on this map',
+    water_below_min_area: 'Confirmed water is below the minimum launch area',
+    off_confirmed_water: 'Source is not on confirmed water',
+    corrupt_artifact: 'Flow data failed validation'
+  };
   if (classSelect) {
     for (const option of classSelect.options) {
-      option.disabled = !has(1, option.value) && !has(2, option.value);
-    }
-    const selected = classSelect.selectedOptions[0];
-    if (selected && selected.disabled) {
-      const first = Array.from(classSelect.options).find((option) => !option.disabled);
-      if (first) {
-        classSelect.value = first.value;
-        ctrl.classSel = first.value;
-      }
+      const base = option.value === 'infantry' ? 'Infantry (walk/sprint)'
+        : { car: 'Car', truck_wheeled: 'Truck (wheeled)', tracked: 'Tracked', boat: 'Boat', helicopter: 'Helicopter' }[option.value];
+      const statuses = ctrl.data.manifest?.availability?.[option.value];
+      const reasons = ctrl.data.formatVersion === '2.0' && statuses
+        ? [...new Set(Object.values(statuses).map((status) => statusText[status] || 'Unavailable'))]
+        : ['Not computed for this layer'];
+      const reason = reasons.join('; ');
+      const available = has(1, option.value) || has(2, option.value);
+      option.disabled = false;
+      option.title = reason;
+      option.textContent = `${base || option.value} — ${available ? 'Available' : reason}`;
+      if (option.value === ctrl.classSel && reasonLine) reasonLine.textContent = available ? '' : reason;
     }
   }
+  if (reasonLine && classSelect?.selectedOptions[0] &&
+      (has(1, ctrl.classSel) || has(2, ctrl.classSel))) reasonLine.textContent = '';
   const teamSelect = el('flow-team-select');
   if (teamSelect) {
     for (const option of teamSelect.options) {
       option.disabled = option.value !== 'both' && !has(Number(option.value), ctrl.classSel);
     }
-    const selected = teamSelect.selectedOptions[0];
-    if (selected && selected.disabled) {
-      teamSelect.value = 'both';
-      ctrl.teamSel = 'both';
-    }
+  }
+}
+
+export function bridgeProvenanceLabel(bridge = {}) {
+  const candidate = bridge.unverified ? 'Candidate deck route; unverified. ' : '';
+  const unrouted = Number(bridge.unrouted_count || 0);
+  const detected = unrouted > 0
+    ? `${unrouted} detected bridge geometry item(s) not routed. ` : '';
+  return `${candidate}${detected}`;
+}
+
+function updateMotionStatus(ctrl) {
+  const status = el('flow-motion-status');
+  if (status) {
+    status.textContent = ctrl.motionQuery?.matches
+      ? 'Your system requests reduced motion; particle animation is disabled. Static flow remains available.' : '';
   }
 }
 
@@ -508,10 +656,41 @@ function updateProvenance(ctrl) {
   }
   const sidecars = (ctrl.data && ctrl.data.sidecars) || {};
   const preferredTeam = ctrl.teamSel === '2' ? 2 : 1;
-  const sidecar = sidecars[`team${preferredTeam}/${ctrl.classSel}`] || Object.values(sidecars)[0];
+  const sidecar = sidecars[`team${preferredTeam}/${ctrl.classSel}`];
+  const block = el('flow-provenance');
+  if (block) {
+    if (!sidecar) {
+      block.textContent = '';
+    } else {
+      const sources = Array.isArray(sidecar.source_spawners)
+        ? sidecar.source_spawners.length : sidecar.source_count;
+      const synthetic = sidecar.source_type === 'synthetic_water_launch'
+        || sidecar.source_spawners?.some((source) => source.source_type === 'synthetic_water_launch');
+      const warning = sidecar.speed_provenance?.text || sidecar.speed_provenance || '';
+      const bridgeWarning = bridgeProvenanceLabel(sidecar.bridge);
+      block.textContent = `Sources: ${sources || 0}. ${bridgeWarning}${synthetic ? 'Estimated boat launch point; ' : ''}${warning}`;
+    }
+  }
+  const speedProvenance = sidecar?.speed_provenance?.text
+    || sidecar?.speed_provenance
+    || '';
   label.title = sidecar
-    ? `Speed ${sidecar.speed_ms} m/s (${sidecar.terrain_profile}) - ${sidecar.speed_provenance}`
+    ? `Speed ${sidecar.speed_ms} m/s (${sidecar.terrain_profile}) - ${speedProvenance}`
     : '';
+}
+
+function emptyStateMessage(ctrl) {
+  const className = {
+    infantry: 'Infantry',
+    car: 'Car',
+    truck_wheeled: 'Truck',
+    tracked: 'Tracked',
+    boat: 'Boat',
+    helicopter: 'Helicopter'
+  }[ctrl.classSel] || ctrl.classSel;
+  const status = ctrl.data?.manifest?.availability?.[ctrl.classSel];
+  const reason = status ? [...new Set(Object.values(status))].join(', ') : 'not computed for this layer';
+  return `${className} flow is unavailable for ${ctrl.layerId || 'this layer'} (${ctrl.teamSel === 'both' ? 'both teams' : `Team ${ctrl.teamSel}`}); reason: ${reason}.`;
 }
 
 function updateReadout(ctrl) {
@@ -520,18 +699,20 @@ function updateReadout(ctrl) {
     return;
   }
   const doc = ctrl.data && ctrl.data.raceTimes;
-  if (!doc || !Array.isArray(doc.control_points) || doc.control_points.length === 0) {
+  if (!doc || (doc.format_version !== '2.0'
+    && (!Array.isArray(doc.control_points) || doc.control_points.length === 0))) {
     box.innerHTML = '<small>No race data for this layer.</small>';
     return;
   }
-  const rows = buildRaceReadout(doc, 1);
-  box.innerHTML = rows.map((row) => {
+  const rows = buildRaceReadout(doc.format_version === '2.0'
+    ? { ...doc, selectedClass: ctrl.classSel } : doc, 1);
+  box.innerHTML = `${doc.format_version === '2.0' ? '' : '<small>Legacy pooled minimum across classes (not selected-class times).</small>'}` + rows.map((row) => {
     let edge = '';
     if (row.deltaSeconds === 0) {
       edge = ' (even)';
     } else if (row.deltaSeconds !== null) {
       const faster = row.deltaSeconds < 0 ? 'T1' : 'T2';
-      edge = ` (${faster} earlier by ${formatRaceTime(Math.abs(row.deltaSeconds))})`;
+      edge = ` (${faster} earlier by ${formatDuration(Math.abs(row.deltaSeconds))})`;
     }
     return `<div><small>${escapeHtml(shortCpName(row.name, ctrl.mapName))}: `
       + `T1 ${formatRaceTime(row.youSeconds)}, T2 ${formatRaceTime(row.enemySeconds)}`
@@ -683,7 +864,7 @@ function stepParticle(ctrl, sys, particle, fields, dt) {
 }
 
 function particleTick(ctrl, sys, timestamp) {
-  if (!sys.running) {
+  if (!sys.running || ctrl.particleSys !== sys || !canAnimate(ctrl)) {
     return;
   }
   const dt = Math.min(0.05, (timestamp - (sys.lastTs || timestamp)) / 1000);
@@ -708,6 +889,11 @@ function particleTick(ctrl, sys, timestamp) {
     }
   }
   sys.rafId = requestAnimationFrame((next) => particleTick(ctrl, sys, next));
+}
+
+function canAnimate(ctrl) {
+  return isShowing(ctrl) && ctrl.particlesOn && !document.hidden
+    && !ctrl.motionQuery?.matches && particleFields(ctrl).length > 0;
 }
 
 function createParticleLayer(sys) {
@@ -740,17 +926,7 @@ function createParticleLayer(sys) {
 }
 
 function startParticles(ctrl) {
-  if (ctrl.particleSys) {
-    return;
-  }
-  if (!ctrl.visible || !ctrl.leafletMap || !ctrl.data || !particleFields(ctrl).length) {
-    ctrl.particlesOn = false;
-    const toggle = el('flow-particles-toggle');
-    if (toggle) {
-      toggle.checked = false;
-    }
-    return;
-  }
+  if (ctrl.particleSys || !canAnimate(ctrl)) return;
   const sys = {
     canvas: document.createElement('canvas'),
     ctx: null,
@@ -760,23 +936,12 @@ function startParticles(ctrl) {
     running: true,
     lastTs: 0,
     resizeHandler: null,
-    clearHandler: null,
-    visibilityHandler: null
+    clearHandler: null
   };
   sys.ctx = sys.canvas.getContext('2d');
   ctrl.particleSys = sys;
   sys.layer = createParticleLayer(sys);
   sys.layer.addTo(ctrl.leafletMap);
-  sys.visibilityHandler = () => {
-    if (document.hidden) {
-      cancelAnimationFrame(sys.rafId);
-      sys.rafId = 0;
-      sys.lastTs = 0;
-    } else if (sys.running && !sys.rafId) {
-      sys.rafId = requestAnimationFrame((ts) => particleTick(ctrl, sys, ts));
-    }
-  };
-  document.addEventListener('visibilitychange', sys.visibilityHandler);
   spawnParticles(ctrl, sys);
   sys.rafId = requestAnimationFrame((ts) => particleTick(ctrl, sys, ts));
 }
@@ -789,7 +954,6 @@ function stopParticles(ctrl) {
   sys.running = false;
   cancelAnimationFrame(sys.rafId);
   sys.rafId = 0;
-  document.removeEventListener('visibilitychange', sys.visibilityHandler);
   if (sys.layer && ctrl.leafletMap) {
     ctrl.leafletMap.removeLayer(sys.layer);
   }

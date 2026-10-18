@@ -8,12 +8,17 @@
  * @module flow_core
  */
 
-const DEFAULT_ALPHAS = [128, 107, 86, 66, 46];
 const DEFAULT_COLORS = {
   team1: [59, 130, 246],
   team2: [249, 115, 22],
   contested: [253, 224, 71]
 };
+
+const DEFAULT_FRONTIER_ALPHA = 255;
+const DEFAULT_FILL_ALPHA = 51;
+// Frontier line thickness in grid cells, measured inward from the reached edge.
+const DEFAULT_FRONTIER_CELLS = 2;
+export const FLOW_CLASSES = ['infantry', 'car', 'truck_wheeled', 'tracked', 'boat', 'helicopter'];
 
 function responseError(response, url) {
   const error = new Error(`Failed to load flow resource ${url}: ${response.status} ${response.statusText || ''}`.trim());
@@ -92,12 +97,30 @@ export function renderBands(field1, field2, options = {}, out) {
   }
   const tSeconds = options.tSeconds ?? 0;
   const deltaSeconds = options.deltaSeconds ?? 30;
-  const bandSeconds = options.bandSeconds ?? 60;
   const team1Visible = options.team1Visible ?? true;
   const team2Visible = options.team2Visible ?? true;
   const colors = { ...DEFAULT_COLORS, ...(options.colors || {}) };
-  const alphas = options.alphas || DEFAULT_ALPHAS;
+  const fillAlpha = options.fillAlpha ?? DEFAULT_FILL_ALPHA;
+  const frontierAlpha = options.frontierAlpha ?? DEFAULT_FRONTIER_ALPHA;
+  const frontierCells = options.frontierCells ?? DEFAULT_FRONTIER_CELLS;
   out.fill(0);
+
+  function isFrontier(source, index) {
+    const row = Math.floor(index / source.cols);
+    const col = index % source.cols;
+    // The map exterior is not a frontier. Only a later or unreached in-grid
+    // neighbor within frontierCells marks this reached cell as frontier.
+    for (let dr = -frontierCells; dr <= frontierCells; dr += 1) {
+      const r = row + dr;
+      if (r < 0 || r >= source.rows) continue;
+      for (let dc = -frontierCells; dc <= frontierCells; dc += 1) {
+        const c = col + dc;
+        if (c < 0 || c >= source.cols || (dr === 0 && dc === 0)) continue;
+        if (fieldSeconds(source.bytes[r * source.cols + c], source.quantumS) > tSeconds) return true;
+      }
+    }
+    return false;
+  }
 
   for (let i = 0; i < field.rows * field.cols; i += 1) {
     const t1 = field1 ? fieldSeconds(field1.bytes[i], field1.quantumS) : Infinity;
@@ -109,21 +132,13 @@ export function renderBands(field1, field2, options = {}, out) {
     if (reachable1 && reachable2 && Math.abs(t1 - t2) <= deltaSeconds) {
       color = colors.contested;
       alpha = 160;
-    } else if (reachable1 && reachable2) {
-      // Non-contested overlap belongs to the team that arrives earlier.
-      if (t1 <= t2) {
-        color = colors.team1;
-        alpha = alphas[Math.min(Math.floor(t1 / bandSeconds), alphas.length - 1)];
-      } else {
-        color = colors.team2;
-        alpha = alphas[Math.min(Math.floor(t2 / bandSeconds), alphas.length - 1)];
-      }
-    } else if (reachable1) {
+    } else if (reachable1 && (!reachable2 || t1 <= t2)) {
       color = colors.team1;
-      alpha = alphas[Math.min(Math.floor(t1 / bandSeconds), alphas.length - 1)];
+      alpha = isFrontier(field1, i) ? frontierAlpha : fillAlpha;
     } else if (reachable2) {
       color = colors.team2;
-      alpha = alphas[Math.min(Math.floor(t2 / bandSeconds), alphas.length - 1)];
+      alpha = isFrontier(field2, i)
+        ? frontierAlpha : fillAlpha;
     }
     const offset = i * 4;
     if (color) {
@@ -137,14 +152,44 @@ export function renderBands(field1, field2, options = {}, out) {
 }
 
 /**
+ * Validate and project control points for a selected game layer.
+ * This helper is DOM-free so malformed map data can be regression-tested.
+ * @param {Object|null} gameLayer Selected layer metadata.
+ * @param {number} mapSize Repository map size in meters.
+ * @returns {Array<Object>} Safe marker records in Leaflet coordinates.
+ */
+export function objectiveMarkers(gameLayer, mapSize) {
+  if (!gameLayer || !Array.isArray(gameLayer.control_points) || !(mapSize > 0)) return [];
+  return gameLayer.control_points.filter((point) => {
+    return point && Number.isFinite(point.x) && Number.isFinite(point.y)
+      && point.x >= 0 && point.x <= mapSize
+      && point.y >= 0 && point.y <= mapSize
+      && point.id !== undefined && point.id !== null;
+  }).map((point) => ({
+    cpId: point.id,
+    name: String(point.name || point.id),
+    team: [0, 1, 2].includes(point.team) ? point.team : null,
+    unableToChangeTeam: Boolean(point.unable_to_change_team),
+    x: Number(point.x),
+    y: Number(point.y),
+    leaflet: [mapSize - Number(point.y), Number(point.x)]
+  }));
+}
+
+/**
  * Format seconds as a minute-and-second race time.
  * @param {number|null} seconds Race time in seconds.
  * @returns {string} m:ss or - for missing/unreachable values.
  */
-export function formatRaceTime(seconds) {
+export function formatDuration(seconds) {
   if (seconds === null || seconds === undefined || !Number.isFinite(seconds)) return '-';
   const wholeSeconds = Math.max(0, Math.floor(seconds));
   return `${Math.floor(wholeSeconds / 60)}:${String(wholeSeconds % 60).padStart(2, '0')}`;
+}
+
+export function formatRaceTime(seconds) {
+  if (seconds === null || seconds === undefined || !Number.isFinite(seconds)) return '-';
+  return formatDuration(seconds) + (seconds > 600 ? ' (outside 10-minute view)' : '');
 }
 
 /**
@@ -155,6 +200,15 @@ export function formatRaceTime(seconds) {
  */
 export function buildRaceReadout(raceTimesDoc, perspectiveTeam) {
   if (perspectiveTeam !== 1 && perspectiveTeam !== 2) throw new Error('perspectiveTeam must be 1 or 2');
+  if (raceTimesDoc?.format_version === '2.0') {
+    const names = Object.fromEntries((raceTimesDoc.control_points || []).map((cp) => [String(cp.cp_id), cp.name]));
+    return Object.entries(raceTimesDoc.race_times?.[raceTimesDoc.selectedClass] || {}).map(([cpId, times]) => {
+      const youSeconds = times?.[String(perspectiveTeam)] ?? null;
+      const enemySeconds = times?.[String(perspectiveTeam === 1 ? 2 : 1)] ?? null;
+      return { cpId, name: String(names[cpId] || cpId), youSeconds, enemySeconds,
+        deltaSeconds: youSeconds == null || enemySeconds == null ? null : youSeconds - enemySeconds };
+    }).sort((a, b) => a.name.localeCompare(b.name));
+  }
   return (raceTimesDoc?.control_points || []).map((point) => {
     const youSeconds = point[`team${perspectiveTeam}_seconds`] ?? null;
     const enemySeconds = point[`team${perspectiveTeam === 1 ? 2 : 1}_seconds`] ?? null;
@@ -184,6 +238,77 @@ export function flowUrls(mapName, layerId) {
   };
 }
 
+function safeRelativePath(value) {
+  if (typeof value !== 'string' || !value || value.startsWith('/') || value.includes('\\')) return false;
+  return value.split('/').every((part) => part && part !== '.' && part !== '..');
+}
+
+function validateManifest(pointer, manifest, mapName, layerId) {
+  if (pointer?.format_version !== '2.0' || pointer?.artifact !== 'flow_class_manifest'
+    || !safeRelativePath(pointer.generation) || !pointer.build_id) {
+    throw new Error('Invalid flow class manifest pointer');
+  }
+  if (manifest?.format_version !== '2.0' || manifest.build_id !== pointer.build_id
+    || manifest.map !== mapName || manifest.layer !== layerId || !Array.isArray(manifest.files)) {
+    throw new Error('Flow manifest identity mismatch');
+  }
+  for (const item of manifest.files) {
+    if (!safeRelativePath(item.path) || !Number.isInteger(item.bytes) || typeof item.sha256 !== 'string') {
+      throw new Error('Invalid flow manifest file entry');
+    }
+  }
+  return pointer.build_id;
+}
+
+export async function loadLayerManifest(mapName, layerId, fetchFn) {
+  const url = `/maps/${mapName}/flow/${layerId}/class_manifest.json`;
+  try {
+    return await (await fetchResponse(fetchFn, url)).json();
+  } catch (error) {
+    if (error?.status === 404) return null;
+    throw error;
+  }
+}
+
+async function loadV2LayerFields(mapName, layerId, fetchFn, pointer) {
+  const base = `/maps/${mapName}/flow/${layerId}/${pointer.generation}`;
+  const manifest = await (await fetchResponse(fetchFn, `${base}/manifest.json`)).json();
+  const buildId = validateManifest(pointer, manifest, mapName, layerId);
+  const fields = Object.fromEntries([1, 2].map((team) => [team,
+    Object.fromEntries(FLOW_CLASSES.map((cls) => [cls, null]))]));
+  const sidecars = {};
+  async function loadOne(team, cls) {
+    try {
+      const sidecar = await (await fetchResponse(fetchFn, `${base}/team${team}/${cls}.json`)).json();
+      if (sidecar.format_version !== '2.0' || sidecar.map !== mapName
+        || sidecar.layer !== layerId || sidecar.build_id !== buildId) {
+        throw new Error(`Flow sidecar identity mismatch for ${cls}`);
+      }
+      const buffer = await (await fetchResponse(fetchFn, `${base}/team${team}/${cls}.bin`)).arrayBuffer();
+      const decoded = decodeField(buffer, sidecar);
+      sidecars[`team${team}/${cls}`] = sidecar;
+      return decoded;
+    } catch (error) {
+      if (error?.status === 404) return null;
+      throw error;
+    }
+  }
+  await Promise.all([1, 2].flatMap((team) => FLOW_CLASSES.map(async (cls) => {
+    fields[team][cls] = await loadOne(team, cls);
+  })));
+  let raceTimes = null;
+  try {
+    raceTimes = await (await fetchResponse(fetchFn, `${base}/race_times.json`)).json();
+    if (raceTimes.format_version !== '2.0' || raceTimes.map !== mapName
+      || raceTimes.layer !== layerId || raceTimes.build_id !== buildId) {
+      throw new Error('Flow race manifest identity mismatch');
+    }
+  } catch (error) {
+    if (error?.status !== 404) throw error;
+  }
+  return { fields, raceTimes, sidecars, manifest, buildId, formatVersion: '2.0' };
+}
+
 /**
  * Probe whether a map has flow metadata, distinguishing absence from failure.
  * @param {string} mapName Map directory name.
@@ -209,8 +334,12 @@ export async function probeFlow(mapName, fetchFn) {
  *   and the raw sidecars (keyed 'teamN/class') for provenance display.
  */
 export async function loadLayerFields(mapName, layerId, fetchFn) {
+  const pointer = await loadLayerManifest(mapName, layerId, fetchFn);
+  if (pointer) return loadV2LayerFields(mapName, layerId, fetchFn, pointer);
   const urls = flowUrls(mapName, layerId);
-  const fields = { 1: { infantry: null, vehicles: null }, 2: { infantry: null, vehicles: null } };
+  const fields = { 1: { infantry: null, vehicles: null, car: null, truck_wheeled: null,
+    tracked: null, boat: null, helicopter: null }, 2: { infantry: null, vehicles: null,
+    car: null, truck_wheeled: null, tracked: null, boat: null, helicopter: null } };
   const sidecars = {};
 
   async function loadOne(team, cls) {
