@@ -91,3 +91,15 @@ Reduce generated repository footprint without changing physics constants or heig
 
 ### Verification pending
 - Commit Worker C plus its durable report/evidence policy, rerun full unchanged compare, then request review-004. Do not start obstruction or terrain writer work until review-004 approves.
+
+## Revision 7 - 2026-10-10
+
+### Evidence
+- Code remediation committed in `8222582` (`fix(processor): close baseline coverage holes`). Evidence policy and cited records committed in `642363a` plus `.gitignore` policy correction `0524b81`.
+- All cited Markdown research/review/implementation records are now tracked. `.gitignore` still ignores generated data and non-Markdown artifacts; OpenSpec Markdown artifacts/worklogs are visible.
+- `python -m pytest processor/tests/test_baseline.py -q -p no:cacheprovider` -> 30 passed, exit 0. `node --test processor/tests/test_baseline_firing.mjs` -> 6 passed, exit 0.
+- Full unchanged compare with a distinct temp report -> `compare: pass (0 exceedances; 8/8 maps)`, report result `pass`, 0 exceedances, 8 maps, 0 notes. Committed baseline object equals worktree hash `03a1a357f7738eec658377c4701416974edb1135`.
+- Scoped implementation/data files are clean after commits; unrelated flow/UI/processed-map metadata edits remain untouched.
+
+### Next gate
+- Review-004 must independently validate both required specialist dimensions and decide whether the baseline gate is approved. No obstruction compaction, terrain quantization, regeneration, cleanup, or packaging changes before an `APPROVED` verdict.
