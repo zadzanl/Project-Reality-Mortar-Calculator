@@ -1,3 +1,47 @@
+.calculator__tabs {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem 0;
+  background: var(--panel-background, #1f2937);
+}
+
+.calculator__tab {
+  border: 1px solid var(--border-color, #4b5563);
+  border-bottom: 0;
+  border-radius: 4px 4px 0 0;
+  padding: 0.55rem 1rem;
+  color: var(--text-secondary, #d1d5db);
+  background: transparent;
+  cursor: pointer;
+}
+
+.calculator__tab--active,
+.calculator__tab:focus-visible {
+  color: var(--text-primary, #fff);
+  background: var(--background-color, #111827);
+  outline: 2px solid var(--accent-color, #60a5fa);
+  outline-offset: 1px;
+}
+
+.calculator__panel[hidden] { display: none; }
+
+.flow-objective {
+  border: 2px solid #f8fafc;
+  border-radius: 50%;
+  background: #64748b;
+  color: #fff;
+  font-weight: 700;
+  text-align: center;
+  line-height: 20px;
+  box-shadow: 0 0 0 1px #111827, 0 1px 4px rgba(0, 0, 0, 0.7);
+}
+
+.flow-objective--team1 { background: #2563eb; }
+.flow-objective--team2 { background: #ea580c; }
+.flow-objective--neutral { background: #64748b; }
+.flow-objective--unknown { background: #a855f7; }
+.flow-objectives { margin-top: 0.5rem; padding-left: 1.25rem; }
+
 /* Project Reality Mortar Calculator - Main Stylesheet */
 /* Uses BEM (Block Element Modifier) naming convention */
 
@@ -207,6 +251,33 @@ body.dark-mode {
   overflow: hidden;
 }
 
+.calculator__tool-shell {
+  width: 360px;
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-panel);
+  border-left: 1px solid var(--border-color);
+  overflow: hidden;
+}
+
+.calculator__tool-shell .calculator__tabs {
+  flex: 0 0 auto;
+}
+
+.calculator__workspace {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  padding: 1.5rem;
+  overflow-y: auto;
+  background-color: var(--bg-panel);
+}
+
+.calculator__workspace[hidden] {
+  display: none;
+}
+
 /* ====================================
    PANELS (THREE COLUMNS)
    ==================================== */
@@ -251,34 +322,8 @@ body.dark-mode {
   color: var(--text-header);
 }
 
-.calculator__panel-toggle {
-  appearance: none;
-  background: transparent;
-  border: none;
-  color: var(--text-primary);
-  font-size: 1.5rem;
-  font-weight: 700;
-  cursor: pointer;
-  padding: 0.25rem 0.5rem;
-  line-height: 1;
-  display: none; /* Desktop: hidden; Mobile: shown */
-}
-
-.calculator__panel-toggle:focus {
-  outline: none;
-}
-
-.calculator__panel-toggle .toggle-icon {
-  display: inline-block;
-}
-
 .calculator__panel-content {
-  /* Wrapper for collapsible content */
   min-height: 0;
-}
-
-.calculator__panel.collapsed .calculator__panel-content {
-  display: none;
 }
 
 /* ====================================
@@ -677,8 +722,10 @@ body.dark-mode .calculator__result-elevation {
 
   .calculator__panel--inputs,
   .calculator__panel--map,
-  .calculator__panel--results {
+  .calculator__panel--results,
+  .calculator__tool-shell {
     width: 100%;
+    min-width: 0;
     border: none;
     border-bottom: 1px solid var(--border-color);
   }
@@ -701,10 +748,15 @@ body.dark-mode .calculator__result-elevation {
     padding: 1rem;
   }
 
-  /* Show collapse toggles on mobile-ish layouts */
-  .calculator__panel-toggle {
-    display: block;
+  .calculator__tool-shell {
+    order: 3;
+    min-height: 0;
   }
+
+  .calculator__workspace {
+    padding: 1rem;
+  }
+
 }
 
 /* ====================================
@@ -803,11 +855,6 @@ body.dark-mode .calculator__result-elevation {
     flex-direction: row !important; /* Override flex-col from other media queries */
   }
 
-  /* Dynamic row sizing based on collapsed state */
-  .calculator__content:has(.calculator__panel--inputs.collapsed) {
-    grid-template-rows: auto 1fr !important; /* Inputs closed (auto), Results open (1fr) */
-  }
-
   /* Map Panel */
   .calculator__panel--map {
     grid-area: map;
@@ -857,11 +904,6 @@ body.dark-mode .calculator__result-elevation {
     font-size: 1rem !important;
   }
 
-  /* Show collapse toggles in landscape */
-  .calculator__panel-toggle {
-    display: block !important;
-  }
-  
   /* Compact result items */
   .calculator__result-elevation {
     padding: 0.5rem !important;

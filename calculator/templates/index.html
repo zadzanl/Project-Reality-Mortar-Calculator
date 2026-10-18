@@ -65,15 +65,19 @@
       </div>
     </header>
 
+    <div class="calculator__tabs" role="tablist" aria-label="Calculator tools">
+      <button id="mortar-tab" class="calculator__tab calculator__tab--active" type="button"
+        role="tab" aria-selected="true" aria-controls="mortar-tool-panel" tabindex="0">Mortar Calculator</button>
+      <button id="flow-tab" class="calculator__tab" type="button"
+        role="tab" aria-selected="false" aria-controls="flow-tool-panel" tabindex="-1">Opening Flow</button>
+    </div>
+
     <!-- Main Content -->
     <main class="calculator__content">
       <!-- Left Panel: Inputs -->
-      <aside class="calculator__panel calculator__panel--inputs">
+      <aside id="mortar-tool-panel" class="calculator__panel calculator__panel--inputs" role="tabpanel" aria-labelledby="mortar-tab" tabindex="0" aria-hidden="false">
         <div class="calculator__panel-header">
           <h2 class="calculator__panel-title">Coordinates</h2>
-          <button class="calculator__panel-toggle" id="toggle-inputs" type="button" aria-label="Toggle Coordinates Panel" aria-expanded="true">
-            <span class="toggle-icon">−</span>
-          </button>
         </div>
 
         <div class="calculator__panel-content" id="inputs-panel-content">
@@ -239,15 +243,13 @@
       </section>
 
       <!-- Right Panel: Results -->
-      <aside class="calculator__panel calculator__panel--results">
+      <aside id="flow-tool-panel" class="calculator__panel calculator__panel--results" role="tabpanel" aria-labelledby="flow-tab" tabindex="0" aria-hidden="true" hidden>
         <div class="calculator__panel-header">
           <h2 class="calculator__panel-title">Firing Solution</h2>
-          <button class="calculator__panel-toggle" id="toggle-results" type="button" aria-label="Toggle Firing Solution Panel" aria-expanded="true">
-            <span class="toggle-icon">−</span>
-          </button>
         </div>
 
         <div class="calculator__panel-content" id="results-panel-content">
+        <div id="mortar-results">
         <div id="results-content" class="calculator__results">
           <div class="calculator__result-item">
             <span class="calculator__result-label">Distance:</span>
@@ -309,14 +311,11 @@
             <small><strong>Tip:</strong> Click map to place target. Shift+click to place mortar. Drag markers to refine.</small>
           </div>
           
-          <div class="calculator__grid-toggle" style="margin-top: 0.75rem;">
+          <div id="map-display-controls" class="calculator__layer-toggles" style="margin-top: 0.75rem;">
             <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
               <input type="checkbox" id="grid-labels-toggle" style="cursor: pointer;">
               <span style="font-size: 0.875rem;">Show Grid</span>
             </label>
-          </div>
-          
-          <div class="calculator__layer-toggles" style="margin-top: 0.75rem;">
             <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
               <input type="checkbox" id="terrain-layer-toggle" checked style="cursor: pointer;">
               <span style="font-size: 0.875rem;">Terrain Map</span>
@@ -327,6 +326,8 @@
             </label>
           </div>
           
+          </div>
+        </div>
           <div class="calculator__layer-toggles" id="flow-controls" style="margin-top: 0.75rem; display: none;">
             <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
               <input type="checkbox" id="flow-layer-toggle" style="cursor: pointer;">
@@ -345,21 +346,30 @@
               </label>
               <label style="display: block; margin-bottom: 0.25rem;">Class
                 <select id="flow-class-select" class="calculator__dropdown" style="width: 100%;">
-                  <option value="infantry">Infantry</option>
-                  <option value="vehicles">Vehicles</option>
+                  <option value="infantry">Infantry (walk/sprint)</option>
+                  <option value="car">Car</option>
+                  <option value="truck_wheeled">Truck (wheeled)</option>
+                  <option value="tracked">Tracked</option>
+                  <option value="boat">Boat</option>
+                  <option value="helicopter">Helicopter</option>
                 </select>
               </label>
-              <label style="display: block; margin-bottom: 0.25rem;">Time <span id="flow-time-label">5:00</span>
-                <input type="range" id="flow-time-slider" min="0" max="300" step="5" value="300" style="width: 100%;" aria-label="Flow time in seconds">
+              <div id="flow-class-reason" class="calculator__field-help" role="status" aria-live="polite"></div>
+              <label style="display: block; margin-bottom: 0.25rem;">Time <span id="flow-time-label">10:00</span>
+                <input type="range" id="flow-time-slider" min="0" max="600" step="5" value="600" style="width: 100%;" aria-label="Flow time in seconds">
               </label>
+              <div><small>Modeled arrival-time view, not a capture guarantee.</small></div>
               <div id="flow-scope-label" style="margin-top: 0.25rem;"><small>From initial deployment</small></div>
+              <div id="flow-provenance" role="status" aria-live="polite" style="margin-top: 0.25rem;"></div>
               <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; margin-top: 0.25rem;">
                 <input type="checkbox" id="flow-particles-toggle" style="cursor: pointer;">
                 <span style="font-size: 0.875rem;">Flow particles (visual)</span>
               </label>
+              <div id="flow-motion-status" role="status" aria-live="polite"></div>
               <div id="flow-notice" style="display: none; margin-top: 0.25rem;"><small></small></div>
               <div style="margin-top: 0.5rem;"><small><strong>Flag race times</strong> (earliest arrival):</small></div>
               <div id="flow-race-readout"></div>
+              <ul id="flow-objectives" class="flow-objectives" aria-label="Selected layer objectives"></ul>
             </div>
           </div>
         </div>

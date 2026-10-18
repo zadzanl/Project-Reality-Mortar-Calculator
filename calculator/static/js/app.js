@@ -32,7 +32,8 @@ const state = {
   terrainLayer: null,     // Leaflet ImageOverlay for minimap.png
   contourLayer: null,     // Leaflet ImageOverlay for contourmap.png
   terrainVisible: true,   // Terrain checkbox state (default ON)
-  contourVisible: false   // Contour checkbox state (default OFF)
+  contourVisible: false,   // Contour checkbox state (default OFF)
+  activeTool: 'mortar'
 };
 
 // Overlay layers
@@ -48,6 +49,8 @@ state.flow = createFlowController();
 
 document.addEventListener('DOMContentLoaded', async () => {
   console.log('PR Mortar Calculator initializing...');
+
+  restructureToolShell();
   
   // Fix Leaflet icon paths
   fixLeafletIconPaths();
@@ -300,8 +303,10 @@ function initializeLeafletMap() {
 
   // Attach the flow overlay to the fresh map (probes availability itself)
   if (state.flow) {
-    state.flow.attachMap(state.leafletMap, state.currentMap, mapSize);
+    state.flow.attachMap(state.leafletMap, state.currentMap, mapSize, state.originalMapSize);
   }
+
+  applyToolLayerOwnership();
 
   console.log('Leaflet map initialized');
 }
@@ -349,6 +354,8 @@ function applyMapSizeOverride() {
   
   // Reinitialize the map with new scale
   initializeLeafletMap();
+
+  applyToolLayerOwnership();
   
   console.log(`Map size: ${state.mapData.metadata.map_size}m, Grid scale: ${state.mapData.metadata.grid_scale.toFixed(1)}m`);
 }
@@ -582,6 +589,9 @@ function addGridOverlay() {
  * Default click: set target marker. Shift+click: set mortar marker.
  */
 function handleMapClick(e) {
+  if (state.activeTool !== 'mortar') {
+    return;
+  }
   const latlng = e.latlng;
   const x = latlng.lng;  // X-axis is same in both systems
   const metadata = state.mapData.metadata;
@@ -601,6 +611,7 @@ function handleMapClick(e) {
         draggable: true
       }).addTo(state.leafletMap);
       setupMarkerEvents(state.mortarMarker, 'mortar');
+      applyToolLayerOwnership();
     } else {
       state.mortarMarker.setLatLng([leafletLat, leafletLng]);
     }
@@ -626,6 +637,7 @@ function handleMapClick(e) {
         draggable: true
       }).addTo(state.leafletMap);
       setupMarkerEvents(state.targetMarker, 'target');
+      applyToolLayerOwnership();
     } else {
       state.targetMarker.setLatLng([leafletLat, leafletLng]);
     }
@@ -696,6 +708,7 @@ function placeMarkers() {
       draggable: true
     }).addTo(state.leafletMap);
     setupMarkerEvents(state.mortarMarker, 'mortar');
+    applyToolLayerOwnership();
   }
   
   // Create red marker for target
@@ -710,6 +723,7 @@ function placeMarkers() {
       draggable: true
     }).addTo(state.leafletMap);
     setupMarkerEvents(state.targetMarker, 'target');
+    applyToolLayerOwnership();
   }
   
   // Draw line between markers
@@ -825,6 +839,7 @@ function updatePathLine() {
       opacity: 0.7,
       dashArray: '5, 10'
     }).addTo(state.leafletMap);
+    applyToolLayerOwnership();
   }
 }
 
@@ -852,6 +867,7 @@ function updateRangeCircle(centerLatLng) {
     fillOpacity: 0.05,
     className: 'range-circle'
   }).addTo(state.leafletMap);
+  applyToolLayerOwnership();
 }
 
 function createCustomIcon(color) {
@@ -1029,19 +1045,6 @@ function displayResults(solution) {
 // ====================================
 
 function setupEventListeners() {
-  // Collapsible panels (mobile)
-  initializeMobilePanels();
-
-  const toggleInputsBtn = document.getElementById('toggle-inputs');
-  if (toggleInputsBtn) {
-    toggleInputsBtn.addEventListener('click', () => togglePanel('inputs'));
-  }
-
-  const toggleResultsBtn = document.getElementById('toggle-results');
-  if (toggleResultsBtn) {
-    toggleResultsBtn.addEventListener('click', () => togglePanel('results'));
-  }
-
   // Map selection (auto-load on selection)
   document.getElementById('map-dropdown').addEventListener('change', () => {
     const selected = document.getElementById('map-dropdown').value;
@@ -1118,6 +1121,8 @@ function setupEventListeners() {
   if (state.flow) {
     initFlowControls(state.flow);
   }
+
+  initializeToolTabs();
   
   // Theme toggle (Checkbox)
   const themeCheckbox = document.getElementById('theme-checkbox');
@@ -1138,6 +1143,128 @@ function setupEventListeners() {
   });
 }
 
+function initializeToolTabs() {
+  const mortarTab = document.getElementById('mortar-tab');
+  const flowTab = document.getElementById('flow-tab');
+  if (!mortarTab || !flowTab) return;
+
+  const tabs = [mortarTab, flowTab];
+  const activate = (tool, moveFocus = false) => {
+    state.activeTool = tool;
+    const flowActive = tool === 'flow';
+    const mortarPanel = document.getElementById('mortar-tool-panel');
+    const flowPanel = document.getElementById('flow-tool-panel');
+    const inactivePanel = flowActive ? mortarPanel : flowPanel;
+    const focusWasInInactivePanel = inactivePanel?.contains(document.activeElement);
+    document.body.classList.toggle('calculator--flow-active', flowActive);
+    mortarTab.classList.toggle('calculator__tab--active', !flowActive);
+    flowTab.classList.toggle('calculator__tab--active', flowActive);
+    mortarTab.setAttribute('aria-selected', String(!flowActive));
+    flowTab.setAttribute('aria-selected', String(flowActive));
+    mortarTab.setAttribute('tabindex', flowActive ? '-1' : '0');
+    flowTab.setAttribute('tabindex', flowActive ? '0' : '-1');
+    mortarPanel?.toggleAttribute('hidden', flowActive);
+    flowPanel?.toggleAttribute('hidden', !flowActive);
+    mortarPanel?.setAttribute('aria-hidden', String(flowActive));
+    flowPanel?.setAttribute('aria-hidden', String(!flowActive));
+    if (moveFocus || focusWasInInactivePanel) (flowActive ? flowTab : mortarTab).focus();
+    if (state.flow) {
+      state.flow.setActive(flowActive);
+    }
+    applyToolLayerOwnership();
+    if (flowActive && state.leafletMap && typeof state.leafletMap.invalidateSize === 'function') {
+      requestAnimationFrame(() => state.leafletMap?.invalidateSize({ animate: false }));
+    }
+  };
+
+  mortarTab.addEventListener('click', () => activate('mortar'));
+  flowTab.addEventListener('click', () => activate('flow'));
+  tabs.forEach((tab, index) => tab.addEventListener('keydown', (event) => {
+    let next = null;
+    if (event.key === 'ArrowRight') next = tabs[(index + 1) % tabs.length];
+    if (event.key === 'ArrowLeft') next = tabs[(index + tabs.length - 1) % tabs.length];
+    if (event.key === 'Home') next = tabs[0];
+    if (event.key === 'End') next = tabs[tabs.length - 1];
+    if (next) {
+      event.preventDefault();
+      next.focus();
+      activate(next === flowTab ? 'flow' : 'mortar');
+    } else if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      activate(tab === flowTab ? 'flow' : 'mortar', true);
+    }
+  }));
+  activate('mortar');
+}
+
+/**
+ * Move the existing, ID-stable panels into one persistent right-hand shell.
+ * This keeps the map single-owned while making each tab a complete workspace.
+ */
+function restructureToolShell() {
+  const content = document.querySelector('.calculator__content');
+  const tabs = document.querySelector('.calculator__tabs');
+  const mortarPanel = document.getElementById('mortar-tool-panel');
+  const flowPanel = document.getElementById('flow-tool-panel');
+  const mapPanel = document.querySelector('.calculator__panel--map');
+  if (!content || !tabs || !mortarPanel || !flowPanel || !mapPanel || document.getElementById('tool-shell')) return;
+
+  const shell = document.createElement('aside');
+  shell.id = 'tool-shell';
+  shell.className = 'calculator__tool-shell';
+  shell.appendChild(tabs);
+
+  mortarPanel.classList.remove('calculator__panel--inputs');
+  mortarPanel.classList.add('calculator__workspace');
+  flowPanel.classList.remove('calculator__panel--results');
+  flowPanel.classList.add('calculator__workspace');
+  const mortarResults = flowPanel.querySelector('#mortar-results');
+  const flowControls = flowPanel.querySelector('#flow-controls');
+  const emptyResultsWrapper = flowPanel.querySelector('#results-panel-content');
+  const flowHeading = flowPanel.querySelector('.calculator__panel-title');
+  const mapDisplayControls = flowPanel.querySelector('#map-display-controls');
+  const gridLabel = mapDisplayControls?.querySelector('#grid-labels-toggle')?.closest('label');
+  const terrainLabel = mapDisplayControls?.querySelector('#terrain-layer-toggle')?.closest('label');
+  const contourLabel = mapDisplayControls?.querySelector('#contour-layer-toggle')?.closest('label');
+  if (mortarResults) mortarPanel.appendChild(mortarResults);
+  if (flowControls) flowPanel.appendChild(flowControls);
+  if (emptyResultsWrapper) emptyResultsWrapper.hidden = true;
+  if (flowHeading) flowHeading.textContent = 'Opening Flow';
+  shell.appendChild(mortarPanel);
+  if (mapDisplayControls) {
+    mapDisplayControls.textContent = '';
+    if (terrainLabel) mapDisplayControls.appendChild(terrainLabel);
+    if (contourLabel) mapDisplayControls.appendChild(contourLabel);
+    shell.appendChild(mapDisplayControls);
+  }
+  if (gridLabel) mortarPanel.querySelector('#mortar-results')?.appendChild(gridLabel);
+  shell.appendChild(flowPanel);
+  content.appendChild(shell);
+  content.insertBefore(mapPanel, shell);
+}
+
+/** Keep mortar layers in Leaflet while hiding their DOM and interactions on Flow. */
+function applyToolLayerOwnership() {
+  if (!state.leafletMap) return;
+  const flowActive = state.activeTool === 'flow';
+  [state.mortarMarker, state.targetMarker, state.pathLine, state.rangeCircle].forEach((layer) => {
+    if (!layer) return;
+    layer.addTo(state.leafletMap);
+    layer.dragging?.[flowActive ? 'disable' : 'enable']?.();
+    const element = layer.getElement?.();
+    if (element) {
+      element.style.visibility = flowActive ? 'hidden' : '';
+      element.style.pointerEvents = flowActive ? 'none' : '';
+    }
+    if (typeof layer.setStyle === 'function') {
+      layer.setStyle({
+        opacity: flowActive ? 0 : 1,
+        fillOpacity: flowActive ? 0 : (layer === state.rangeCircle ? 0.05 : 0)
+      });
+    }
+  });
+}
+
 function updateGridDisplays() {
   // Mortar grid display
   const mortarColumn = document.getElementById('mortar-column').value;
@@ -1152,68 +1279,6 @@ function updateGridDisplays() {
   const targetKeypad = document.getElementById('target-keypad').value;
   document.getElementById('target-grid-display').textContent = 
     formatGridReference(targetColumn, targetRow, targetKeypad);
-}
-
-// ====================================
-// MOBILE UI HELPERS
-// ====================================
-
-function isMobileLayout() {
-  // Keep in sync with the CSS breakpoint in styles.css
-  return window.matchMedia && window.matchMedia('(max-width: 900px), (max-height: 600px)').matches;
-}
-
-function setPanelCollapsed(panelType, collapsed) {
-  const panel = document.querySelector(`.calculator__panel--${panelType}`);
-  const toggleBtn = document.getElementById(`toggle-${panelType}`);
-  const toggleIcon = toggleBtn ? toggleBtn.querySelector('.toggle-icon') : null;
-
-  if (!panel) return;
-
-  if (collapsed) {
-    panel.classList.add('collapsed');
-    if (toggleIcon) toggleIcon.textContent = '+';
-    if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'false');
-  } else {
-    panel.classList.remove('collapsed');
-    if (toggleIcon) toggleIcon.textContent = '−';
-    if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'true');
-  }
-}
-
-function initializeMobilePanels() {
-  // Start collapsed on mobile so the map has room.
-  if (isMobileLayout()) {
-    setPanelCollapsed('inputs', true);
-    setPanelCollapsed('results', true);
-  } else {
-    // Ensure expanded on desktop.
-    setPanelCollapsed('inputs', false);
-    setPanelCollapsed('results', false);
-  }
-
-  // Keep in sync on rotation / resize.
-  window.addEventListener('resize', () => {
-    if (!isMobileLayout()) {
-      setPanelCollapsed('inputs', false);
-      setPanelCollapsed('results', false);
-    }
-  });
-}
-
-function togglePanel(panelType) {
-  const panel = document.querySelector(`.calculator__panel--${panelType}`);
-  if (!panel) return;
-
-  const willExpand = panel.classList.contains('collapsed');
-
-  if (isMobileLayout() && willExpand) {
-    // Only one panel open at a time on mobile.
-    const other = panelType === 'inputs' ? 'results' : 'inputs';
-    setPanelCollapsed(other, true);
-  }
-
-  setPanelCollapsed(panelType, !willExpand);
 }
 
 // ====================================
