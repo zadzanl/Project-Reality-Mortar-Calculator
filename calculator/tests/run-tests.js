@@ -3,6 +3,7 @@ import { runCoordinatesTests } from './test_coordinates.js';
 import { runHeightmapTests } from './test_heightmap.js';
 import { runIntegrationTests } from './test_integration.js';
 import { runFlowOverlayTests } from './test_flow_overlay.js';
+import { runFlowDomTests } from './test_flow_dom.js';
 
 async function runAll() {
   try {
@@ -25,6 +26,10 @@ async function runAll() {
     console.log('Flow overlay tests...');
     await runFlowOverlayTests();
     console.log('Flow overlay tests passed.\n');
+
+    console.log('Flow availability DOM tests...');
+    await runFlowDomTests();
+    console.log('Flow availability DOM tests passed.\n');
 
     console.log('All tests passed!');
     process.exit(0);
