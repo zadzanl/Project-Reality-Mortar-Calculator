@@ -10,8 +10,6 @@ All calculations happen in the browser - this server only serves files.
 
 import re
 import sys
-import webbrowser
-import time
 from pathlib import Path
 from flask import Flask, send_from_directory, render_template, abort, Response
 from werkzeug.utils import secure_filename
@@ -241,26 +239,6 @@ def find_available_port(start_port=8080, max_attempts=10):
     return None
 
 
-def open_browser(url, delay=1.5):
-    """
-    Open default browser to the calculator URL.
-    Runs in a separate thread after a small delay to let server start.
-    """
-    import threading
-    
-    def _open():
-        time.sleep(delay)
-        try:
-            webbrowser.open(url)
-            print(f"[OK] Browser opened automatically")
-        except Exception as e:
-            print(f"[WARNING] Browser did not open automatically: {e}")
-            print(f"  Please open manually: {url}")
-    
-    thread = threading.Thread(target=_open, daemon=True)
-    thread.start()
-
-
 def print_banner(port):
     """Display startup banner with server information."""
     print("\n" + "="*60)
@@ -288,7 +266,7 @@ def check_processed_maps():
 
 
 def main():
-    """Main entry point - start Flask server with auto-browser launch."""
+    """Main entry point - start Flask server."""
     
     # Find available port
     port = find_available_port()
@@ -302,10 +280,6 @@ def main():
     
     # Display startup banner
     print_banner(port)
-    
-    # Open browser automatically
-    server_url = f"http://localhost:{port}"
-    open_browser(server_url)
     
     # Start Flask server
     try:
