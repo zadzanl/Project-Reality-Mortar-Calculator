@@ -12,5 +12,6 @@
     "generated_at": "2025-11-25T05:11:20.192792Z",
     "thin_interval_m": 5,
     "thick_interval_m": 15
-  }
+  },
+  "sea_level_m": 23.0
 }
