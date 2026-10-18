@@ -1,12 +1,35 @@
-import os
+#!/usr/bin/env python3
+"""Generate favicons, desktop icons, and Android mipmaps from master logo.
+
+ROLE: Maintainer-only asset generation utility.
+INPUTS:
+    - assets/mortar_calc_logo.png (or custom image path via CLI argument)
+OUTPUTS:
+    - www/favicon.ico
+    - calculator/static/icon.ico
+    - calculator/static/favicon.ico
+    - android/app/src/main/res/mipmap-*/ic_launcher*.png
+    - android/app/src/main/res/drawable*/splash.png
+HOW TO RUN:
+    python scripts/update_logos.py
+    python scripts/update_logos.py path/to/logo.png
+DID IT WORK CHECK:
+    Prints 'Saved ...' and 'Updated ...' for favicons, mipmaps, and splash screens.
+"""
+import sys
+from pathlib import Path
 from PIL import Image, ImageDraw, ImageOps
 
+REPO_ROOT = Path(__file__).resolve().parent.parent
+
+
 def update_icons(source_path):
-    if not os.path.exists(source_path):
-        print(f"Error: Source image {source_path} not found.")
+    source_file = Path(source_path).resolve()
+    if not source_file.is_file():
+        print(f"Error: Source image {source_file} not found.")
         return
 
-    img = Image.open(source_path)
+    img = Image.open(source_file)
     
     # Ensure image is RGBA
     if img.mode != 'RGBA':
@@ -17,19 +40,20 @@ def update_icons(source_path):
     favicon_sizes = [(16, 16), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)]
     
     # Web favicon (offline build)
-    www_path = os.path.join('www', 'favicon.ico')
-    img.save(www_path, format='ICO', sizes=favicon_sizes)
-    print(f"Saved {www_path}")
+    www_path = REPO_ROOT / 'www' / 'favicon.ico'
+    if www_path.parent.is_dir():
+        img.save(www_path, format='ICO', sizes=favicon_sizes)
+        print(f"Saved {www_path}")
 
     # Desktop icon
-    static_path = os.path.join('calculator', 'static')
-    os.makedirs(static_path, exist_ok=True)
-    desktop_icon_path = os.path.join(static_path, 'icon.ico')
+    static_path = REPO_ROOT / 'calculator' / 'static'
+    static_path.mkdir(parents=True, exist_ok=True)
+    desktop_icon_path = static_path / 'icon.ico'
     img.save(desktop_icon_path, format='ICO', sizes=favicon_sizes)
     print(f"Saved {desktop_icon_path}")
 
     # Flask favicon (served by server.py)
-    flask_favicon_path = os.path.join(static_path, 'favicon.ico')
+    flask_favicon_path = static_path / 'favicon.ico'
     img.save(flask_favicon_path, format='ICO', sizes=favicon_sizes)
     print(f"Saved {flask_favicon_path}")
 
@@ -43,50 +67,35 @@ def update_icons(source_path):
         'mipmap-xxxhdpi': 192
     }
 
-    android_res_path = os.path.join('android', 'app', 'src', 'main', 'res')
+    android_res_path = REPO_ROOT / 'android' / 'app' / 'src' / 'main' / 'res'
 
     for folder, size in mipmap_sizes.items():
-        folder_path = os.path.join(android_res_path, folder)
-        os.makedirs(folder_path, exist_ok=True)
+        folder_path = android_res_path / folder
+        folder_path.mkdir(parents=True, exist_ok=True)
 
         # Resize for standard icon
         resized_img = img.resize((size, size), Image.Resampling.LANCZOS)
         
         # Save ic_launcher.png
-        resized_img.save(os.path.join(folder_path, 'ic_launcher.png'))
+        resized_img.save(folder_path / 'ic_launcher.png')
         
         # Save ic_launcher_foreground.png (for adaptive)
-        # Usually foreground is 108x108 for 48x48 icon (approx 2.25x)
-        # But here we just replace the existing file which is likely the icon content
-        # We'll make it slightly larger to account for masking if needed, or just same size?
-        # Adaptive foregrounds are usually 108dp. 
-        # mdpi 1dp = 1px -> 108px
-        # hdpi 1.5x -> 162px
-        # xhdpi 2x -> 216px
-        # xxhdpi 3x -> 324px
-        # xxxhdpi 4x -> 432px
-        
-        adaptive_size = int(size * 108 / 48) # Scale based on 48dp base
+        adaptive_size = int(size * 108 / 48)  # Scale based on 48dp base
         adaptive_img = img.resize((adaptive_size, adaptive_size), Image.Resampling.LANCZOS)
-        adaptive_img.save(os.path.join(folder_path, 'ic_launcher_foreground.png'))
+        adaptive_img.save(folder_path / 'ic_launcher_foreground.png')
 
         # Save ic_launcher_round.png (Circle crop)
-        # Create mask
         mask = Image.new('L', (size, size), 0)
         draw = ImageDraw.Draw(mask)
         draw.ellipse((0, 0, size, size), fill=255)
         
         round_img = ImageOps.fit(img, (size, size), centering=(0.5, 0.5))
         round_img.putalpha(mask)
-        round_img.save(os.path.join(folder_path, 'ic_launcher_round.png'))
+        round_img.save(folder_path / 'ic_launcher_round.png')
         
         print(f"Updated {folder}")
 
     # 3. Generate Android Splash Screens
-    # We will generate a centered logo on a transparent (or white) background
-    # For simplicity, we'll just save the logo as splash.png in all drawable folders
-    # and let Android handle the background color (defined in styles.xml or layout)
-    
     drawable_folders = [
         'drawable',
         'drawable-land-hdpi', 'drawable-land-mdpi', 'drawable-land-xhdpi', 
@@ -95,21 +104,11 @@ def update_icons(source_path):
         'drawable-port-xxhdpi', 'drawable-port-xxxhdpi'
     ]
 
-    # Base splash size (e.g. 512x512) - Android will center it if using layer-list, 
-    # but if it's a direct bitmap background, it might stretch.
-    # The existing style uses <item name="android:background">@drawable/splash</item>
-    # If it's a simple bitmap, it stretches.
-    # So we MUST generate a full-screen image.
-    
-    # Background color: Let's pick a color from the logo or default to dark/white?
-    # I'll use a dark grey #222222 to match the app theme, or just transparent if the logo handles it.
-    # Let's assume the logo has transparency.
-    
-    bg_color = (34, 34, 34, 255) # Dark grey
-    
+    bg_color = (34, 34, 34, 255)  # Dark grey
+
     for folder in drawable_folders:
-        folder_path = os.path.join(android_res_path, folder)
-        if not os.path.exists(folder_path):
+        folder_path = android_res_path / folder
+        if not folder_path.is_dir():
             continue
             
         is_land = 'land' in folder
@@ -120,11 +119,6 @@ def update_icons(source_path):
         else:
             width, height = 1080, 1920
             
-        # Adjust for density if we want to be fancy, but fixed high-res is usually fine for splash
-        # or we can just save the logo itself and hope the layout centers it?
-        # If the current implementation is just `android:background="@drawable/splash"`, it WILL stretch.
-        # So we MUST generate a full-screen image.
-        
         splash_bg = Image.new('RGBA', (width, height), bg_color)
         
         # Resize logo to fit nicely (e.g. 1/3 of width)
@@ -139,8 +133,11 @@ def update_icons(source_path):
         
         splash_bg.paste(resized_logo, (paste_x, paste_y), resized_logo)
         
-        splash_bg.save(os.path.join(folder_path, 'splash.png'))
+        splash_bg.save(folder_path / 'splash.png')
         print(f"Updated splash in {folder}")
 
+
 if __name__ == "__main__":
-    update_icons('mortar_calc_logo.png')
+    default_source = REPO_ROOT / 'assets' / 'mortar_calc_logo.png'
+    source_img = sys.argv[1] if len(sys.argv) > 1 else str(default_source)
+    update_icons(source_img)
