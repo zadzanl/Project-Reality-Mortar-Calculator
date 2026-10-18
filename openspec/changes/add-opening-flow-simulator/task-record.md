@@ -1,5 +1,261 @@
 # Task Record: add-opening-flow-simulator (Implementation)
 
+## R19 - 2026-10-18 recovery and implementation resume
+
+Approved implementation resumed from the cleanup/recovery plan at
+`artifacts/plan-research-cleanup-001.md`.
+
+Verified safety snapshot: `C:\Users\lenovo\AppData\Local\Temp\mortar-flow-snapshot-20261018-070622`.
+The snapshot contains the working-tree and index patches, status/path manifests,
+and a copy of the untracked DOM test. No generated map payloads or raw inputs
+were changed.
+
+Repairs applied:
+- Restored the deleted `config` fixture and parametrization decorators in
+	`processor/tests/test_terrain_cost.py`.
+- Restored the missing `load_terrain_artifact` import in
+	`processor/tests/test_terrain_artifact.py`.
+- Added the deterministic `terrain_generation_id` helper required by the
+	existing terrain writer contract in `processor/terrain_artifact.py`.
+- Narrowed `.gitignore` so OpenSpec Markdown records remain stageable while
+	generated PNG/log evidence remains ignored.
+
+Evidence:
+- `PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest processor/tests/test_terrain_cost.py processor/tests/test_terrain_artifact.py -q`
+	-> 23 passed.
+- `git diff --check` for the repaired files -> no output/errors.
+- OpenSpec Markdown status probe -> visible as untracked; PNG probe -> ignored.
+
+Known stale plan item: no `solve_field(` call exists in the current processor
+tree, so no call-site repair was made. Android WebView, full suite, offline
+smoke, acceptance matrix, cleanup deletion audit, commit, and archive remain
+open and unclaimed.
+
+R19 continuation evidence:
+- `cmd /c build-android.bat` -> `BUILD SUCCESSFUL`; APK created at
+	`android/app/build/outputs/apk/debug/pr-mortar-calc-debug.apk`.
+- Android asset probe -> Flow JS, index, APK, and 20,617 JSON/bin assets
+	present in `android/app/src/main/assets/public`.
+- `$env:PYTEST_DISABLE_PLUGIN_AUTOLOAD=1; python -m pytest processor/tests/ --ignore=processor/tests/test_update_manifest.py -q`
+	-> 135 passed.
+- `node calculator/tests/run-tests.js` -> all listed suites passed.
+- `adb devices` -> command unavailable; Android WebView smoke is unverified.
+- No repository offline-network smoke command was found by the bounded search;
+	this remains open rather than inferred from the Node harness.
+
+The approved flow repair is recorded in `artifacts/review-flow-repairs-002.md`.
+The documentation review remains unresolved because README has pre-existing
+staged edits owned by the earlier dirty worktree; those staged edits were not
+rewritten or silently attributed to this phase.
+
+## R18 - 2026-10-03 bridge implementation resumed after environment restart
+
+User continuation (verbatim):
+> [INFO] I needed to restart the environtment because this froze right after the subagents finished running. It has been restarted now. Please continue from where you left off as you were and finished the rest of the fix implementation.
+
+Recovered state after restart: no active generator or server process. R17 bridge candidate routing is complete and approved for its bounded scope by `artifacts/bridge-review-final-001.md`.
+
+Bridge implementation delivered:
+- Extractor records decoded bridge candidate geometry and source provenance without changing ordinary road records; missing/corrupt geometry remains unavailable and grants no route.
+- Terrain emits additive `bridge_mask.bin` and bridge provenance. Mode B `candidate_permitted` allows finite decoded candidate decks to route while retaining mask value 2 and unverified diagnostics. Water and ordinary road masks remain independent; candidate/confirmed precedence is deterministic; legacy terrain format 1.0 loads with an empty bridge mask.
+- Flow consumes bridge-aware terrain costs, blocks unsupported land diagonal corner cutting, preserves boat and helicopter solvers, and propagates candidate provenance to a quiet sidebar-only `unverified` note with stale-state clearing.
+- v2 generation identity includes all terrain files and uses pipeline version `v2-bridge-4`, preventing stale bridge terrain reuse.
+
+Verified evidence:
+- Focused bridge suite: 75 processor tests passed in final review; broader safe processor suite: 130 passed; frontend Node harness passed.
+- Isolated Carentan/Tad Sae extraction and terrain validation: candidate masks 116 and 23 unique cells respectively; repeated outputs byte-identical; independent raster comparison had zero mismatches; protected raw/production files unchanged.
+- Isolated Carentan v2 publication: 10 layers, 71 fields, candidate provenance present in sidecars; vehicle reachability was measured honestly (28 or 44 of 116 candidate cells depending on source set, not forced); boat/helicopter fixture bytes remained unchanged.
+- Integrated isolated browser: Car candidate notice appeared only in the sidebar, 10-second and 60-second frontiers differed, class/layer switching cleared stale notice/canvas, and external HTTP requests were blocked with no captured JavaScript errors. Evidence: `artifacts/bridge-browser-validation-001.md`.
+- Final bounded review: `artifacts/bridge-review-final-001.md` verdict APPROVED for candidate routing, not for verified in-game crossings or production corpus publication.
+
+Explicit limits retained:
+- Candidate meshes do not prove collision height, continuous banks, or in-game drivability. Mode B intentionally accepts this risk and labels routes unverified.
+- No full-corpus regeneration, Android sync, in-game collision test, or production publication was run or claimed. Existing unrelated dirty files and the untracked `.py` audit script were not modified or removed.
+
+Resume verification after restart:
+- `$env:PYTEST_DISABLE_PLUGIN_AUTOLOAD='1'; python -m pytest processor/tests/ --ignore=processor/tests/test_update_manifest.py -q` -> 130 passed.
+- `node calculator/tests/run-tests.js` -> all Ballistics, Coordinates, Heightmap, Integration, Flow overlay, and Flow availability DOM suites passed.
+- `openspec validate add-opening-flow-simulator --type change --no-interactive` -> valid.
+- Scoped `git diff --check` for bridge owners, bridge tests, Flow sidebar test, and this record -> no output/errors.
+- The first attempted `openspec validate --change ...` was rejected by this CLI as an unsupported option; the supported item-specific command above passed.
+
+Fresh real-map/browser test on 2026-10-03:
+- `bridge_validate_representative.py` -> isolated Carentan candidate mask 116 cells and Tad Sae candidate mask 23 cells; repeated outputs and independent raster checks passed.
+- Normal isolated Carentan Flow driver -> 10 layers and 71 fields; all available sidecars carried candidate/unverified bridge provenance.
+- Integrated browser on isolated port 8084 -> Carentan `gpm_cq_64` loaded, Car showed `Candidate deck route; unverified.`, 10-second and 60-second canvas measurements differed (19,875 vs 190,858 nonzero-alpha pixels), Helicopter cleared notice/canvas, and Car restored them.
+- Browser exposed and the test fixed structured speed provenance rendering as `[object Object]`; tooltip now shows `v2 catalog estimate; uncalibrated`.
+- `node calculator/tests/run-tests.js` -> all suites passed after the tooltip fix; evidence: `artifacts/bridge-browser-fresh-validation-001.md`.
+
+Fresh isolated test output: `C:\Users\lenovo\AppData\Local\Temp\bridge-representative-tmx689ry`. The temporary browser server ran on port 8084 and was stopped after testing. Expected isolated-tree 404s for missing minimap/contour images and optional unavailable class fields were not treated as application failures.
+
+## R17 - 2026-10-02 bridge continuation
+
+Bounded browser follow-up: actual isolated Carentan v2 loaded on port 8083;
+Car sidebar shows candidate/unverified note. Painted canvas differs at 10/60s;
+switching to Helicopter or Car on coop_16 clears stale notice/canvas. External-only
+request blocking reload passed with local assets; optional absent-image/sidecar
+404s remain. Shared 8080 server still returns 200. No product/data edits or nested
+agents. Evidence/screenshots: `artifacts/bridge-browser-validation-001.md`.
+Mouse tab click timed out; keyboard activation passed. No bridge truth/review claim.
+
+Bounded real-Flow worker: R17 and Mode B candidate permission confirmed;
+sidebar remains unverified. No nested agents. Generate Carentan only through
+normal v2 publication in `C:\Users\lenovo\AppData\Local\Temp\bridge-representative-s6908sdz`.
+Loader already preserves bridge provenance. Found missing terrain inputs in
+v2 generation identity; narrow fix hashes terrain files and bumps solver
+version. Evidence/report: `artifacts/bridge-flow-real-validation-001.md`.
+No production/raw writes, corpus build, new dependencies or UI edits.
+
+Bounded worker result: isolated normal v2 Carentan publication passed: 10 layers,
+71 fields; candidate policy/unverified provenance and all generation/race
+identities checked. Infantry reaches 116/116 deck cells; available vehicle fields
+reach 28 or 44, leaving 88 or 72 unreachable from selected source sets. No forced
+connections. All 367 protected files and 18 terrain inputs unchanged. Safe
+processor suite: 130 passed; Node harness passed. Pipeline `v2-bridge-4` now hashes
+terrain inputs; disk-loaded regression covers provenance and identity changes,
+plus unchanged boat/helicopter fixture bytes. Sidebar/banks/game truth unverified.
+Raw report: `artifacts/bridge-flow-real-implementation-001.md`. No review approval.
+
+Worker recovery: named Assistant failed before starting (`Requested agent
+Assistant not found`); no output from that dispatch. Current files inspected
+before edits. Narrow terrain policy correction and isolated Carentan/Tad Sae
+validation tracked in `artifacts/bridge-representative-validation-001.md`.
+Mandatory water/bank gating was contrary to the explicit answer below; unknown
+evidence must remain diagnostic, not veto valid candidate geometry. Preserve
+all existing dirty work; no production/raw writes or metadata repair.
+
+Candidate routing decision (verbatim user answer):
+> Yes, allow candidate routes. Label unverified. As you said: use the decoded deck geometry for routing. But label it subtly. maybe only on the sidebar?
+
+Decision: permit successfully decoded bridge candidate deck geometry for routes while retaining candidate/unverified provenance. Show a quiet Flow sidebar note, not map labels. Never promote candidates to verified from names alone. Missing/corrupt geometry grants no route. Preserve underlying water for boats and existing infantry swimming policy; land vehicles use land or permitted decks. Representative checks and tests still gate full regeneration.
+
+User request (verbatim):
+> Are there any blocker? If no blocker exist, then please go ahead and continue from where you left off as you were until the bridge is correctly parsed in the flow simulator.
+
+Resuming R16, not restarting it. Existing archive and integration research reports were read; a veteran report already exists. Archive evidence identifies decoded bridge-named road meshes, but bank connectivity and vertical alignment remain unverified. The preceding assistant recorded candidate allowance; recover the underlying user decision before granting uncertain connectivity. Preserve all preexisting dirty work. Full regeneration remains gated on synthetic tests and representative geometry validation. Artifact directory remains `openspec/changes/add-opening-flow-simulator/artifacts/`. No current bridge completion claim.
+
+## R16 - Bridge-aware traversal implementation initiated (research gate)
+
+User approval (verbatim):
+> Plan looks good. Please proceed with implementation of all phase. I've switched your environment from Planning (previous) to Orchestration (current). Make sure to dispatch subagents and delegate tasks. Goodluck and godspeed!
+
+Earlier reported problem (verbatim):
+> I need to stop the processing because i just noticed a large issue: the current processor does not take into account bridges. How do you propose this gets solved?
+
+Intent: identify reliable bridge evidence in game archives, add provenance-aware crossing extraction and class-aware terrain connectivity, test representative and synthetic maps, then regenerate and browser-check only after evidence and focused tests pass. Preserve unrelated dirty work. No generator process matching the terrain/flow/extraction commands was found at start. The working tree contains many preexisting modified files, including processor and frontend sources; no cleanup or generated-corpus publication authorized before evidence validation. Active artifact directory: `openspec/changes/add-opening-flow-simulator/artifacts/`. Initial semantic search found terrain cost and explicit road/water mask implementations, but no confirmed bridge contract. Research and source audit delegated next; no implementation claim yet.
+
+## R15 - Corrected review redispatch and narrow repairs (partial)
+
+User continuation (verbatim):
+> please redispatch the review orchestrator. The previous dispatch seems to be running in a misconfigured environment. Other than that, please continue your work as you were
+
+Correct-workspace review `artifacts/qa-and-tests/review-resume-corrected-002.md`
+returned NEEDS_REVISION. Repaired forced Flow re-enable on tab activation,
+range fill restoration, and missing unreachable availability reason. Existing
+frontend tests pass, focused processor tests pass 20, diff check and JS
+diagnostics clean. Fresh port-8082 browser verified the reported Flow-off tab
+round-trip. Full AC-16/17 matrix and new regression coverage remain open.
+Raw report: `artifacts/qa-and-tests/implementation-review-revision-002.md`.
+No A6, data publication, Android, commits, archive or phase approval claimed.
+
+## R14 - Constrained review revisions, 2026-10-01 (partial)
+
+Resumed from `artifacts/qa-and-tests/review-resume-corrected-001.md` and applied
+only the reviewed A1-A5 repairs. The parent relocation error was corrected by
+moving Show Grid back into the Mortar workspace while leaving Terrain/Contour
+as shared map-display controls. Leaflet mortar layers now remain members of the
+map while Flow ownership hides their elements and disables dragging/pointer
+events. Arrival-time formatting keeps the out-of-600 annotation; delta
+durations use an annotation-free formatter. v2 race sampling and CP metadata
+skip missing/non-numeric coordinates while retaining explicit zeroes. Class
+availability now maps statuses to readable reasons, titles, and a visible
+status line. Reduced-motion messaging is accurate while particles are off.
+
+Evidence:
+- `artifacts/qa-and-tests/implementation-review-revision-001.md`
+- `node calculator/tests/run-tests.js`: All tests passed.
+- `python -m pytest processor/tests/test_flow_field.py -q`: 20 passed.
+- `git diff --check`: no output.
+
+The revision remains partial. Fresh browser verification of AC-16/AC-17 was
+not run in this resume, and no claim is made for A6, Track B publication,
+Android, corpus generation, commits, archive, or parent completion.
+
+## R13 - Phase 3/4 browser contract and QA, 2026-10-01 (partial)
+
+The browser now reads the Phase 2 v2 class-manifest contract when present, validates
+generation and sidecar identities, rejects unsafe generation paths, exposes the five
+v2 classes, and invalidates selected-class data synchronously. Legacy `vehicles`
+reading remains isolated as a fallback. Synthetic v2 loader and mismatch tests pass.
+
+Evidence:
+- `artifacts/qa-and-tests/phase-3-4-evidence-001.md`
+- `node calculator/tests/run-tests.js`: PASS.
+- Static diagnostics: no errors in modified flow source and tests.
+- `git diff --check`: PASS.
+- Integrated browser: local app and map load PASS; tab round-trip PASS.
+
+The production corpus has no published v2 flow manifest, so real v2 overlay rendering,
+full status/accessibility/particle/map-size QA, and zero-external-request audit remain
+unverified. No R10 checkbox is marked complete. Helicopters, Android, corpus
+publication, commits, archive, and parent completion remain excluded.
+
+## R12 - Phase 2 processor contract, 2026-10-01 (complete)
+
+User approval (verbatim):
+> Plan looks good.
+>
+> Alright, lets proceed with Phase 2 implementation only. I've switched your environtment from Planning (previous) to Orchestration (current). Goodluck and godspeed!
+
+Phase 2 processor contract integration is complete for temporary fixtures. The
+normal v2 fixture path now uses positive selected-team source evidence, emits
+class-specific `car`, `truck_wheeled`, `tracked`, and `boat` artifacts, avoids
+the legacy v2 fallback, writes class-keyed races, enforces confirmed-water boat
+rules, and stages immutable generations with manifest validation. Legacy v1
+`vehicles` output remains a separate compatibility path. No production corpus
+was regenerated or published.
+
+Evidence:
+- `artifacts/qa-and-tests/phase-2-evidence-001.md`
+- Focused processor tests: 26 passed.
+- Safe broader processor tests: 98 passed, excluding `test_update_manifest.py`.
+- Frontend harness: passed.
+- `git diff --check`: passed.
+
+Review limitation: Review Orchestrator dispatch failed with provider HTTP 402
+out-of-credits. A local diff review was completed. Phase 3 browser contract,
+controller lifecycle, Android, helicopters, full-corpus publication, commits,
+archive, and parent completion remain unimplemented and unclaimed.
+
+## R11 - Phase 0/1 recovery baseline, 2026-10-01 (complete)
+
+User approval (verbatim):
+> Plan looks good. Please proceed with implementation of phase 0 and 1. I've switched your environtment from Planning (previous) to Orchestration (current). Please report back to me after phase 0 and 1 are complete and give me a summary + report + result
+
+Phase 0 boundary was frozen from R10 and `continue-implementation-plan-001.md`; the pre-existing dirty worktree was preserved. Phase 1 fresh verification initially found one product defect: `build_flow_fields.publish_v2_generation` used `re.fullmatch` without importing `re`. Added the one-line standard-library import in `processor/build_flow_fields.py`.
+
+Current evidence:
+- `node calculator/tests/run-tests.js`: PASS.
+- Safe focused pytest with plugin autoload disabled: 52 passed.
+- Safe broader processor/server pytest with `test_update_manifest.py` excluded: 102 passed.
+- `git diff --check`: PASS.
+- Evidence: `artifacts/qa-and-tests/phase-0-1-evidence-001.md`.
+- Local review: `artifacts/qa-and-tests/review-phase-0-1-001.md`.
+
+No R10 feature task was marked complete. Helicopters, Android, corpus publication, commits, raw inputs, `www/`, archive, and parent completion remain excluded. Independent Review Orchestrator dispatch was attempted but blocked by provider HTTP 402 out-of-credits; local review was recorded instead.
+
+## R10 - constrained QA implementation, 2026-09-30 (in progress)
+
+User approval (verbatim):
+> Alright, plan looks good. Please proceed with implementation of those specific, constrained scope. I've switched your environtment from Planning (previous) to Orchestration (current). Make sure to use the subagents. Goodluck and godspeed!
+
+Latest continuation (verbatim):
+> Please continue from where you left off
+
+Approved items: faction frontier visibility; selected-layer objectives; shared-map Mortar/Flow tabs; optional particle lifecycle/reduced motion; positive vehicle source filtering; confirmed-water-only boats; positively classified car/truck_wheeled/tracked fields with uncalibrated provenance. Helicopters, Android, corpus generation and commits remain excluded. Contract/race migration and regression checks are necessary dependencies, not permission for corpus publication.
+
+Record path: openspec/changes/add-opening-flow-simulator/task-record.md. Initial partial UI diff has known unverified lifecycle/layout defects despite passing pure Node tests. Processor baseline: 25 focused tests passed. No processor changes applied yet. Previous reports are research, not implementation evidence. Workers must repair/verify the partial UI and implement processor work in disjoint files; parent integrates, reruns checks and reviews. No Assistant/Review Orchestrator agent is currently listed; use default worker dispatches and available independent review agents without model overrides.
+
 ## Intent
 
 User communication (copy-pasted 1:1):

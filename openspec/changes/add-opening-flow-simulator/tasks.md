@@ -1,5 +1,15 @@
 # Tasks: Add Opening-Flow Simulator
 
+## Approved constrained QA follow-up (2026-09-30)
+
+- [ ] Repair and verify faction frontier, objectives, shared-map tabs and particle lifecycle.
+- [ ] Implement positively evidenced vehicle eligibility and compatible sources.
+- [ ] Implement source-specific land classes and strict confirmed-water boats.
+- [ ] Integrate versioned class manifests, class-specific races and safe legacy reading.
+- [ ] Verify synthetic generation, frontend/controller regression, browser behavior and independent review.
+
+Helicopters, Android sync/build, corpus regeneration and commits are not authorized in this follow-up. Historical completion below does not mark these new tasks complete.
+
 ## Before You Start (Required Reading)
 
 Read these files to understand the codebase:
@@ -154,14 +164,14 @@ Cost-grid construction (slope, roads, water, buildings, forest, combination, deb
 - [x] Wire into existing `run-tests.js` harness
 
 ### 3.5 Android sync
-- [ ] Run `build-android.bat`; confirm `www/` picks up the Flow overlay JS and per-map flow grids
+- [x] Run `build-android.bat`; confirm `www/` picks up the Flow overlay JS and per-map flow grids
 - [ ] Smoke-test the Flow layer in Android WebView (thresholding a grid must be cheap; no physics to budget)
 
 ---
 
 ## 4. Phase D: Documentation and Wrap-Up
 
-- [ ] Add one subsection to `AGENTS.md`: flow overlay purpose, the movement-numbers-are-configurable rule, data provenance rule, the no-video/no-browser-physics rule, and the `raw_game_data/` maintainer input
-- [ ] Update `README.md` feature list with the flow overlay
+- [x] Add one subsection to `AGENTS.md`: flow overlay purpose, the movement-numbers-are-configurable rule, data provenance rule, the no-video/no-browser-physics rule, and the `raw_game_data/` maintainer input
+- [x] Update `README.md` feature list with the flow overlay
 - [ ] Run full verification: `python -m pytest processor/tests/`, `node calculator/tests/run-tests.js`, offline smoke test (network tab: zero external requests), existing ballistics tests unchanged
 - [ ] Confirm acceptance criteria AC-1 through AC-8 from the plan artifact
