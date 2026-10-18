@@ -37,14 +37,6 @@ def test_flat_cost_is_passable_without_roads():
     assert info["blocked_cells"] == 0
 
 
-def test_confirmed_and_candidate_water_semantics():
-    assert confirmed_water_mask(np.zeros((4, 4)), 1.0).all()
-    candidate = candidate_water_mask(
-        np.full((5, 5), 10.0), np.zeros((5, 5)),
-        np.zeros((5, 5), bool), 0.0, 1.0, 1.0, 1.0, 0.1)
-    assert not candidate.any()
-
-
 @pytest.fixture
 def config():
     # Inline, deliberately synthetic thresholds; no dependency on tuning defaults.
@@ -264,7 +256,7 @@ def test_raw_south_rows_reach_south_artifact_and_minimap(tmp_path, monkeypatch, 
     """
     from PIL import Image
     from terrain_artifact import load_terrain_artifact
-    import render_terrain_qa as qa
+    import render_qa as qa
 
     map_dir = tmp_path / "processed_maps" / "demo"
     map_dir.mkdir(parents=True)

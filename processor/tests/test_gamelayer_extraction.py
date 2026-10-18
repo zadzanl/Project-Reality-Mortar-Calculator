@@ -79,6 +79,10 @@ def test_control_point_ids_teams_positions_survive():
     assert cp['id'] == 1
     assert cp['team'] == 1
     assert cp['unable_to_change_team'] is True
+    assert cp['unable_to_change_team_raw'] == 1
+    assert cp['team_ownership'] == {'team': 1, 'source': 'ObjectTemplate.team'}
+    assert cp['main_base_rule_version'] == 'main_base_v1'
+    assert cp['main_base'] is True
     assert cp['x'] == 357.5 and cp['y'] == 59.5 and cp['z'] == -374.2
     assert cp['layer'] == 1
 
@@ -111,6 +115,8 @@ def test_malformed_sections_skipped_without_crashing():
     assert names == ['good_cp', 'broken_pos']
     broken = parsed['control_points'][1]
     assert broken['id'] == 8
+    assert broken['unable_to_change_team_raw'] is None
+    assert broken['main_base'] is False
     assert 'x' not in broken
     assert 'layer' not in broken
 

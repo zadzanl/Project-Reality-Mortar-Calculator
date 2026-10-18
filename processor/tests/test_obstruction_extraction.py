@@ -1,8 +1,14 @@
 import sys
+import json
+import zipfile
 from pathlib import Path
 
+import numpy as np
+
 sys.path.insert(0, str(Path(__file__).parents[1]))
-from extract_obstructions import bf2_to_repo, classify, parse_roads, parse_statics, parse_vegetation
+import extract_obstructions as extractor
+from extract_obstructions import (bf2_to_repo, classify, parse_roads, parse_statics,
+                                  parse_vegetation)
 
 
 class FakeClient:
