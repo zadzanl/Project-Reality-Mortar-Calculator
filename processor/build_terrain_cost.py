@@ -1,29 +1,23 @@
 #!/usr/bin/env python3
-"""Build per-map terrain movement-cost grids (design D4-D7; tasks 3.1-3.8, 4.1-4.5).
+"""Build per-map terrain movement-cost grids for the offline opening-flow solver.
 
-Reads processed heightmaps (via terrain_features), obstruction extraction, and
-terrain_params.json; writes processed_maps/<map>/terrain/ artifacts consumed by
-the later offline opening-flow solver. Nothing here runs in the browser.
-
-Known ceiling: static-object footprints are fixed-radius proxies from a name
-heuristic (no collision meshes), vegetation is a per-cell density proxy, and
-candidate inland water is a geometric heuristic (flat basin above sea level).
-All three are recorded in the sidecar. Upgrade path: collision-mesh or navmesh
-parsing, curated per-map water patches.
-
-Output layout per map (loader contract, task 6.1):
-  terrain/sidecar.json            shared: grid shape, origin, cell size, units,
-                                  coverage states, config values + sha256,
-                                  provenance, degraded-resolution flags,
-                                  reserved surface_material field
-  terrain/road_mask.bin           uint8 rows*cols, 1 = explicit road member
-  terrain/water.bin               uint8: 0 none, 1 confirmed, 2 candidate
-  terrain/<profile>/cost.bin      float32 little-endian rows*cols, -1.0 blocked
-  terrain/<profile>/classes.bin   uint8 diagnostic class per cell
-  terrain/<profile>/sidecar.json  profile thresholds, blocked count, histogram
-
-Sidecars carry no timestamps: identical inputs must produce byte-for-byte
-identical artifacts (spec: Deterministic terrain artifacts).
+ROLE: Maintainer-only CLI tool. End users never run this script.
+INPUTS:
+    - processed_maps/<map>/heightmap.json.gz (elevation data)
+    - processed_maps/<map>/obstructions.json (road and static object footprints)
+    - processor/terrain_params.json (traversability physics parameters)
+OUTPUTS:
+    - processed_maps/<map>/terrain/sidecar.json (grid geometry, origin, hashes)
+    - processed_maps/<map>/terrain/road_mask.bin (uint8 mask of drivable roads)
+    - processed_maps/<map>/terrain/water.bin (uint8 water classification: 1 confirmed, 2 candidate)
+    - processed_maps/<map>/terrain/<profile>/cost.bin (float32 movement cost per cell, -1.0 blocked)
+    - processed_maps/<map>/terrain/<profile>/classes.bin (uint8 diagnostic slope/terrain class)
+    - processed_maps/<map>/terrain/<profile>/sidecar.json (profile thresholds & statistics)
+HOW TO RUN:
+    python processor/build_terrain_cost.py              # Process all maps
+    python processor/build_terrain_cost.py asad_khal    # Process one map
+DID IT WORK CHECK:
+    Prints 'grid=... cell=... roads=... water=... blocked=...' and writes terrain/ files.
 """
 import hashlib
 import json
@@ -366,7 +360,6 @@ def compute_cost(agg, water, road_mask, static_mult, vegetation_dense, config, p
     blocked = ((agg["slope_deg_max"] > max_slope_deg)
                | (agg["edge_grade_max"] > edge_limit))
     cost = np.where(blocked, BLOCKED, cost)
-
     classes = classify(agg, water, static_mult, blocked,
                        step_max_m=step_max_m,
                        smooth_slope_deg=config_value(config, "grid", "smooth_slope_deg"),
@@ -520,8 +513,17 @@ def write_artifacts(map_name, grid, water_mask, road_mask, roads_info, statics_c
         },
         "profiles": sorted(costs.keys()),
     }
+    from terrain_artifact import terrain_generation_id
+    filenames = ["road_mask.bin", "water.bin"]
+    filenames += [info["file"] for info in diagnostic_info.values()]
+    filenames += [name + "/" + filename for name in sorted(costs)
+                  for filename in ("cost.bin", "classes.bin", "sidecar.json")]
+    sidecar["file_sha256"] = {
+        name: hashlib.sha256((terrain_dir / name).read_bytes()).hexdigest()
+        for name in sorted(filenames)}
+    sidecar["generation_id"] = terrain_generation_id(sidecar)
     (terrain_dir / "sidecar.json").write_text(
-        json.dumps(sidecar, indent=2) + "\n", encoding="ascii")
+        json.dumps(sidecar, indent=2, allow_nan=False) + "\n", encoding="ascii")
 
 
 def process_map(map_name, index, total, config):
@@ -607,6 +609,12 @@ def process_map(map_name, index, total, config):
         config_value(config, "vegetation", "density_radius_m"),
         config_value(config, "vegetation", "dense_count"))
 
+    vehicle_passable = None
+    if "wheeled_vehicle" in config["profiles"]:
+        vehicle_base_cost, _, _ = compute_cost(
+            agg, water_grid, road_mask, static_mult, dense, config,
+            "wheeled_vehicle")
+        vehicle_passable = vehicle_base_cost > 0
     costs = {}
     for profile_name in config["profiles"]:
         costs[profile_name] = compute_cost(agg, water_grid, road_mask, static_mult,

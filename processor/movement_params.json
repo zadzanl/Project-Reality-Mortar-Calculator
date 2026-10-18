@@ -1,5 +1,15 @@
 {
   "format_version": "1.0",
+  "helicopter": {
+    "warmup_s": 15.0,
+    "cruise_ms": 41.67,
+    "climb_rate_ms": 10.0,
+    "provenance": "user estimate 2026-10-01, uncalibrated; horizontal terrain-following approximation"
+  },
+  "boat": {
+    "min_water_area_m2": 50000,
+    "provenance": "planner estimate 2026-10-02, tunable; confirmed-water component gate"
+  },
   "fields": {
     "infantry_sprint_ms": {
       "value": 5.0,

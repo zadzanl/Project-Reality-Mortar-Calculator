@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
-"""Terrain feature extraction from processed heightmaps (design D1-D3).
+"""Terrain feature extraction (slope, roughness, edge rise) from elevation arrays.
 
-Known ceiling: features are computed at native heightmap resolution (about 2-4 m
-per sample). Curbs, foliage, and sub-sample ledges cannot be represented at this
-resolution; the output sidecar records source spacing so consumers can see the
-limit. Upgrade path: collision-mesh or navmesh parsing for geometry-complete
-features.
+ROLE: Internal Physics Library. Imported by build_terrain_cost.py and unit tests; not run directly.
+INPUTS: 2D NumPy array of elevation in meters and horizontal sample spacing.
+OUTPUTS: Dict containing slope magnitude, slope degrees, edge rise, and detrended roughness.
 """
 import gzip
 import json
@@ -176,4 +174,5 @@ def compute_features(elevation, spacing, roughness_window_m):
         "edge_grade": edge_grade,
         "roughness_m": roughness,
         "roughness_window_samples": window,
+        "roughness_status": "available",
     }

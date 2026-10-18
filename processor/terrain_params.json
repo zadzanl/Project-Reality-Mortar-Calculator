@@ -41,6 +41,9 @@
       "provenance": "uncalibrated default; candidate region must sit this far below its border ring mean, so noise-flat plains are not flagged"
     }
   },
+  "bridges": {
+    "candidate_policy": "candidate_permitted"
+  },
   "footprints_m": {
     "building": {
       "value": 6.0,

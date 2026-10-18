@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
-"""Read terrain artifacts without recalculating terrain physics.
+"""Read and decode binary terrain movement artifacts without recomputing physics.
 
-Known ceiling: v1 grids only, loaded in memory. Larger worlds need chunked
-storage and an explicitly versioned contract, not silent byte reinterpretation.
+ROLE: Internal Storage Library. Imported by build_flow_fields.py, render_qa.py, and tests.
+INPUTS: Directory containing terrain/ (sidecar.json, cost.bin, classes.bin, road_mask.bin, water.bin).
+OUTPUTS: Dict containing decoded 2D NumPy grids and validated metadata.
 """
 import json
+import hashlib
 import re
 from pathlib import Path
 
@@ -12,6 +14,15 @@ import numpy as np
 
 
 BLOCKED = -1.0
+
+
+def terrain_generation_id(sidecar):
+    """Return a deterministic identity for a complete terrain artifact set."""
+    identity = dict(sidecar)
+    identity.pop("generation_id", None)
+    payload = json.dumps(identity, sort_keys=True, separators=(",", ":"),
+                         allow_nan=False).encode("ascii")
+    return "terrain-" + hashlib.sha256(payload).hexdigest()[:16]
 
 
 def load_terrain_artifact(path, profile="infantry"):
