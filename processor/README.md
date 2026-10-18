@@ -4,10 +4,86 @@ This directory contains scripts for processing Project Reality map data.
 
 ## Overview
 
-The map processing workflow is split into two independent phases:
+The map processing workflow is split into two independent phases, followed by downstream extraction and traversability/flow precomputation:
 
 1. **Phase 1: Local Collection** (`collect_maps.py`) - Extracts server.zip (heightmaps) and client.zip (minimaps) from PR:BF2 installation
-2. **Phase 2: Cloud Processing** (`process_maps.ipynb`) - Converts heightmaps to JSON and minimaps to PNG format
+2. **Phase 2: Cloud Processing** (`process_maps.ipynb`) - Converts heightmaps to JSON/GZ and minimaps to PNG format
+3. **Downstream Modeling** - Extracts obstruction meshes, parses gameplay layers, and generates terrain traversability costs and arrival flow fields
+
+### Pipeline Architecture
+
+```mermaid
+flowchart TD
+    subgraph Phase1["Phase 1: Local Collection (Maintainer with PR:BF2)"]
+        Game["PR:BF2 /mods/pr/levels/"] --> Collect["collect_maps.py"]
+        Collect --> Raw["raw_map_data/<map>/<br/>server.zip + client.zip + manifest.json"]
+    end
+
+    subgraph Phase2["Phase 2: Cloud / Local Conversion (No game needed)"]
+        Raw --> Process["process_maps.ipynb"]
+        Process --> Proc["processed_maps/<map>/<br/>heightmap.json.gz + minimap.png + metadata.json"]
+    end
+
+    subgraph Extraction["Downstream Extraction & Modeling"]
+        Raw --> ExtractObs["extract_obstructions.py"]
+        ExtractObs --> Obs["processed_maps/<map>/obstructions.json"]
+        Raw --> ExtractLayers["extract_gamelayers.py"]
+        ExtractLayers --> Layers["processed_maps/<map>/gamelayers.json"]
+        Proc & Obs --> BuildTerrain["build_terrain_cost.py"]
+        BuildTerrain --> Terrain["processed_maps/<map>/terrain/<br/>cost.bin + classes.bin + sidecar.json"]
+        Terrain & Layers --> BuildFlow["build_flow_fields.py"]
+        BuildFlow --> Flow["processed_maps/<map>/flow/<br/>arrival grids + race_times.json"]
+    end
+
+    subgraph Verification["Diagnostics & Offline Release"]
+        Proc & Terrain & Obs --> RenderQA["render_qa.py --terrain | --obstructions"]
+        RenderQA --> QAPNG["QA Verification PNGs"]
+        Proc --> GenMaps["generate_maps_list.py"]
+        GenMaps --> MapsList["mapsList.json (repo root)"]
+        Proc --> App["calculator/server.py (Web / Android App)"]
+    end
+```
+
+### Maintainer Tool Index
+
+| Script / Tool | Category | Role | Inputs | Key Outputs |
+|---|---|---|---|---|
+| `collect_maps.py` | Pipeline (Phase 1) | CLI | PR:BF2 `/mods/pr/levels/` | `raw_map_data/<map>/server.zip`, `client.zip`, `manifest.json` |
+| `process_maps.ipynb` | Pipeline (Phase 2) | Notebook | `raw_map_data/<map>/` | `processed_maps/<map>/heightmap.json.gz`, `minimap.png`, `metadata.json` |
+| `extract_obstructions.py` | Extraction | CLI | `server.zip`, `client.zip` | `processed_maps/<map>/obstructions.json` |
+| `extract_gamelayers.py` | Extraction | CLI | `server.zip` | `processed_maps/<map>/gamelayers.json` |
+| `extract_vehicle_speeds.py` | Extraction | CLI | `objects_vehicles_server.zip` | `calculator/static/data/vehicle_speeds.json` |
+| `extract_material_table.py` | Extraction | CLI | `common_server.zip` | `processor/terrain_params.json` |
+| `build_terrain_cost.py` | Traversability | CLI | `heightmap.json.gz`, `obstructions.json` | `processed_maps/<map>/terrain/` (`cost.bin`, `classes.bin`) |
+| `build_flow_fields.py` | Flow Field | CLI | `terrain/cost.bin`, `gamelayers.json` | `processed_maps/<map>/flow/` (arrival grids & `race_times.json`) |
+| `render_qa.py` | Diagnostics / QA | CLI | `minimap.png`, `terrain/cost.bin` | `qa_terrain_<map>.png`, `qa_obstructions_<map>.png` |
+| `generate_maps_list.py` | Android Prep | CLI | `processed_maps/` | `mapsList.json` at repo root |
+| `baseline.py` | Regression Gate | CLI | `processed_maps/` | Byte-level and statistical regression reports |
+| `baseline_firing.mjs` | Regression Gate | Node CLI | `processed_maps/<map>/` | Headless mortar firing solution fixtures |
+| `bf2_road_mesh.py` | Decoder Library | Library | `.road` mesh binaries | Parsed road geometry (imported by `extract_obstructions.py`) |
+| `bf2_mapinfo.py` | Con Parser | Library | `heightdata.con` | Dimensions/scales (imported by `repair_map_metadata.py`) |
+| `terrain_features.py` | Physics Library | Library | Heightmap 2D arrays | Slope, roughness, detrended roughness |
+| `terrain_artifact.py` | Storage Library | Library | `cost.bin`, `sidecar.json` | Decoded NumPy terrain grids |
+
+### Quickstart: First Day on the Job
+
+#### Scenario A: Adding or updating a map from Project Reality: BF2
+1. Collect raw archives: `python processor/collect_maps.py`
+2. Convert in Colab or Jupyter: Open `processor/process_maps.ipynb` and run all cells.
+3. Extract obstruction meshes: `python processor/extract_obstructions.py <map_name>`
+4. Extract game layers: `python processor/extract_gamelayers.py <map_name>`
+5. Build terrain traversability: `python processor/build_terrain_cost.py <map_name>`
+6. Build flow fields: `python processor/build_flow_fields.py <map_name>`
+7. Inspect QA overlays: `python processor/render_qa.py <map_name> --all`
+8. Update Android manifest: `python processor/generate_maps_list.py`
+
+#### Scenario B: Recomputing flow fields or terrain costs after physics calibration
+- Single map: `python processor/build_terrain_cost.py asad_khal` followed by `python processor/build_flow_fields.py asad_khal`
+- All maps in parallel: `python processor/build_flow_fields.py --workers 4`
+
+#### Scenario C: Running test suites
+- Python tests: `python -m pytest processor/tests/ --ignore=processor/tests/test_update_manifest.py`
+- Node regression tests: `node --test processor/tests/test_baseline_firing.mjs`
 
 ---
 

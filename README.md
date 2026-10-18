@@ -11,6 +11,7 @@ Calculate accurate firing solutions for mortars in Project Reality: BF2. Takes i
 - Visual map representation with satellite/overview imagery
 - Automatic elevation detection from heightmaps
 - Firing solutions in Mils and Degrees
+- Offline Flow overlay with precomputed arrival fields per team and vehicle class; candidate bridge-deck routing is labelled as unverified
 - Support for all 84 Project Reality maps (as of 20/11/2025)
 - Completely offline operation
 - **Android app** - Use on mobile devices without internet
@@ -99,7 +100,7 @@ Quick local build:
 build-android.bat        # Windows
 ```
 
-Or use GitHub Actions (in the Actions tab → Build Android APK workflow)
+Or use GitHub Actions (in the Actions tab - Build Android APK workflow)
 
 The APK will be at: `android/app/build/outputs/apk/debug/pr-mortar-calc-debug.apk`
 
@@ -128,9 +129,9 @@ The APK will be at: `android/app/build/outputs/apk/debug/pr-mortar-calc-debug.ap
      jupyter nbconvert --to notebook --execute --inplace processor\process_maps.ipynb
      ```
 
-3. Verify processing by checking `processor/collection_report.txt`
+3. Verify processing by checking `raw_map_data/manifest.json` and `processed_maps/[map_name]/metadata.json`. For downstream pipeline steps (traversability grids, opening flow fields, and QA visualization), see [processor/README.md](processor/README.md).
 
-4. Restart the calculator - new maps should be available (large map may show wrong grid scale)
+4. Restart the calculator - new maps will be automatically detected.
 
 ## Project Structure
 
@@ -138,7 +139,11 @@ The APK will be at: `android/app/build/outputs/apk/debug/pr-mortar-calc-debug.ap
 - `/processed_maps/` - Heightmap data (JSON) and minimap images (PNG) for all maps
 - `/processor/` - Tools for processing new maps (heightmaps + minimaps)
 - `/raw_map_data/` - Original map files from game (server.zip + client.zip)
-- `run.bat` / `run.sh` - Launch scripts
+- `/android/` - Android mobile application wrapper (Capacitor)
+- `/assets/` - Master branding and design assets
+- `/scripts/` - Asset generation and maintenance scripts
+- `run.bat` / `run.sh` - 1-click desktop launch scripts
+- `build-android.bat` / `build-android.sh` - Android build automation scripts
 
 ## Documentation
 

@@ -16,7 +16,7 @@ Linux/Mac:
 ./run.sh
 ```
 
-The calculator will open automatically in your browser at `http://localhost:8080`
+The server prints its local URL. Open it manually in your browser, for example `http://localhost:8080`.
 
 ## Directory Structure
 
@@ -45,7 +45,7 @@ The Flask server (`server.py`) serves static files only. All calculations happen
 
 **Features:**
 - Auto-detects available port (8080-8089)
-- Opens browser automatically
+- Prints the local URL for manual browser access
 - Serves HTML, CSS, JavaScript, and JSON map data
 - Graceful shutdown with Ctrl+C
 - No external dependencies required
